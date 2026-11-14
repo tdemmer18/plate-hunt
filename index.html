@@ -268,7 +268,7 @@ body.cols-3 .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px;
 .grp-ct { font-family: var(--font-mono); font-size: 12px; color: var(--ink-soft); }
 
 /* ---------- Plate cards ---------- */
-.pcard, .cap { position: relative; }
+.pcard { position: relative; }
 .plate-btn { all: unset; cursor: pointer; display: block; width: 100%; position: relative; border-radius: 12px; transition: transform .18s ease, box-shadow .18s ease; transform-style: preserve-3d; }
 .plate-btn:hover { transform: translateY(-3px); }
 .plate-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
@@ -300,15 +300,14 @@ body.cols-3 .plate .st { font-size: 12.5px; } body.cols-3 .plate .slogan { font-
 .plate .teams:has(.has-logo) { gap: 2px; top: 22px; bottom: 16px; }
 .plate .teams .tm.has-logo:nth-child(n+2) { margin-top: 0; }
 .lg-team .tm.has-logo { width: 34px; height: 34px; border-radius: 8px; padding: 3px; }
-.star-badge { position: absolute; left: -7px; top: -7px; z-index: 2; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: #ffc83d; color: #4a3300; font-size: 13px; line-height: 1; border: 2px solid var(--ground); box-shadow: 0 0 12px rgba(255, 200, 61, .6); pointer-events: none; }
+.star-badge { position: absolute; left: -7px; bottom: -7px; z-index: 2; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: #ffc83d; color: #4a3300; font-size: 13px; line-height: 1; border: 2px solid var(--ground); box-shadow: 0 0 12px rgba(255, 200, 61, .6); pointer-events: none; }
 
-.cap .plate-btn::after { opacity: 1; box-shadow: 0 0 0 1px color-mix(in srgb, var(--good) 80%, transparent), 0 0 20px -4px color-mix(in srgb, var(--good) 60%, transparent); }
-.stamp { position: absolute; right: -7px; top: -7px; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; font-weight: 800; line-height: 1; background: var(--good); color: var(--ground); border: 2px solid var(--ground); box-shadow: 0 0 12px color-mix(in srgb, var(--good) 70%, transparent); pointer-events: none; z-index: 2; }
-.cap-meta { display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-top: 8px; font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); }
-.release { font-family: var(--font-hud); font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; background: transparent; border: 1px solid var(--rule); border-radius: 999px; color: var(--ink); cursor: pointer; padding: 3px 10px; }
-.release:hover { border-color: var(--stamp); color: var(--stamp); }
-.just { animation: arrive .4s ease-out both; }
-@keyframes arrive { from { transform: translateY(10px) scale(.97); opacity: 0; } }
+/* captured plates stay in place with a green ring and a checkmark in the top-left corner */
+.pcard.got .plate-btn::after { opacity: 1; box-shadow: 0 0 0 2px color-mix(in srgb, var(--good) 85%, transparent), 0 0 20px -4px color-mix(in srgb, var(--good) 60%, transparent); }
+.check { position: absolute; left: -9px; top: -9px; z-index: 3; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--good); color: #fff; border: 2.5px solid var(--ground); box-shadow: 0 0 14px color-mix(in srgb, var(--good) 70%, transparent); pointer-events: none; }
+.check svg { width: 16px; height: 16px; }
+.check.pop { animation: checkPop .45s cubic-bezier(.2,1.6,.4,1) both; }
+@keyframes checkPop { from { transform: scale(0) rotate(-30deg); opacity: 0; } }
 .info-dot { position: absolute; right: -8px; top: -8px; z-index: 3; width: 28px; height: 28px; padding: 0; border-radius: 50%; cursor: pointer; display: grid; place-items: center;
   font: italic 700 15px/1 Georgia, "Times New Roman", serif; color: var(--accent); background: var(--card-solid); border: 1.5px solid color-mix(in srgb, var(--accent) 60%, var(--rule)); box-shadow: 0 2px 8px -2px rgba(0,0,0,.4); }
 .info-dot::before { content: ""; position: absolute; inset: -9px; border-radius: 50%; }   /* bigger tap target */
@@ -567,6 +566,11 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
   </header>
 
   <div class="controls">
+    <div class="seg show-ctl" role="group" aria-label="Which plates to show">
+      <span class="seg-lbl">Show</span>
+      <button type="button" class="seg-btn" data-show="all">All</button>
+      <button type="button" class="seg-btn" data-show="left">Left</button>
+    </div>
     <div class="seg" role="group" aria-label="View">
       <span class="seg-lbl">View</span>
       <button type="button" class="seg-btn view-btn" data-view="plates" aria-pressed="true">Plates</button>
@@ -590,7 +594,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
 
   <section id="roadView" aria-labelledby="h-road">
     <div class="sec-head">
-      <h2 id="h-road">On the road</h2>
+      <h2 id="h-road">Plates</h2>
       <span class="meta" id="roadMeta">Tap a plate for details</span>
     </div>
     <div class="grid" id="roadGrid"></div>
@@ -606,14 +610,6 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
       <tbody id="tripsBody"></tbody>
     </table></div>
     <p class="hint">When a trip ends, tap <b>Finish trip &amp; log it</b> at the bottom of the page. The trip moves into these standings and a fresh board starts.</p>
-  </section>
-
-  <section id="capView" aria-labelledby="h-cap">
-    <div class="sec-head">
-      <h2 id="h-cap">Captured</h2>
-      <span class="meta" id="capMeta">Newest first</span>
-    </div>
-    <div class="grid" id="capGrid"></div>
   </section>
 
   <div class="foot">
@@ -866,6 +862,8 @@ try { if (localStorage.getItem("plate-hunt-mapmode") === "country") ui.mapMode =
 try { const hs = localStorage.getItem("plate-hunt-header"); if (["radar","odometer","sign","kpi","compact"].includes(hs)) ui.header = hs; } catch (e) {}
 try { ui.homeLoc = JSON.parse(localStorage.getItem("plate-hunt-homeloc") || "null"); } catch (e) {}
 try { ui.logos = localStorage.getItem("plate-hunt-logos") !== "off"; } catch (e) {}
+ui.show = "all";      // plates grid: "all" | "left" (only the ones not found yet)
+try { if (localStorage.getItem("plate-hunt-show") === "left") ui.show = "left"; } catch (e) {}
 ui.tap = "capture";   // what tapping an uncaptured plate does: "capture" | "details"
 try { if (localStorage.getItem("plate-hunt-tap") === "details") ui.tap = "details"; } catch (e) {}
 try { ui.cols = localStorage.getItem("plate-hunt-cols") === "3" ? 3 : 4; ui.home = localStorage.getItem("plate-hunt-home") || ""; } catch (e) {}
@@ -1157,31 +1155,31 @@ function render() {
   const n = capList.length, total = act.length;
   const remaining = act.filter(s => !state.captured[s.abbr]);
   const roadShown = remaining.filter(matches);
-  const capShown = capList.map(a => BY[a]).filter(matches);
 
   // scoreboard
   renderHeader(n, total, capList);
 
 
-  // road
-  const quick = ui.tap === "capture";
-  $("roadMeta").textContent = quick ? `${remaining.length} to find · tap to capture, ⓘ for details` : `${remaining.length} to find · tap a plate for details`;
-  const roadCard = s => `<div class="pcard">${quick
-      ? `<button type="button" class="plate-btn" data-cap="${s.abbr}" aria-label="Capture ${esc(s.name)}">${plateHTML(s)}</button><button type="button" class="info-dot" data-info="${s.abbr}" aria-label="${esc(s.name)} details">i</button>`
-      : `<button type="button" class="plate-btn" data-info="${s.abbr}" aria-label="${esc(s.name)}: open details">${plateHTML(s)}</button>`}${state.stars[s.abbr] ? '<span class="star-badge" title="Quiz star">★</span>' : ""}</div>`;
-  $("roadGrid").innerHTML = roadShown.length ? grouped(roadShown, roadCard, "to find") : `<div class="empty" style="grid-column:1/-1">${remaining.length ? "" : "Every plate captured. Time for a victory milkshake."}</div>`;
-
-  // captured
-  $("capMeta").textContent = n ? `${n} captured · newest first` : "Nothing yet";
-  $("capGrid").innerHTML = capShown.length ? grouped(capShown, s =>
-    `<div class="cap ${ui.just === s.abbr ? "just" : ""}">
-      <button type="button" class="plate-btn" data-info="${s.abbr}" aria-label="${esc(s.name)}, captured: open details" style="width:100%"><div style="position:relative">${plateHTML(s)}<span class="stamp" aria-hidden="true">&#10003;</span></div></button>${state.stars[s.abbr] ? '<span class="star-badge" title="Quiz star">★</span>' : ""}
-      <div class="cap-meta"><span>${timeLabel(state.captured[s.abbr])}</span><button type="button" class="release" data-rel="${s.abbr}" aria-label="Uncheck ${esc(s.name)}">&#8634; Uncheck</button></div>
-    </div>`, "captured") : `<div class="empty" style="grid-column:1/-1">${n ? "" : "Tap a plate above the moment you spot it on the highway. It lands here with a checkmark."}</div>`;
+  // plates: one grid; captured plates keep their spot and get a checkmark
+  const quick = ui.tap === "capture", onlyLeft = ui.show === "left";
+  const shown = (onlyLeft ? remaining : act).filter(matches);
+  $("roadMeta").textContent = `${n} of ${total} found · ` + (quick ? "tap to capture, ⓘ for details" : "tap a plate for details");
+  const CHECK = `<span class="check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
+  const card = s => {
+    const got = !!state.captured[s.abbr];
+    const btn = got || !quick
+      ? `<button type="button" class="plate-btn" data-info="${s.abbr}" aria-label="${esc(s.name)}${got ? ", captured" : ""}: open details">${plateHTML(s)}</button>`
+      : `<button type="button" class="plate-btn" data-cap="${s.abbr}" aria-label="Capture ${esc(s.name)}">${plateHTML(s)}</button><button type="button" class="info-dot" data-info="${s.abbr}" aria-label="${esc(s.name)} details">i</button>`;
+    return `<div class="pcard ${got ? "got" : ""}">${btn}${got ? CHECK.replace('class="check"', `class="check${ui.just === s.abbr ? " pop" : ""}"`) : ""}${state.stars[s.abbr] ? '<span class="star-badge" title="Quiz star">★</span>' : ""}</div>`;
+  };
+  $("roadGrid").innerHTML = shown.length ? grouped(shown, card, onlyLeft ? "to find" : "plates")
+    : `<div class="empty" style="grid-column:1/-1">${onlyLeft && !remaining.length ? "Every plate captured. Time for a victory milkshake." : ""}</div>`;
   // view toggle
   const isMap = ui.view === "map", isTrips = ui.view === "trips";
   $("mapView").hidden = !isMap; $("tripsView").hidden = !isTrips;
-  $("roadView").hidden = isMap || isTrips; $("capView").hidden = isMap || isTrips;
+  $("roadView").hidden = isMap || isTrips;
+  document.querySelectorAll(".show-ctl").forEach(el => el.hidden = isMap || isTrips);
+  document.querySelectorAll("[data-show]").forEach(b => b.setAttribute("aria-pressed", b.dataset.show === ui.show));
   document.querySelectorAll(".filter-ctl").forEach(el => el.hidden = isTrips);
   if (isTrips) renderTrips();
   document.querySelectorAll(".view-btn").forEach(b => b.setAttribute("aria-pressed", b.dataset.view === ui.view));
@@ -1286,14 +1284,9 @@ document.addEventListener("click", e => {
     return;
   }
   const cap = e.target.closest("[data-cap]");
-  if (cap) return capture(cap.dataset.cap, cap.classList.contains("tile") ? null : (cap.closest(".pcard") || cap));
-  const rel = e.target.closest("[data-rel]");
-  if (rel) {
-    const a = rel.dataset.rel, card = rel.classList.contains("tile") ? null : rel.closest(".cap");
-    const go = () => { delete state.captured[a]; save(); render(); toast(`${BY[a].name} unchecked · back on the road`); };
-    if (card && !matchMedia("(prefers-reduced-motion: reduce)").matches) { card.classList.add("leaving"); setTimeout(go, 300); } else go();
-    return;
-  }
+  if (cap) return capture(cap.dataset.cap, ui.show === "left" && !cap.classList.contains("tile") ? cap.closest(".pcard") : null);
+  const sw = e.target.closest("[data-show]");
+  if (sw) { ui.show = sw.dataset.show; try { localStorage.setItem("plate-hunt-show", ui.show); } catch (err) {} render(); return; }
   const tb = e.target.closest("[data-teams]");
   if (tb) { ui.teams = tb.dataset.teams; try { localStorage.setItem("plate-hunt-teams", ui.teams); } catch (err) {} render(); return; }
   const vb = e.target.closest("[data-view]");

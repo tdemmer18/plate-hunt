@@ -1,6 +1,6 @@
 # Plate Hunt
 
-A road trip license plate game for iPad (works on phones too). Spot a plate, tap it, and it moves to **Captured** while the count at the top goes up. Switch to **Map** to see which parts of the country you've covered. When a trip ends, tap **Finish trip & log it** and the trip is saved with its dates in the **Trips** standings, ranked by plates found.
+A road trip license plate game for iPad (works on phones too). Spot a plate, tap it, and it gets a green checkmark while the count at the top goes up. Use **Show: All / Left** to see every plate or just the ones still out there; the ⓘ button on a plate opens its details. Switch to **Map** to see which parts of the country you've covered. When a trip ends, tap **Finish trip & log it** and the trip is saved with its dates in the **Trips** standings, ranked by plates found.
 
 **Play:** https://tdemmer18.github.io/plate-hunt/
 
