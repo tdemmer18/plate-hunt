@@ -863,7 +863,10 @@ try { ui.canada = localStorage.getItem("plate-hunt-canada") === "on"; } catch (e
 ui.cols = 4; ui.home = ""; ui.logos = true; ui.homeLoc = null; ui.header = "radar"; ui.mapMode = "state";
 try { if (localStorage.getItem("plate-hunt-mapmode") === "country") ui.mapMode = "country"; } catch (e) {}
 try { const hs = localStorage.getItem("plate-hunt-header"); if (["radar","odometer","sign","kpi","compact"].includes(hs)) ui.header = hs; } catch (e) {}
-try { ui.homeLoc = JSON.parse(localStorage.getItem("plate-hunt-homeloc") || "null"); } catch (e) {}
+// Home defaults to Blacksburg, VA (24060) until the user sets or clears it ("none" = cleared on purpose).
+const DEFAULT_HOME = { zip: "24060", place: "Blacksburg", st: "VA", lat: 37.2296, lon: -80.4139 };
+ui.homeLoc = DEFAULT_HOME;
+try { const h = localStorage.getItem("plate-hunt-homeloc"); if (h === "none") ui.homeLoc = null; else if (h) ui.homeLoc = JSON.parse(h); } catch (e) {}
 try { ui.logos = localStorage.getItem("plate-hunt-logos") !== "off"; } catch (e) {}
 ui.show = "all";      // plates grid: "all" | "left" (only the ones not found yet)
 try { if (localStorage.getItem("plate-hunt-show") === "left") ui.show = "left"; } catch (e) {}
@@ -1543,7 +1546,7 @@ wxStart();
 $("zipForm").addEventListener("submit", async e => {
   e.preventDefault();
   const raw = $("zipIn").value.trim().toUpperCase().replace(/\s+/g, "");
-  if (!raw) { ui.homeLoc = null; try { localStorage.removeItem("plate-hunt-homeloc"); } catch (err) {} syncSettings(); toast("Home cleared"); return; }
+  if (!raw) { ui.homeLoc = null; try { localStorage.setItem("plate-hunt-homeloc", "none"); } catch (err) {} syncSettings(); toast("Home cleared"); return; }
   const us = /^\d{5}$/.test(raw), ca = /^[A-Z]\d[A-Z]/.test(raw);
   if (!us && !ca) { toast("Enter a 5-digit ZIP code (or a Canadian postal code)."); return; }
   if (!navigator.onLine) { toast("Connect to the internet once to look up your ZIP code."); return; }
