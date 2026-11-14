@@ -247,6 +247,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 
 /* ---------- Controls ---------- */
 .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.show-ctl { margin-left: auto; }
 .seg { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 3px; padding: 4px; border-radius: 14px; background: var(--card); border: 1px solid var(--rule); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
 .seg-lbl { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); padding: 0 8px 0 8px; }
 .seg-btn { font-family: var(--font-hud); font-weight: 600; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; border: 1px solid transparent; border-radius: 10px; padding: 0 13px; min-height: 36px; background: transparent; color: var(--ink); }
@@ -566,23 +567,23 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
   </header>
 
   <div class="controls">
-    <div class="seg show-ctl" role="group" aria-label="Which plates to show">
-      <span class="seg-lbl">Show</span>
-      <button type="button" class="seg-btn" data-show="all">All</button>
-      <button type="button" class="seg-btn" data-show="left">Left</button>
-    </div>
     <div class="seg" role="group" aria-label="View">
       <span class="seg-lbl">View</span>
       <button type="button" class="seg-btn view-btn" data-view="plates" aria-pressed="true">Plates</button>
       <button type="button" class="seg-btn view-btn" data-view="map" aria-pressed="false">Map</button>
       <button type="button" class="seg-btn view-btn" data-view="trips" aria-pressed="false">Trips</button>
     </div>
+    <div class="seg show-ctl" role="group" aria-label="Which plates to show">
+      <span class="seg-lbl">Show</span>
+      <button type="button" class="seg-btn" data-show="all">All</button>
+      <button type="button" class="seg-btn" data-show="left">Left</button>
+    </div>
   </div>
 
   <section id="mapView" aria-labelledby="h-map" hidden>
     <div class="sec-head">
       <h2 id="h-map">The map</h2>
-      <span class="meta" id="mapMeta">Tap a state for details</span>
+      <span class="meta" id="mapMeta">Tap a state to capture</span>
     </div>
     <div class="map-wrap"><div class="map-lbl" id="mapCaLbl" hidden>Canada</div><div class="map map-ca" id="mapCa" hidden></div><div class="map-lbl" id="mapUsLbl" hidden>United States</div><div class="map" id="map"></div></div>
     <div class="legend">
@@ -1191,26 +1192,27 @@ function render() {
       const [c, r] = TILE[s.abbr], got = !!state.captured[s.abbr];
       return `<button type="button" class="tile ${got ? "got" : ""} ${matches(s) ? "" : "dim"} ${ui.just === s.abbr ? "pop" : ""}"
         style="grid-column:${c + 1};grid-row:${r + 1};--pbg:${s.bg};--pfg:${s.fg};--pac:${s.ac}"
-        data-info="${s.abbr}" aria-pressed="${got}" aria-label="${esc(s.name)}${got ? ", captured" : ""}: open details" title="${esc(s.name)}">${s.abbr}</button>`;
+        data-tile="${s.abbr}" aria-pressed="${got}" aria-label="${esc(s.name)}${got ? ", captured: tap to uncheck" : ": tap to capture"}" title="${esc(s.name)}">${s.abbr}</button>`;
     };
     $("map").innerHTML = STATES.filter(s => !s.ca).map(tile).join("");
     $("mapCa").innerHTML = ui.canada ? CANADA.map(tile).join("") : "";
     $("mapCa").hidden = $("mapCaLbl").hidden = $("mapUsLbl").hidden = !ui.canada;
-    $("mapMeta").textContent = `${n} of ${total} · tap a ${ui.canada ? "spot" : "state"} for details`;
+    $("mapMeta").textContent = `${n} of ${total} · tap a ${ui.canada ? "spot" : "state"} to capture`;
     $("lastSeen").textContent = capList.length ? `Last spotted: ${BY[capList[0]].name}, ${timeLabel(state.captured[capList[0]])}` : "";
   }
   ui.just = null;
 }
 
 let toastTimer;
-function toast(msg, undoAbbr) {
+// undo: a plate abbr (undo that capture) or a function to run when Undo is tapped
+function toast(msg, undo) {
   const t = $("toast"); t.textContent = msg;
-  if (undoAbbr) {
+  if (undo) {
     const u = document.createElement("button"); u.type = "button"; u.className = "toast-undo"; u.textContent = "Undo";
-    u.addEventListener("click", () => undoCapture(undoAbbr)); t.append(u);
+    u.addEventListener("click", () => typeof undo === "function" ? undo() : undoCapture(undo)); t.append(u);
   }
   t.classList.add("show");
-  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), undoAbbr ? 5000 : 2600);
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), undo ? 5000 : 2600);
 }
 function undoCapture(abbr) {
   const ts = state.captured[abbr];
@@ -1285,6 +1287,15 @@ document.addEventListener("click", e => {
   }
   const cap = e.target.closest("[data-cap]");
   if (cap) return capture(cap.dataset.cap, ui.show === "left" && !cap.classList.contains("tile") ? cap.closest(".pcard") : null);
+  // map tiles: tap to capture, tap again to uncheck (with Undo); no details popup
+  const tl = e.target.closest("[data-tile]");
+  if (tl) {
+    const a = tl.dataset.tile, ts = state.captured[a];
+    if (!ts) return capture(a, null);
+    delete state.captured[a]; save(); render();
+    toast(`${BY[a].name} unchecked`, () => { state.captured[a] = ts; save(); render(); toast(`${BY[a].name} captured again`); });
+    return;
+  }
   const sw = e.target.closest("[data-show]");
   if (sw) { ui.show = sw.dataset.show; try { localStorage.setItem("plate-hunt-show", ui.show); } catch (err) {} render(); return; }
   const tb = e.target.closest("[data-teams]");

@@ -1,6 +1,6 @@
 // Plate Hunt service worker: caches the whole app so it runs with no signal.
 // Bump VERSION whenever any file changes so devices pick up the update.
-const VERSION = "plate-hunt-v21";
+const VERSION = "plate-hunt-v22";
 const LOGOS = "plate-hunt-logos";
 const FILES = [
   "./",
