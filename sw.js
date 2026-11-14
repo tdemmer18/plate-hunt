@@ -1,6 +1,6 @@
 // Plate Hunt service worker: caches the whole app so it runs with no signal.
 // Bump VERSION whenever any file changes so devices pick up the update.
-const VERSION = "plate-hunt-v26";
+const VERSION = "plate-hunt-v27";
 const LOGOS = "plate-hunt-logos";
 const FILES = [
   "./",
@@ -32,7 +32,8 @@ const FILES = [
 ];
 
 self.addEventListener("install", e => {
-  e.waitUntil(caches.open(VERSION).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
+  // cache: "reload" skips the browser HTTP cache so a new version never stores stale files
+  e.waitUntil(caches.open(VERSION).then(c => c.addAll(FILES.map(f => new Request(f, { cache: "reload" })))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener("activate", e => {
@@ -51,6 +52,14 @@ self.addEventListener("fetch", e => {
       if (res && (res.ok || res.type === "opaque")) c.put(e.request, res.clone());
       return res;
     }))));
+    return;
+  }
+  // The page itself: network first (so updates show on the next launch), cached copy when offline.
+  if (e.request.mode === "navigate") {
+    e.respondWith(fetch(e.request, { cache: "no-cache" }).then(res => {
+      if (res && res.ok) { const copy = res.clone(); caches.open(VERSION).then(c => c.put("index.html", copy)); }
+      return res;
+    }).catch(() => caches.match("index.html", { ignoreSearch: true }).then(r => r || caches.match(e.request, { ignoreSearch: true }))));
     return;
   }
   e.respondWith(

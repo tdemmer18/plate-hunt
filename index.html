@@ -1615,7 +1615,13 @@ function start(data) {
 }
 start({});
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+  window.addEventListener("load", () => navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).then(reg => {
+    // check for a new version whenever the app comes back to the foreground
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) reg.update().catch(() => {}); });
+  }).catch(() => {}));
+  // when a new version takes over, reload once so the new files are used right away
+  let reloaded = false, hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener("controllerchange", () => { if (hadController && !reloaded) { reloaded = true; location.reload(); } hadController = true; });
 }
 function netStatus() { $("offline").hidden = navigator.onLine; }
 addEventListener("online", netStatus); addEventListener("offline", netStatus); netStatus();
