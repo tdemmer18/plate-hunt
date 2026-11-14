@@ -246,3 +246,313 @@ const NBA = {
   OR:[["POR","Portland Trail Blazers","#E03A3E","#101010"]], UT:[["UTA","Utah Jazz","#002B5C","#F9A01B"]],
   DC:[["WAS","Washington Wizards","#002B5C","#E31837"]], TN:[["MEM","Memphis Grizzlies","#5D76A9","#12173F"]],
 };
+
+// ---------- Canada (2021 Census population) ----------
+// Order each province or territory joined Canada.
+const ORDER_CA = ["ON","QC","NS","NB","MB","NT","BC","PE","YT","AB","SK","NL","NU"];
+Object.assign(INFO, {
+  ON: ["Toronto", "Toronto", 14223942, "Common Loon", [
+    "Ontario has about 250,000 lakes, holding roughly a fifth of the world's fresh lake water.",
+    "Ottawa, the capital of all of Canada, is in Ontario.",
+    "Toronto's CN Tower was the tallest free-standing structure in the world from 1975 to 2007."]],
+  QC: ["Quebec City", "Montreal", 8501833, "Snowy Owl", [
+    "Quebec is the largest province in Canada by area.",
+    "French is the official language of Quebec.",
+    "Old Quebec City is the only city north of Mexico that still has its original fortress walls."]],
+  NS: ["Halifax", "Halifax", 969383, "Osprey", [
+    "The Bay of Fundy, between Nova Scotia and New Brunswick, has the highest tides in the world, up to 16 meters (52 feet).",
+    "Nova Scotia means New Scotland in Latin.",
+    "Ships from Halifax helped recover victims of the Titanic in 1912, and many are buried there."]],
+  NB: ["Fredericton", "Moncton", 775610, "Black-capped Chickadee", [
+    "New Brunswick is the only province that is officially bilingual in English and French.",
+    "At Hopewell Rocks you can walk on the ocean floor at low tide, then see it under water hours later.",
+    "At Magnetic Hill in Moncton, cars seem to roll uphill. It is an optical illusion."]],
+  MB: ["Winnipeg", "Winnipeg", 1342153, "Great Grey Owl", [
+    "Churchill, Manitoba is called the Polar Bear Capital of the World.",
+    "A black bear named Winnie, after Winnipeg, inspired the name of Winnie-the-Pooh.",
+    "Manitoba has more than 100,000 lakes."]],
+  BC: ["Victoria", "Vancouver", 5000879, "Steller's Jay", [
+    "Vancouver and Whistler hosted the 2010 Winter Olympics.",
+    "Orcas, also called killer whales, swim along the British Columbia coast.",
+    "Stanley Park in Vancouver is bigger than New York's Central Park."]],
+  PE: ["Charlottetown", "Charlottetown", 154331, "Blue Jay", [
+    "Prince Edward Island is Canada's smallest province.",
+    "The story Anne of Green Gables takes place on the island.",
+    "The Confederation Bridge to the island is 12.9 km (8 miles) long, the longest bridge over ice-covered water in the world."]],
+  SK: ["Regina", "Saskatoon", 1132505, "Sharp-tailed Grouse", [
+    "Saskatchewan's borders are almost entirely straight lines.",
+    "Saskatchewan has the world's largest deposits of potash, which is used to make fertilizer.",
+    "Every Mountie in Canada trains at the RCMP Academy in Regina."]],
+  AB: ["Edmonton", "Calgary", 4262635, "Great Horned Owl", [
+    "Banff, in the Rocky Mountains, is Canada's first national park, created in 1885.",
+    "Dinosaur Provincial Park has some of the richest dinosaur fossil beds on Earth.",
+    "West Edmonton Mall was the biggest shopping mall in the world from 1981 to 2004."]],
+  NL: ["St. John's", "St. John's", 510550, "Atlantic Puffin", [
+    "Newfoundland has its own time zone, set half an hour off from its neighbors.",
+    "Vikings landed at L'Anse aux Meadows around the year 1000, about 500 years before Columbus.",
+    "Cape Spear is the most easterly point in North America. In spring, icebergs float past the coast."]],
+  YT: ["Whitehorse", "Whitehorse", 40232, "Common Raven", [
+    "Thousands of people rushed to the Yukon to find gold during the Klondike Gold Rush of 1896 to 1899.",
+    "Mount Logan, Canada's tallest mountain at 5,959 meters (19,551 feet), is in the Yukon.",
+    "In the middle of summer, the sun barely sets in the Yukon."]],
+  NT: ["Yellowknife", "Yellowknife", 41070, "Gyrfalcon", [
+    "Great Slave Lake is the deepest lake in North America at 614 meters (2,014 feet).",
+    "The Northwest Territories used to have license plates shaped like a polar bear.",
+    "Yellowknife is one of the best places in the world to see the northern lights."]],
+  NU: ["Iqaluit", "Iqaluit", 36858, "Rock Ptarmigan", [
+    "Nunavut is Canada's newest territory. It was created in 1999.",
+    "It covers about one fifth of Canada's land but has fewer people than many small towns.",
+    "Most people in Nunavut speak Inuktitut, and no roads connect it to the rest of Canada."]],
+});
+MLB.ON = [["TOR","Toronto Blue Jays","#134A8E","#E8291C"]];
+NBA.ON = [["TOR","Toronto Raptors","#CE1141","#101010"]];
+
+// State and provincial bird photos from Wikimedia Commons (see CREDITS.md).
+const BIRD_IMG = {
+"Yellowhammer": {
+"file": "birds/northern-flicker.jpg",
+"artist": "Rhododendrites",
+"license": "CC BY-SA 4.0",
+"source": "https://commons.wikimedia.org/wiki/File:Northern_yellow-shafted_flicker_male_(33737)_(cropped).jpg"
+},
+"Willow Ptarmigan": {
+"file": "birds/willow-ptarmigan.jpg",
+"artist": "Yathin S Krishnappa",
+"license": "CC BY-SA 3.0",
+"source": "https://commons.wikimedia.org/wiki/File:Lagopus_lagopus_-_adult_(Denali,_2010).jpg"
+},
+"Cactus Wren": {
+"file": "birds/cactus-wren.jpg",
+"artist": "Polinova",
+"license": "CC BY-SA 4.0",
+"source": "https://commons.wikimedia.org/wiki/File:Cactus_Wren_Sandia_Mountains.jpg"
+},
+"Northern Mockingbird": {
+"file": "birds/northern-mockingbird.jpg",
+"artist": "Rhododendrites",
+"license": "CC BY-SA 4.0",
+"source": "https://commons.wikimedia.org/wiki/File:Mockingbird_in_Bay_Ridge_(85082).jpg"
+},
+"California Quail": {
+"file": "birds/california-quail.jpg",
+"artist": "Charles J. Sharp",
+"license": "CC BY-SA 4.0",
+"source": "https://commons.wikimedia.org/wiki/File:California_quail_(Callipepla_californica)_male_Tricao.jpg"
+},
+"Lark Bunting": {
+"file": "birds/lark-bunting.jpg",
+"artist": "Nick Varvel",
+"license": "CC BY 2.0",
+"source": "https://commons.wikimedia.org/wiki/File:Calamospiza_melanocorys_by_Nick_Varvel.jpg"
+},
+"American Robin": {
+"file": "birds/american-robin.jpg",
+"artist": "Rhododendrites",
+"license": "CC BY-SA 4.0",
+"source": "https://commons.wikimedia.org/wiki/File:American_robin_(71307).jpg"
+},
+"Blue Hen Chicken": {
+"file": "birds/delaware-blue-hen.jpg",
+"artist": "Jane McNellis-Sadowy (Swaphandmedowns.com)",
+"license": "CC BY 3.0",
+"source": "https://commons.wikimedia.org/wiki/File:Delaware_Blue_rooster.png"
+},
+"Wood Thrush": {
+"file": "birds/wood-thrush.jpg",
+"artist": "Charles J. Sharp",
+"license": "CC BY-SA 4.0",
+"source": "https://commons.wikimedia.org/wiki/File:Wood_thrush_(Hylocichla_mustelina)_Peten.jpg"
+},
+"Brown Thrasher": {
+"file": "birds/brown-thrasher.jpg",
+"artist": "Rhododendrites",
+"license": "CC BY-SA 4.0",
+"source": "https://commons.wikimedia.org/wiki/File:Brown_thrasher_in_CP_(02147).jpg"
+},
+"Nēnē (Hawaiian Goose)": {
+"file": "birds/hawaiian-goose.jpg",
+"artist": "Jörg Hempel",
+"license": "CC BY-SA 3.0 de",
+"source": "https://commons.wikimedia.org/wiki/File:Branta_sandvicensis_LC399.jpg"
+},
+"Mountain Bluebird": {
+"file": "birds/mountain-bluebird.jpg",
+"artist": "Elaine R. Wilson",
+"license": "CC BY-SA 2.5",
+"source": "https://commons.wikimedia.org/wiki/File:Mountain_Bluebird.jpg"
+},
+"Northern Cardinal": {
+"file": "birds/northern-cardinal.jpg",
+"artist": "Rhododendrites",
+"license": "CC BY-SA 4.0",
+"source": "https://commons.wikimedia.org/wiki/File:Male_northern_cardinal_in_Central_Park_(52612).jpg"
+},
+"Eastern Goldfinch": {
+"file": "birds/american-goldfinch.jpg",
+"artist": "Rodney Campbell",
+"license": "CC BY 2.0",
+"source": "https://commons.wikimedia.org/wiki/File:Carduelis_tristis_-Michigan,_USA_-male-8.jpg"
+},
+"American Goldfinch": {
+"file": "birds/american-goldfinch.jpg",
+"artist": "Rodney Campbell",
+"license": "CC BY 2.0",
+"source": "https://commons.wikimedia.org/wiki/File:Carduelis_tristis_-Michigan,_USA_-male-8.jpg"
+},
+"Western Meadowlark": {
+"file": "birds/western-meadowlark.jpg",
+"artist": "Cephas",
+"license": "CC BY-SA 4.0",
+"source": "https://commons.wikimedia.org/wiki/File:Sturnella_neglecta_GNP_02.jpg"
+},
+"Brown Pelican": {
+"file": "birds/brown-pelican.jpg",
+"artist": "Frank Schulenburg",
+"license": "CC BY-SA 4.0",
+"source": "https://commons.wikimedia.org/wiki/File:Brown_pelican_in_flight_(Bodega_Bay).jpg"
+},
+"Black-capped Chickadee": {
+"file": "birds/black-capped-chickadee.jpg",
+"artist": "Mdf",
+"license": "CC BY-SA 3.0",
+"source": "https://commons.wikimedia.org/wiki/File:Poecile-atricapilla-001.jpg"
+},
+"Baltimore Oriole": {
+"file": "birds/baltimore-oriole.jpg",
+"artist": "TonyCastro",
+"license": "CC BY-SA 4.0",
+"source": "https://commons.wikimedia.org/wiki/File:Baltimore_Oriole-_dorsum.jpg"
+},
+"Common Loon": {
+"file": "birds/common-loon.jpg",
+"artist": "John Picken from Chicago, USA",
+"license": "CC BY 2.0",
+"source": "https://commons.wikimedia.org/wiki/File:Gavia_immer_-Minocqua,_Wisconsin,_USA_-swimming-8.jpg"
+},
+"Eastern Bluebird": {
+"file": "birds/eastern-bluebird.jpg",
+"artist": "Sandysphotos2009",
+"license": "CC BY 2.0",
+"source": "https://commons.wikimedia.org/wiki/File:Sialia_sialis_-Michigan,_USA_-pair-8c.jpg"
+},
+"Purple Finch": {
+"file": "birds/purple-finch.jpg",
+"artist": "Cephas",
+"license": "CC BY-SA 3.0",
+"source": "https://commons.wikimedia.org/wiki/File:Carpodacus_purpureus_CT3.jpg"
+},
+"Greater Roadrunner": {
+"file": "birds/greater-roadrunner.jpg",
+"artist": "Polinova",
+"license": "CC BY-SA 4.0",
+"source": "https://commons.wikimedia.org/wiki/File:Greater_Roadrunner_Tingley_Beach.jpg"
+},
+"Scissor-tailed Flycatcher": {
+"file": "birds/scissor-tailed-flycatcher.jpg",
+"artist": "Kramer, Gary",
+"license": "Public domain",
+"source": "https://commons.wikimedia.org/wiki/File:Tyrannus_forficatus_on_branch.jpg"
+},
+"Ruffed Grouse": {
+"file": "birds/ruffed-grouse.jpg",
+"artist": "Rhododendrites",
+"license": "CC BY-SA 4.0",
+"source": "https://commons.wikimedia.org/wiki/File:Ruffed_grouse_(80585).jpg"
+},
+"Rhode Island Red": {
+"file": "birds/rhode-island-red.jpg",
+"artist": "HeatherLion",
+"license": "CC BY-SA 3.0",
+"source": "https://commons.wikimedia.org/wiki/File:Rhode_Island_Red_cock,_cropped.jpg"
+},
+"Carolina Wren": {
+"file": "birds/carolina-wren.jpg",
+"artist": "Rhododendrites",
+"license": "CC BY-SA 4.0",
+"source": "https://commons.wikimedia.org/wiki/File:Carolina_wren_(14391).jpg"
+},
+"Ring-necked Pheasant": {
+"file": "birds/common-pheasant.jpg",
+"artist": "Estormiz",
+"license": "CC0",
+"source": "https://commons.wikimedia.org/wiki/File:Phasianus_colchicus_Oulu_20200524_02.jpg"
+},
+"California Gull": {
+"file": "birds/california-gull.jpg",
+"artist": "Polinova",
+"license": "CC BY-SA 4.0",
+"source": "https://commons.wikimedia.org/wiki/File:CaliforniaGull.jpg"
+},
+"Hermit Thrush": {
+"file": "birds/hermit-thrush.jpg",
+"artist": "Rhododendrites",
+"license": "CC BY-SA 4.0",
+"source": "https://commons.wikimedia.org/wiki/File:Hermit_thrush_(10787).jpg"
+},
+"Snowy Owl": {
+"file": "birds/snowy-owl.jpg",
+"artist": "Chuck Homler d/b/a Focus On Wildlife",
+"license": "CC BY-SA 3.0",
+"source": "https://commons.wikimedia.org/wiki/File:SnowyOwlAmericanBlackDuck.jpg"
+},
+"Osprey": {
+"file": "birds/osprey.jpg",
+"artist": "Chuck Homler / Focus On Wildlife",
+"license": "CC BY-SA 4.0",
+"source": "https://commons.wikimedia.org/wiki/File:Osprey_Perched_Snag_Heislerville.jpg"
+},
+"Great Grey Owl": {
+"file": "birds/great-grey-owl.jpg",
+"artist": "Dion Art",
+"license": "CC BY-SA 4.0",
+"source": "https://commons.wikimedia.org/wiki/File:%D0%91%D0%BE%D1%80%D0%BE%D0%B4%D0%B0%D1%82%D0%B0%D1%8F_%D0%BD%D0%B5%D1%8F%D1%81%D1%8B%D1%82%D1%8C_(Strix_nebulosa,_m),_%D0%91%D0%BE%D1%82%D0%B0%D0%BD%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B9_%D1%81%D0%B0%D0%B4.jpg"
+},
+"Steller's Jay": {
+"file": "birds/steller-s-jay.jpg",
+"artist": "Noel Reynolds",
+"license": "CC BY 2.0",
+"source": "https://commons.wikimedia.org/wiki/File:Steller%27s_Jay_flagstaff_arizona.jpg"
+},
+"Blue Jay": {
+"file": "birds/blue-jay.jpg",
+"artist": "Rhododendrites",
+"license": "CC BY-SA 4.0",
+"source": "https://commons.wikimedia.org/wiki/File:Blue_jay_in_PP_(30960).jpg"
+},
+"Sharp-tailed Grouse": {
+"file": "birds/sharp-tailed-grouse.jpg",
+"artist": "USFWS Mountain-Prairie",
+"license": "Public domain",
+"source": "https://commons.wikimedia.org/wiki/File:Sharp-Tailed_Grouse_(26089894256)_(cropped).jpg"
+},
+"Great Horned Owl": {
+"file": "birds/great-horned-owl.jpg",
+"artist": "Greg Hume",
+"license": "CC BY-SA 3.0",
+"source": "https://commons.wikimedia.org/wiki/File:Bubo_virginianus_06.jpg"
+},
+"Atlantic Puffin": {
+"file": "birds/atlantic-puffin.jpg",
+"artist": "Charles J. Sharp",
+"license": "CC BY-SA 4.0",
+"source": "https://commons.wikimedia.org/wiki/File:Puffin_(Fratercula_arctica).jpg"
+},
+"Common Raven": {
+"file": "birds/common-raven.jpg",
+"artist": "Frank Schulenburg",
+"license": "CC BY-SA 4.0",
+"source": "https://commons.wikimedia.org/wiki/File:Corvus_corax_clarionensis,_Point_Reyes_National_Seashore.jpg"
+},
+"Gyrfalcon": {
+"file": "birds/gyrfalcon.jpg",
+"artist": "Ólafur Larsen derivative work: Bogbumper (talk)",
+"license": "CC BY-SA 2.0",
+"source": "https://commons.wikimedia.org/wiki/File:Falco_rusticolus_white_cropped.jpg"
+},
+"Rock Ptarmigan": {
+"file": "birds/rock-ptarmigan.jpg",
+"artist": "Charles J. Sharp",
+"license": "CC BY-SA 4.0",
+"source": "https://commons.wikimedia.org/wiki/File:Rock_ptarmigan_(Lagopus_muta_islandorum)_female_breeding_Botnsvatn.jpg"
+}
+};

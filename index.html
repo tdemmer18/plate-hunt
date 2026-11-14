@@ -81,7 +81,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   font-size: clamp(34px, 7vw, 56px); line-height: .95; letter-spacing: .01em; text-transform: uppercase;
   text-wrap: balance;
 }
-.tally { text-align: right; font-family: var(--font-display); line-height: .85; padding-right: 50px; }
+.tally { text-align: right; font-family: var(--font-display); line-height: .85; padding-right: 100px; }
+.gear-btn { right: 60px !important; }
 .sign-inner { position: relative; }
 .theme-btn { position: absolute; top: 12px; right: 12px; width: 40px; height: 40px; border-radius: 50%; padding: 0; cursor: pointer;
   display: grid; place-items: center; background: transparent; color: var(--sign-ink); border: 2px solid var(--sign-ink); }
@@ -119,7 +120,7 @@ section { display: flex; flex-direction: column; gap: 14px; }
 .sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-bottom: 2px solid var(--rule); padding-bottom: 8px; }
 .sec-head h2 { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: 28px; text-transform: uppercase; letter-spacing: .02em; }
 .sec-head .meta { font-family: var(--font-mono); font-size: 13px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 14px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; }
 .empty { color: var(--ink-soft); background: var(--ground-2); border: 2px dashed var(--rule); border-radius: 12px; padding: 22px; text-align: center; }
 
 /* ---------- Plate ---------- */
@@ -171,7 +172,7 @@ section { display: flex; flex-direction: column; gap: 14px; }
 .plate .teams { position: absolute; top: 24px; bottom: 20px; display: flex; flex-direction: column; justify-content: center; gap: 3px; z-index: 1; }
 .plate .teams.left { left: 9px; align-items: flex-start; }
 .plate .teams.right { right: 9px; align-items: flex-end; }
-.plate.has-l .serial, .plate.has-r .serial { padding-inline: 32px; font-size: clamp(20px, 2.8vw, 27px); letter-spacing: .02em; }
+
 .tm { flex: none; box-sizing: border-box; width: 32px; height: 15px; display: grid; place-items: center; padding: 0; border-radius: 3px;
   font-family: var(--font-body); font-weight: 800; font-size: 9.5px; letter-spacing: .03em; line-height: 1; text-align: center;
   background: var(--c1); color: var(--tx); box-shadow: inset 0 0 0 1.5px var(--c2); }
@@ -219,6 +220,38 @@ section { display: flex; flex-direction: column; gap: 14px; }
   .dlg-head .plate { grid-column: 1 / -1; grid-row: 2; width: 140px; }
   .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+/* plate groups */
+.grp { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding: 6px 2px 0; }
+.grp span:first-child { font-family: var(--font-display); font-weight: 800; font-size: 19px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-soft); }
+.grp-ct { font-family: var(--font-mono); font-size: 12px; color: var(--ink-soft); }
+.map-lbl { font-family: var(--font-display); font-weight: 800; font-size: 16px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); max-width: 820px; margin: 0 auto 6px; }
+.map-ca { margin-bottom: 18px; }
+#mapUsLbl, #mapCaLbl { display: block; }
+
+/* bird background in the popup */
+.info-dlg { position: relative; }
+.bird-bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; background-size: cover; background-position: center 30%;
+  opacity: .2; filter: saturate(1.1);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 22%, #000 60%, transparent 100%);
+          mask-image: linear-gradient(180deg, transparent 0%, #000 22%, #000 60%, transparent 100%); }
+:root[data-theme="dark"] .bird-bg { opacity: .26; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .bird-bg { opacity: .26; } }
+.dlg-head, .dlg-body, .dlg-foot { position: relative; z-index: 1; }
+.stat { background: color-mix(in srgb, var(--card) 78%, transparent) !important; backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); }
+.stats { background: color-mix(in srgb, var(--rule) 70%, transparent); }
+.credit { margin: 0 0 6px; font-size: 11px; color: var(--ink-soft); }
+
+/* settings */
+.set-dlg { width: min(460px, calc(100% - 32px)); }
+.set-head { grid-template-columns: 1fr auto; }
+.set-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 4px 0 10px; }
+.set-name { font-weight: 800; font-size: 16px; }
+.set-desc { font-size: 13.5px; color: var(--ink-soft); margin-top: 2px; max-width: 40ch; }
+.switch { flex: none; width: 56px; height: 32px; border-radius: 999px; border: 0; padding: 3px; cursor: pointer; background: var(--rule); transition: background .2s; }
+.switch span { display: block; width: 26px; height: 26px; border-radius: 50%; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,.3); transition: transform .2s; }
+.switch[aria-checked="true"] { background: var(--sign); }
+.switch[aria-checked="true"] span { transform: translateX(24px); }
 
 /* view toggle */
 
@@ -323,6 +356,9 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
           </div>
           <h1>Plate Hunt</h1>
         </div>
+        <button type="button" class="theme-btn gear-btn" id="gearBtn" aria-label="Settings">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3.3h-4l-.4 2.6a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1l.4 2.6h4l.4-2.6a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z" transform="translate(-1 0)"/></svg>
+        </button>
         <button type="button" class="theme-btn" id="themeBtn" aria-label="Switch to dark mode">
           <svg class="ic-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" fill="currentColor"/></svg>
           <svg class="ic-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></g></svg>
@@ -361,7 +397,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
       <h2 id="h-map">The map</h2>
       <span class="meta" id="mapMeta">Tap a state for details</span>
     </div>
-    <div class="map-wrap"><div class="map" id="map"></div></div>
+    <div class="map-wrap"><div class="map-lbl" id="mapCaLbl" hidden>Canada</div><div class="map map-ca" id="mapCa" hidden></div><div class="map-lbl" id="mapUsLbl" hidden>United States</div><div class="map" id="map"></div></div>
     <div class="legend">
       <span><i class="key key-cap"></i>Captured</span>
       <span><i class="key key-open"></i>Still looking</span>
@@ -405,6 +441,16 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
 
 <script src="info.js"></script>
 <dialog class="info-dlg" id="infoDlg" aria-labelledby="infoTitle"></dialog>
+<dialog class="info-dlg set-dlg" id="setDlg" aria-labelledby="setTitle">
+  <div class="dlg-head set-head"><h2 id="setTitle">Settings</h2><button type="button" class="dlg-x" data-close-set aria-label="Close">&times;</button></div>
+  <div class="dlg-body">
+    <div class="set-row">
+      <div><div class="set-name">Canadian plates</div><div class="set-desc">Adds Canada's 10 provinces and 3 territories in their own section below the United States.</div></div>
+      <button type="button" class="switch" id="canadaSwitch" role="switch" aria-checked="false" aria-label="Canadian plates"><span></span></button>
+    </div>
+  </div>
+  <div class="dlg-foot"><button type="button" class="btn go" data-close-set>Done</button></div>
+</dialog>
 <div class="toast" id="toast" role="status"></div>
 
 <script>
@@ -462,7 +508,25 @@ const STATES = [
  ["WI","Wisconsin","America's Dairyland","Midwest",1848,"#ffffff","#1f3f8f","#c8102e"],
  ["WY","Wyoming","Equality State","West",1890,"#ffffff","#2b2b2b","#8a5a2b"],
 ].map(([abbr,name,slogan,region,year,bg,fg,ac]) => ({abbr,name,slogan,region,year,bg,fg,ac}));
+// Canadian provinces and territories (year = joined Canada)
+const CANADA = [
+ ["ON","Ontario","Yours to Discover",1867,"#ffffff","#1d3f8f","#1d3f8f"],
+ ["QC","Québec","Je me souviens",1867,"#ffffff","#1f3f8f","#1f3f8f"],
+ ["NS","Nova Scotia","Canada's Ocean Playground",1867,"#ffffff","#1d3f8f","#c8102e"],
+ ["NB","New Brunswick","The Picture Province",1867,"#ffffff","#1b2f63","#e8b21d"],
+ ["MB","Manitoba","Friendly Manitoba",1870,"#ffffff","#1f3f8f","#c8102e"],
+ ["BC","British Columbia","Beautiful British Columbia",1871,"#ffffff","#1d3f8f","#f2b632"],
+ ["PE","Prince Edward Island","Birthplace of Confederation",1873,"#ffffff","#8a1c1c","#2e7d4f"],
+ ["SK","Saskatchewan","Land of Living Skies",1905,"#ffffff","#1f6b3a","#e8b21d"],
+ ["AB","Alberta","Wild Rose Country",1905,"#ffffff","#c8102e","#c8102e"],
+ ["NL","Newfoundland and Labrador","The Rock",1949,"#ffffff","#1d3f8f","#c8102e"],
+ ["YT","Yukon","The Klondike",1898,"#ffffff","#1b2f63","#e8b21d"],
+ ["NT","Northwest Territories","Spectacular",1870,"#ffffff","#1d3f8f","#2b9fd1"],
+ ["NU","Nunavut","Explore Canada's Arctic",1999,"#ffffff","#1b2f63","#e8b21d"],
+].map(([abbr,name,slogan,year,bg,fg,ac]) => ({abbr,name,slogan,region:"Canada",ca:true,year,bg,fg,ac}));
+STATES.push(...CANADA);
 const BY = Object.fromEntries(STATES.map(s => [s.abbr, s]));
+const active = () => STATES.filter(s => !s.ca || ui.canada);
 const REGIONS = ["All","West","Midwest","South","Northeast"];
 // Team badges: [abbr, team name, primary color, secondary color]. Colors only; no official logos.
 const NFL = {
@@ -494,6 +558,9 @@ const NHL = {
   WA:[["SEA","Seattle Kraken","#001628","#99D9D9"]], MO:[["STL","St. Louis Blues","#002F87","#FCB514"]],
   NV:[["VGK","Vegas Golden Knights","#B4975A","#333F42"]], DC:[["WSH","Washington Capitals","#C8102E","#041E42"]],
   UT:[["UTA","Utah Mammoth","#101010","#6CACE4"]],
+  AB:[["CGY","Calgary Flames","#C8102E","#F1BE48"],["EDM","Edmonton Oilers","#041E42","#FF4C00"]],
+  QC:[["MTL","Montréal Canadiens","#AF1E2D","#192168"]], ON:[["OTT","Ottawa Senators","#C2912C","#101010"],["TOR","Toronto Maple Leafs","#00205B","#FFFFFF"]],
+  BC:[["VAN","Vancouver Canucks","#00205B","#00843D"]], MB:[["WPG","Winnipeg Jets","#041E42","#AC162C"]],
 };
 function textOn(hex) {
   const n = parseInt(hex.slice(1), 16), r = n >> 16 & 255, g = n >> 8 & 255, b = n & 255;
@@ -512,11 +579,13 @@ function teamCol(abbr, lg) {
 const KEY = "plate-hunt-v1";
 
 let state = { captured: {}, tripStart: null, history: [] };   // captured: abbr -> timestamp
-let ui = { region: "All", q: "", just: null, view: "plates", teams: "off" };
+let ui = { region: "All", q: "", just: null, view: "plates", teams: "off", canada: false };
+try { ui.canada = localStorage.getItem("plate-hunt-canada") === "on"; } catch (e) {}
 try { const t = localStorage.getItem("plate-hunt-teams"); if (["nfl","nhl","both"].includes(t)) ui.teams = t; } catch (e) {}
 try { const v = localStorage.getItem("plate-hunt-view"); if (v === "map" || v === "trips") ui.view = v; } catch (e) {}
 // Tile map positions: [col, row] on a 12 x 8 grid
-const TILE = {AK:[0,0],ME:[11,0],WI:[6,1],VT:[10,1],NH:[11,1],WA:[1,2],ID:[2,2],MT:[3,2],ND:[4,2],MN:[5,2],IL:[6,2],MI:[7,2],NY:[9,2],MA:[10,2],
+const TILE = {YT:[1,0],NT:[2,0],NU:[4,0],NL:[10,0],BC:[1,1],AB:[2,1],SK:[3,1],MB:[4,1],ON:[6,1],QC:[8,1],NB:[10,1],PE:[11,1],NS:[11,2],
+  AK:[0,0],ME:[11,0],WI:[6,1],VT:[10,1],NH:[11,1],WA:[1,2],ID:[2,2],MT:[3,2],ND:[4,2],MN:[5,2],IL:[6,2],MI:[7,2],NY:[9,2],MA:[10,2],
   OR:[1,3],NV:[2,3],WY:[3,3],SD:[4,3],IA:[5,3],IN:[6,3],OH:[7,3],PA:[8,3],NJ:[9,3],CT:[10,3],RI:[11,3],
   CA:[1,4],UT:[2,4],CO:[3,4],NE:[4,4],MO:[5,4],KY:[6,4],WV:[7,4],VA:[8,4],MD:[9,4],DE:[10,4],
   AZ:[2,5],NM:[3,5],KS:[4,5],AR:[5,5],TN:[6,5],NC:[7,5],SC:[8,5],DC:[9,5],
@@ -548,17 +617,20 @@ function matches(s) {
 }
 
 
-const POP_RANK = Object.keys(INFO).filter(a => a !== "DC").sort((a, b) => INFO[b][2] - INFO[a][2]);
+const POP_RANK = ORDER.slice().sort((a, b) => INFO[b][2] - INFO[a][2]);
+const POP_RANK_CA = ORDER_CA.slice().sort((a, b) => INFO[b][2] - INFO[a][2]);
 function chip(lg, t) { return `<span class="tm ${lg}" style="--c1:${t[2]};--c2:${t[3]};--tx:${textOn(t[2])}">${t[0]}</span>`; }
 function openInfo(abbr) {
   const s = BY[abbr], [capital, city, pop, bird, facts] = INFO[abbr], got = !!state.captured[abbr];
-  const order = ORDER.indexOf(abbr) + 1;
+  const order = (s.ca ? ORDER_CA : ORDER).indexOf(abbr) + 1, ofN = s.ca ? 13 : 50;
   const leagues = [["NFL", NFL], ["NBA", NBA], ["MLB", MLB], ["NHL", NHL]].map(([lg, data]) => [lg, data[abbr] || []]);
   const totalTeams = leagues.reduce((n, [, l]) => n + l.length, 0);
   const stat = (k, v) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div></div>`;
   const ord = n => n + (["th","st","nd","rd"][(n % 100 - 20) % 10] || ["th","st","nd","rd"][n % 100] || "th");
-  const popRank = POP_RANK.indexOf(abbr) + 1;
+  const popRank = (s.ca ? POP_RANK_CA : POP_RANK).indexOf(abbr) + 1;
+  const bi = BIRD_IMG[bird];
   $("infoDlg").innerHTML = `
+    ${bi ? `<div class="bird-bg" style="background-image:url('${bi.file}')" aria-hidden="true"></div>` : ""}
     <div class="dlg-head">
       ${plateHTML(s, true)}
       <div><h2 id="infoTitle">${esc(s.name)}</h2><div class="nick">${esc(s.slogan)} · ${s.region}</div></div>
@@ -566,12 +638,12 @@ function openInfo(abbr) {
     </div>
     <div class="dlg-body" tabindex="-1" autofocus>
       <div class="stats">
-        ${order ? stat("Joined the Union", `${ord(order)} <small>of 50</small>`) : stat("Statehood", "Not a state")}
-        ${stat(order ? "Statehood year" : "Founded", s.year)}
+        ${order ? stat(s.ca ? "Joined Canada" : "Joined the Union", `${ord(order)} <small>of ${ofN}</small>`) : stat("Statehood", "Not a state")}
+        ${stat(s.ca ? "Year joined" : order ? "Statehood year" : "Founded", s.year)}
         ${stat("Capital", esc(capital))}
         ${stat("Largest city", esc(city))}
-        ${stat("Population", `${(pop / 1e6 >= 1 ? (pop / 1e6).toFixed(1) + "M" : Math.round(pop / 1000) + "K")}${popRank ? ` <small>${ord(popRank)} most</small>` : ""}`)}
-        ${stat("State bird", esc(bird))}
+        ${stat("Population", `${(pop / 1e6 >= 1 ? (pop / 1e6).toFixed(1) + "M" : Math.round(pop / 1000) + "K")}${popRank ? ` <small>${ord(popRank)} of ${ofN}</small>` : ""}`)}
+        ${stat(s.ca ? "Provincial bird" : "State bird", esc(bird))}
       </div>
       <div>
         <h3>Pro sports teams <small>${totalTeams ? `${totalTeams} team${totalTeams === 1 ? "" : "s"}` : "none"}</small></h3>
@@ -585,6 +657,7 @@ function openInfo(abbr) {
         <h3>Fun facts</h3>
         <ol class="facts">${facts.map(f => `<li>${esc(f)}</li>`).join("")}</ol>
       </div>
+      ${bi ? `<p class="credit">Bird photo: ${esc(bi.artist)} · ${esc(bi.license)} · Wikimedia Commons</p>` : ""}
     </div>
     <div class="dlg-foot">
       <button type="button" class="btn" data-close>Close</button>
@@ -594,6 +667,7 @@ function openInfo(abbr) {
   if (!d.open) { d.showModal ? d.showModal() : d.setAttribute("open", ""); }
   const body = d.querySelector(".dlg-body"); body.scrollTop = 0; body.focus({ preventScroll: true });
 }
+function syncSettings() { $("canadaSwitch").setAttribute("aria-checked", ui.canada); }
 function closeInfo() { const d = $("infoDlg"); if (d.close) d.close(); else d.removeAttribute("open"); }
 
 function timeLabel(ts) {
@@ -602,10 +676,20 @@ function timeLabel(ts) {
   return d.toDateString() === now.toDateString() ? t : d.toLocaleDateString([], { month: "short", day: "numeric" }) + " " + t;
 }
 
+// Lay out plates under "United States" and "Canada" headings (headings only when Canada is on)
+function grouped(list, card, word) {
+  if (!ui.canada) return list.map(card).join("");
+  const us = list.filter(s => !s.ca), ca = list.filter(s => s.ca);
+  const head = (name, k) => `<div class="grp"><span>${name}</span><span class="grp-ct">${k} ${word}</span></div>`;
+  return (us.length ? head("United States", us.length) + us.map(card).join("") : "") +
+         (ca.length ? head("Canada", ca.length) + ca.map(card).join("") : "");
+}
+
 function render() {
-  const capList = Object.keys(state.captured).filter(a => BY[a]).sort((a, b) => state.captured[b] - state.captured[a]);
-  const n = capList.length, total = STATES.length;
-  const remaining = STATES.filter(s => !state.captured[s.abbr]);
+  const act = active(), actSet = new Set(act.map(s => s.abbr));
+  const capList = Object.keys(state.captured).filter(a => actSet.has(a)).sort((a, b) => state.captured[b] - state.captured[a]);
+  const n = capList.length, total = act.length;
+  const remaining = act.filter(s => !state.captured[s.abbr]);
   const roadShown = remaining.filter(matches);
   const capShown = capList.map(a => BY[a]).filter(matches);
 
@@ -613,7 +697,7 @@ function render() {
   const cnt = $("count");
   if (cnt.textContent !== String(n)) { cnt.textContent = n; cnt.classList.remove("bump"); void cnt.offsetWidth; cnt.classList.add("bump"); }
   $("total").textContent = total;
-  $("tallyLbl").textContent = n === total ? "Coast to coast!" : `${total - n} still out there`;
+  $("tallyLbl").textContent = n === total ? "Every plate found!" : `${total - n} still out there`;
   const pct = Math.round(n / total * 100);
   $("pctLbl").textContent = pct + "%";
   $("fill").style.width = pct + "%";
@@ -622,18 +706,16 @@ function render() {
 
   // road
   $("roadMeta").textContent = `${remaining.length} to find · tap a plate for details`;
-  $("roadGrid").innerHTML = roadShown.length ? roadShown.map(s =>
-    `<div class="pcard"><button type="button" class="plate-btn" data-info="${s.abbr}" aria-label="${esc(s.name)}: open details">${plateHTML(s)}</button></div>`
-  ).join("") : `<div class="empty" style="grid-column:1/-1">${remaining.length ? "" : "Every plate captured. Time for a victory milkshake."}</div>`;
+  const roadCard = s => `<div class="pcard"><button type="button" class="plate-btn" data-info="${s.abbr}" aria-label="${esc(s.name)}: open details">${plateHTML(s)}</button></div>`;
+  $("roadGrid").innerHTML = roadShown.length ? grouped(roadShown, roadCard, "to find") : `<div class="empty" style="grid-column:1/-1">${remaining.length ? "" : "Every plate captured. Time for a victory milkshake."}</div>`;
 
   // captured
   $("capMeta").textContent = n ? `${n} captured · newest first` : "Nothing yet";
-  $("capGrid").innerHTML = capShown.length ? capShown.map(s =>
+  $("capGrid").innerHTML = capShown.length ? grouped(capShown, s =>
     `<div class="cap ${ui.just === s.abbr ? "just" : ""}">
       <button type="button" class="plate-btn" data-info="${s.abbr}" aria-label="${esc(s.name)}, captured: open details" style="width:100%"><div style="position:relative">${plateHTML(s)}<span class="stamp" aria-hidden="true">&#10003;</span></div></button>
       <div class="cap-meta"><span>${timeLabel(state.captured[s.abbr])}</span><button type="button" class="release" data-rel="${s.abbr}" aria-label="Uncheck ${esc(s.name)}">&#8634; Uncheck</button></div>
-    </div>`
-  ).join("") : `<div class="empty" style="grid-column:1/-1">${n ? "" : "Tap a plate above the moment you spot it on the highway. It lands here with a checkmark."}</div>`;
+    </div>`, "captured") : `<div class="empty" style="grid-column:1/-1">${n ? "" : "Tap a plate above the moment you spot it on the highway. It lands here with a checkmark."}</div>`;
   // view toggle
   const isMap = ui.view === "map", isTrips = ui.view === "trips";
   $("mapView").hidden = !isMap; $("tripsView").hidden = !isTrips;
@@ -645,13 +727,16 @@ function render() {
 
   // tile map
   if (isMap) {
-    $("map").innerHTML = STATES.map(s => {
+    const tile = s => {
       const [c, r] = TILE[s.abbr], got = !!state.captured[s.abbr];
       return `<button type="button" class="tile ${got ? "got" : ""} ${matches(s) ? "" : "dim"} ${ui.just === s.abbr ? "pop" : ""}"
         style="grid-column:${c + 1};grid-row:${r + 1};--pbg:${s.bg};--pfg:${s.fg};--pac:${s.ac}"
         data-info="${s.abbr}" aria-pressed="${got}" aria-label="${esc(s.name)}${got ? ", captured" : ""}: open details" title="${esc(s.name)}">${s.abbr}</button>`;
-    }).join("");
-    $("mapMeta").textContent = `${n} of ${total} · tap a state for details`;
+    };
+    $("map").innerHTML = STATES.filter(s => !s.ca).map(tile).join("");
+    $("mapCa").innerHTML = ui.canada ? CANADA.map(tile).join("") : "";
+    $("mapCa").hidden = $("mapCaLbl").hidden = $("mapUsLbl").hidden = !ui.canada;
+    $("mapMeta").textContent = `${n} of ${total} · tap a ${ui.canada ? "spot" : "state"} for details`;
     $("lastSeen").textContent = capList.length ? `Last spotted: ${BY[capList[0]].name}, ${timeLabel(state.captured[capList[0]])}` : "";
   }
   ui.just = null;
@@ -663,15 +748,20 @@ function toast(msg) {
   clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 2600);
 }
 
-const MILESTONES = { 1: "First plate on the board!", 10: "Double digits. Keep scanning!", 26: "Halfway across the map!", 40: "40 down. The rare ones are left.", 50: "One more to go!", 51: "Coast to coast! Every plate captured." };
+function milestone(n, total) {
+  if (n === total) return "Every plate captured! Legendary road trip.";
+  if (n === total - 1) return "One more to go!";
+  if (n === Math.ceil(total / 2)) return "Halfway across the map!";
+  return { 1: "First plate on the board!", 10: "Double digits. Keep scanning!" }[n];
+}
 
 function capture(abbr, btn) {
   if (state.captured[abbr]) return;
   const go = () => {
     state.captured[abbr] = Date.now(); if (!state.tripStart) state.tripStart = state.captured[abbr]; ui.just = abbr; save(); render();
-    const n = Object.keys(state.captured).length, s = BY[abbr];
-    if (MILESTONES[n]) toast(MILESTONES[n]);
-    else if (abbr === "HI" || abbr === "AK") toast(`${s.name}?! That's a rare find.`);
+    const act = active(), n = act.filter(x => state.captured[x.abbr]).length, s = BY[abbr], m = milestone(n, act.length);
+    if (m) toast(m);
+    else if (["HI", "AK", "NU", "NT", "YT"].includes(abbr)) toast(`${s.name}?! That's a rare find.`);
     else toast(`${s.name} captured · ${s.slogan}`);
   };
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -682,6 +772,12 @@ document.addEventListener("click", e => {
   const ib = e.target.closest("[data-info]");
   if (ib) { openInfo(ib.dataset.info); return; }
   if (e.target.closest("[data-close]") || e.target === $("infoDlg")) { closeInfo(); return; }
+  if (e.target.closest("#gearBtn")) { syncSettings(); $("setDlg").showModal(); return; }
+  if (e.target.closest("[data-close-set]") || e.target === $("setDlg")) { $("setDlg").close(); return; }
+  if (e.target.closest("#canadaSwitch")) {
+    ui.canada = !ui.canada; try { localStorage.setItem("plate-hunt-canada", ui.canada ? "on" : "off"); } catch (err) {}
+    syncSettings(); render(); toast(ui.canada ? "Canadian plates added below the U.S." : "Canadian plates hidden"); return;
+  }
   const dt = e.target.closest("[data-dlg-toggle]");
   if (dt) {
     const a = dt.dataset.dlgToggle; closeInfo();
@@ -731,11 +827,11 @@ function ranked() {
 }
 let pendingDelete = null;
 function renderTrips() {
-  const rows = ranked(), total = STATES.length;
+  const rows = ranked();
   $("tripsMeta").textContent = `${state.history.length} logged trip${state.history.length === 1 ? "" : "s"} · ranked by plates found`;
   $("tripsBody").innerHTML = rows.map((t, i) => {
-    const n = t.plates.length, pct = Math.round(n / total * 100);
-    const rare = ["AK", "HI"].filter(a => t.plates.includes(a)).map(a => BY[a].name);
+    const n = t.plates.length, total = 51 + (ui.canada || t.plates.some(a => BY[a]?.ca) ? CANADA.length : 0), pct = Math.round(n / total * 100);
+    const rare = ["AK", "HI", "NU"].filter(a => t.plates.includes(a)).map(a => BY[a].name);
     const sub = [rare.length ? `Rare: ${rare.join(" & ")}` : "", n === total ? "Full sweep!" : ""].filter(Boolean).join(" · ");
     const act = t.current ? "" : `<button type="button" class="del ${pendingDelete === t.id ? "sure" : ""}" data-del="${t.id}">${pendingDelete === t.id ? "Tap again to delete" : "Delete"}</button>`;
     return `<tr class="${t.current ? "current" : ""}">
