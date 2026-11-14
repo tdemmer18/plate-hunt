@@ -192,6 +192,12 @@ body.cols-3 .plate .st { font-size: 12.5px; } body.cols-3 .plate .slogan { font-
 .plate .teams.left { left: 9px; align-items: flex-start; }
 .plate .teams.right { right: 9px; align-items: flex-end; }
 .tm { flex: none; box-sizing: border-box; width: 32px; height: 15px; display: grid; place-items: center; padding: 0; border-radius: 3px; font-family: "Overpass", var(--font-body); font-weight: 800; font-size: 9.5px; letter-spacing: .03em; line-height: 1; text-align: center; background: var(--c1); color: var(--tx); box-shadow: inset 0 0 0 1.5px var(--c2); }
+.tm.has-logo { width: 24px; height: 24px; border-radius: 6px; background: #ffffff; box-shadow: inset 0 0 0 1.5px var(--c1); padding: 2px; }
+.tm.has-logo img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.tm.has-logo b { display: none; }
+.plate .teams:has(.has-logo) { gap: 2px; top: 22px; bottom: 16px; }
+.plate .teams .tm.has-logo:nth-child(n+2) { margin-top: 0; }
+.lg-team .tm.has-logo { width: 34px; height: 34px; border-radius: 8px; padding: 3px; }
 .star-badge { position: absolute; left: -7px; top: -7px; z-index: 2; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: #ffc83d; color: #4a3300; font-size: 13px; line-height: 1; border: 2px solid var(--ground); box-shadow: 0 0 12px rgba(255, 200, 61, .6); pointer-events: none; }
 
 .cap .plate-btn::after { opacity: 1; box-shadow: 0 0 0 1px color-mix(in srgb, var(--good) 80%, transparent), 0 0 20px -4px color-mix(in srgb, var(--good) 60%, transparent); }
@@ -494,6 +500,10 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
       <button type="button" class="switch" id="canadaSwitch" role="switch" aria-checked="false" aria-label="Canadian plates"><span></span></button>
     </div>
     <div class="set-row">
+      <div><div class="set-name">Official team logos</div><div class="set-desc">Shows real team logos instead of letter badges. They download from ESPN the first time you're online, then work offline.</div></div>
+      <button type="button" class="switch" id="logoSwitch" role="switch" aria-checked="true" aria-label="Official team logos"><span></span></button>
+    </div>
+    <div class="set-row">
       <div><div class="set-name">Plates per row</div><div class="set-desc">Fewer per row makes each plate bigger and easier to tap.</div></div>
       <div class="seg" role="group" aria-label="Plates per row">
         <button type="button" class="seg-btn" data-cols="3">3</button>
@@ -623,14 +633,32 @@ function textOn(hex) {
   const n = parseInt(hex.slice(1), 16), r = n >> 16 & 255, g = n >> 8 & 255, b = n & 255;
   return (0.299 * r + 0.587 * g + 0.114 * b) > 150 ? "#111111" : "#ffffff";
 }
+// Official logos load from ESPN's logo server (not stored in this repo) and are cached on the device for offline use.
+const ESPN_FIX = { nfl: { WAS: "wsh" }, nhl: { LAK: "la", SJS: "sj", TBL: "tb", NJD: "nj", UTA: "utah" },
+  nba: { NYK: "ny", SAS: "sa", GSW: "gs", NOP: "no", UTA: "utah", WAS: "wsh" }, mlb: { CWS: "chw" } };
+function logoURL(lg, code) {
+  const c = ESPN_FIX[lg]?.[code] || code.toLowerCase();
+  return `https://a.espncdn.com/combiner/i?img=/i/teamlogos/${lg}/500/${c}.png&w=96&h=96`;
+}
+function tmHTML(lg, [code, name, c1, c2]) {
+  const style = `--c1:${c1};--c2:${c2};--tx:${textOn(c1)}`;
+  if (!ui.logos) return `<span class="tm ${lg}" style="${style}" title="${esc(name)}">${code}</span>`;
+  return `<span class="tm ${lg} has-logo" style="${style}" title="${esc(name)}"><img src="${logoURL(lg, code)}" alt="${esc(name)}" onerror="this.parentNode.classList.remove('has-logo');this.remove()"><b>${code}</b></span>`;
+}
+function preloadLogos() {
+  if (!ui.logos || !navigator.onLine) return;
+  const all = [];
+  for (const [lg, data] of [["nfl", NFL], ["nhl", NHL], ["nba", NBA], ["mlb", MLB]])
+    for (const list of Object.values(data)) for (const t of list) all.push(logoURL(lg, t[0]));
+  [...new Set(all)].forEach((u, i) => setTimeout(() => { const im = new Image(); im.src = u; }, 400 + i * 60));
+}
 function teamCol(abbr, lg) {
   const on = ui.teams === lg || ui.teams === "both";
   const list = on ? ((lg === "nfl" ? NFL : NHL)[abbr] || []) : [];
   if (!list.length) return "";
   const side = lg === "nfl" ? "left" : "right";
   return `<div class="teams ${side}" aria-label="${lg.toUpperCase()}: ${esc(list.map(t => t[1]).join(", "))}">` +
-    list.map(([code, name, c1, c2]) =>
-      `<span class="tm ${lg}" style="--c1:${c1};--c2:${c2};--tx:${textOn(c1)}" title="${esc(name)}">${code}</span>`).join("") +
+    list.map(t => tmHTML(lg, t)).join("") +
     `</div>`;
 }
 const KEY = "plate-hunt-v1";
@@ -638,7 +666,8 @@ const KEY = "plate-hunt-v1";
 let state = { captured: {}, tripStart: null, history: [], stars: {} };   // captured: abbr -> timestamp
 let ui = { region: "All", q: "", just: null, view: "plates", teams: "off", canada: false };
 try { ui.canada = localStorage.getItem("plate-hunt-canada") === "on"; } catch (e) {}
-ui.cols = 4; ui.home = "";
+ui.cols = 4; ui.home = ""; ui.logos = true;
+try { ui.logos = localStorage.getItem("plate-hunt-logos") !== "off"; } catch (e) {}
 try { ui.cols = localStorage.getItem("plate-hunt-cols") === "3" ? 3 : 4; ui.home = localStorage.getItem("plate-hunt-home") || ""; } catch (e) {}
 try { const t = localStorage.getItem("plate-hunt-teams"); if (["nfl","nhl","both"].includes(t)) ui.teams = t; } catch (e) {}
 try { const v = localStorage.getItem("plate-hunt-view"); if (v === "map" || v === "trips") ui.view = v; } catch (e) {}
@@ -679,7 +708,7 @@ function matches(s) {
 
 const POP_RANK = ORDER.slice().sort((a, b) => INFO[b][2] - INFO[a][2]);
 const POP_RANK_CA = ORDER_CA.slice().sort((a, b) => INFO[b][2] - INFO[a][2]);
-function chip(lg, t) { return `<span class="tm ${lg}" style="--c1:${t[2]};--c2:${t[3]};--tx:${textOn(t[2])}">${t[0]}</span>`; }
+function chip(lg, t) { return tmHTML(lg, t); }
 const ord = n => n + (["th","st","nd","rd"][(n % 100 - 20) % 10] || ["th","st","nd","rd"][n % 100] || "th");
 const ICON = {
   animal: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M5 9a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm4.5-3a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm5 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4zM19 9a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm-7 1c3 0 6 4.5 6 7.5 0 2-1.6 2.5-3 2.5-1.2 0-2-.6-3-.6s-1.8.6-3 .6c-1.4 0-3-.5-3-2.5C6 14.5 9 10 12 10z"/></svg>',
@@ -815,6 +844,7 @@ function openInfo(abbr) {
 }
 function syncSettings() {
   $("canadaSwitch").setAttribute("aria-checked", ui.canada);
+  $("logoSwitch").setAttribute("aria-checked", ui.logos);
   document.querySelectorAll("[data-cols]").forEach(b => b.setAttribute("aria-pressed", String(ui.cols) === b.dataset.cols));
   const opt = x => `<option value="${x.abbr}" ${ui.home === x.abbr ? "selected" : ""}>${esc(x.name)}</option>`;
   $("homeSel").innerHTML = `<option value="">Not set</option><optgroup label="United States">${STATES.filter(x => !x.ca).map(opt).join("")}</optgroup><optgroup label="Canada">${CANADA.map(opt).join("")}</optgroup>`;
@@ -934,6 +964,10 @@ document.addEventListener("click", e => {
   if (cb) { ui.cols = +cb.dataset.cols; try { localStorage.setItem("plate-hunt-cols", ui.cols); } catch (err) {} applyCols(); syncSettings(); return; }
   if (e.target.closest("#gearBtn")) { syncSettings(); $("setDlg").showModal(); return; }
   if (e.target.closest("[data-close-set]") || e.target === $("setDlg")) { $("setDlg").close(); return; }
+  if (e.target.closest("#logoSwitch")) {
+    ui.logos = !ui.logos; try { localStorage.setItem("plate-hunt-logos", ui.logos ? "on" : "off"); } catch (err) {}
+    syncSettings(); render(); preloadLogos(); toast(ui.logos ? "Team logos on" : "Letter badges on"); return;
+  }
   if (e.target.closest("#canadaSwitch")) {
     ui.canada = !ui.canada; try { localStorage.setItem("plate-hunt-canada", ui.canada ? "on" : "off"); } catch (err) {}
     syncSettings(); render(); toast(ui.canada ? "Canadian plates added below the U.S." : "Canadian plates hidden"); return;
@@ -1067,6 +1101,7 @@ function start(data) {
   if (data && data.captured) state = { captured: data.captured };
   else load();
   bindReset(); applyCols(); render();
+  addEventListener("load", preloadLogos); addEventListener("online", preloadLogos);
 }
 start({});
 if ("serviceWorker" in navigator) {

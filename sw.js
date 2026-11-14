@@ -1,6 +1,7 @@
 // Plate Hunt service worker: caches the whole app so it runs with no signal.
 // Bump VERSION whenever any file changes so devices pick up the update.
-const VERSION = "plate-hunt-v10";
+const VERSION = "plate-hunt-v11";
+const LOGOS = "plate-hunt-logos";
 const FILES = [
   "./",
   "index.html",
@@ -31,7 +32,7 @@ self.addEventListener("install", e => {
 
 self.addEventListener("activate", e => {
   e.waitUntil(
-    caches.keys().then(keys => Promise.all(keys.filter(k => k !== VERSION).map(k => caches.delete(k))))
+    caches.keys().then(keys => Promise.all(keys.filter(k => k !== VERSION && k !== LOGOS).map(k => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
@@ -39,6 +40,14 @@ self.addEventListener("activate", e => {
 // Cache first, then refresh the cache in the background when online.
 self.addEventListener("fetch", e => {
   if (e.request.method !== "GET") return;
+  // Team logos from ESPN: keep a copy on the device (kept across app updates) so they show offline.
+  if (new URL(e.request.url).hostname === "a.espncdn.com") {
+    e.respondWith(caches.open(LOGOS).then(c => c.match(e.request).then(hit => hit || fetch(e.request).then(res => {
+      if (res && (res.ok || res.type === "opaque")) c.put(e.request, res.clone());
+      return res;
+    }))));
+    return;
+  }
   e.respondWith(
     caches.match(e.request, { ignoreSearch: true }).then(cached => {
       const network = fetch(e.request).then(res => {
