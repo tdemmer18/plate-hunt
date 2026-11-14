@@ -7,12 +7,13 @@
 <meta name="description" content="A road trip license plate game. Spot all 50 states plus DC.">
 <meta name="theme-color" content="#040a14">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icons/icon-180.png?v=2">
+<link rel="icon" id="favIcon" href="icons/wagon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" id="touchIcon" href="icons/wagon-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Plate Hunt">
+<script>try { const ic = localStorage.getItem("plate-hunt-icon"); if (ic === "ridge" || ic === "light") { document.getElementById("touchIcon").href = `icons/${ic}-180.png`; document.getElementById("favIcon").href = `icons/${ic}.svg`; } } catch (e) {}</script>
 <script>try { const t = localStorage.getItem("plate-hunt-theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) {}
 try { let s = localStorage.getItem("plate-hunt-season") || "classic"; if (s === "auto") s = ["winter","winter","spring","spring","spring","summer","summer","summer","fall","fall","fall","winter"][new Date().getMonth()]; if (s !== "classic") document.documentElement.dataset.season = s; } catch (e) {}</script>
 <link rel="stylesheet" href="fonts.css">
@@ -242,6 +243,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .hp-compact::before { content: ""; width: 40px; height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--accent-2), var(--accent) 60%, var(--rule) 60%); }
 
 .season-pick { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.icon-pick { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.icon-pick img { width: 58px; height: 58px; border-radius: 22.5%; box-shadow: 0 4px 10px -4px rgba(0,0,0,.5); }
 .sp { width: 54px; height: 34px; border-radius: 6px; display: flex; overflow: hidden; border: 1px solid var(--rule); }
 .sp i { flex: 1; }
 
@@ -663,6 +666,14 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
       </div>
     </div>
     <div class="set-row">
+      <div><div class="set-name">Home screen icon</div><div class="set-desc">Pick this in Safari before you tap Share → Add to Home Screen. To change an icon you already added, pick a new one here in Safari, then delete the old one from your home screen and add it again. Deleting it also deletes that copy's saved plates and trips.</div></div>
+      <div class="hdr-pick icon-pick" role="group" aria-label="Home screen icon">
+        <button type="button" class="hdr-opt" data-icon="wagon"><img src="icons/wagon-180.png" alt="">Wagon</button>
+        <button type="button" class="hdr-opt" data-icon="ridge"><img src="icons/ridge-180.png" alt="">Blue Ridge</button>
+        <button type="button" class="hdr-opt" data-icon="light"><img src="icons/light-180.png" alt="">Green light</button>
+      </div>
+    </div>
+    <div class="set-row">
       <div><div class="set-name">Team badges</div><div class="set-desc">Show NFL teams on the left of each plate and NHL teams on the right.</div></div>
       <div class="seg" role="group" aria-label="Team badges on plates">
         <button type="button" class="seg-btn team-btn" data-teams="off">Off</button>
@@ -1070,6 +1081,8 @@ function syncSettings() {
   $("logoSwitch").setAttribute("aria-checked", ui.logos);
   document.querySelectorAll("[data-header]").forEach(b => b.setAttribute("aria-pressed", b.dataset.header === ui.header));
   document.querySelectorAll("[data-cols]").forEach(b => b.setAttribute("aria-pressed", String(ui.cols) === b.dataset.cols));
+  const icon = (() => { try { return localStorage.getItem("plate-hunt-icon") || "wagon"; } catch (e) { return "wagon"; } })();
+  document.querySelectorAll("[data-icon]").forEach(b => b.setAttribute("aria-pressed", b.dataset.icon === icon));
   document.querySelectorAll("[data-tap]").forEach(b => b.setAttribute("aria-pressed", b.dataset.tap === ui.tap));
   const h = ui.homeLoc;
   $("homeDesc").textContent = h ? `Home: ${h.place}, ${h.st} (${h.zip}). Saved only on this device.` : "Each plate's details will show how far it is from home. Saved only on this device.";
@@ -1266,6 +1279,13 @@ document.addEventListener("click", e => {
   if (e.target.closest("[data-qnew]")) { const box = e.target.closest(".quiz"); box.innerHTML = quizHTML(box.dataset.abbr); return; }
   const sp = e.target.closest("[data-speak]");
   if (sp) { speak(sp.dataset.speak, sp); return; }
+  const ic = e.target.closest("[data-icon]");
+  if (ic) {
+    const k = ic.dataset.icon;
+    try { localStorage.setItem("plate-hunt-icon", k); } catch (err) {}
+    $("touchIcon").href = `icons/${k}-180.png`; $("favIcon").href = `icons/${k}.svg`;
+    syncSettings(); toast("Icon set. Now use Share → Add to Home Screen in Safari."); return;
+  }
   const tp = e.target.closest("[data-tap]");
   if (tp) { ui.tap = tp.dataset.tap; try { localStorage.setItem("plate-hunt-tap", ui.tap); } catch (err) {} syncSettings(); render(); return; }
   const cb = e.target.closest("[data-cols]");

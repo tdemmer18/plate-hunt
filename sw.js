@@ -1,6 +1,6 @@
 // Plate Hunt service worker: caches the whole app so it runs with no signal.
 // Bump VERSION whenever any file changes so devices pick up the update.
-const VERSION = "plate-hunt-v24";
+const VERSION = "plate-hunt-v25";
 const LOGOS = "plate-hunt-logos";
 const FILES = [
   "./",
@@ -20,11 +20,15 @@ const FILES = [
   "fonts/Overpass-1.woff",
   "fonts/Overpass-2.woff2",
   "fonts/OverpassMono-3.woff2",
-  "icons/icon.svg",
-  "icons/icon-180.png",
-  "icons/icon-192.png",
-  "icons/icon-512.png",
-  "icons/icon-maskable-512.png"
+  "icons/wagon.svg",
+  "icons/wagon-180.png",
+  "icons/wagon-192.png",
+  "icons/wagon-512.png",
+  "icons/wagon-maskable-512.png",
+  "icons/ridge.svg",
+  "icons/ridge-180.png",
+  "icons/light.svg",
+  "icons/light-180.png"
 ];
 
 self.addEventListener("install", e => {

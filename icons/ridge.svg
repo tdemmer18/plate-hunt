@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><defs><linearGradient id="ridge-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd9a0"/><stop offset="1" stop-color="#ffb0a0"/></linearGradient></defs>
+  <rect width="1024" height="1024" fill="url(#ridge-sky)"/>
+  <circle cx="720" cy="300" r="90" fill="#fff4d6"/>
+  <path d="M0 470 Q160 340 320 430 T640 400 T1024 420 V1024 H0z" fill="#8fa9d6"/>
+  <path d="M0 580 Q200 450 420 560 T820 520 T1024 560 V1024 H0z" fill="#5d7fbf"/>
+  <path d="M0 700 Q240 580 500 690 T1024 660 V1024 H0z" fill="#33508f"/>
+  <path d="M560 680 C520 760 700 800 600 880 S420 960 440 1024 H600 C600 980 760 930 760 860 S640 760 640 680z" fill="#2a2f3a"/>
+  <path d="M600 700 C580 760 700 800 660 860 S520 950 520 1024" fill="none" stroke="#ffd34a" stroke-width="10" stroke-dasharray="26 22"/>
+</svg>
