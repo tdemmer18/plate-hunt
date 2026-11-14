@@ -139,9 +139,6 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   background: color-mix(in srgb, var(--card-solid) 70%, transparent); color: var(--ink); border: 1px solid var(--rule); }
 .icon-btn:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 14px -4px var(--glow); }
 .icon-btn svg { width: 20px; height: 20px; }
-#themeBtn .ic-sun { display: none; }
-#themeBtn.is-dark .ic-sun { display: block; }
-#themeBtn.is-dark .ic-moon { display: none; }
 
 .hud-body { display: contents; }
 .hud[data-style="sign"], .hud[data-style="kpi"], .hud[data-style="compact"] { grid-template-columns: 1fr auto; }
@@ -493,22 +490,11 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
         <button type="button" class="icon-btn" id="gearBtn" aria-label="Settings">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3.3h-4l-.4 2.6a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1l.4 2.6h4l.4-2.6a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z" transform="translate(-1 0)"/></svg>
         </button>
-        <button type="button" class="icon-btn" id="themeBtn" aria-label="Switch to dark mode">
-          <svg class="ic-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" fill="currentColor"/></svg>
-          <svg class="ic-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></g></svg>
-        </button>
       </div>
     </div>
   </header>
 
   <div class="controls">
-    <div class="seg filter-ctl" role="group" aria-label="Team badges on plates">
-      <span class="seg-lbl">Teams</span>
-      <button type="button" class="seg-btn team-btn" data-teams="off">Off</button>
-      <button type="button" class="seg-btn team-btn" data-teams="nfl">NFL</button>
-      <button type="button" class="seg-btn team-btn" data-teams="nhl">NHL</button>
-      <button type="button" class="seg-btn team-btn" data-teams="both">Both</button>
-    </div>
     <div class="seg" role="group" aria-label="View">
       <span class="seg-lbl">View</span>
       <button type="button" class="seg-btn view-btn" data-view="plates" aria-pressed="true">Plates</button>
@@ -570,10 +556,27 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
 <dialog class="info-dlg" id="infoDlg" aria-labelledby="infoTitle"></dialog>
 <dialog class="info-dlg set-dlg" id="setDlg" aria-labelledby="setTitle">
   <div class="dlg-head set-head"><div><div class="kicker">System</div><h2 id="setTitle">Settings</h2></div><button type="button" class="dlg-x" data-close-set aria-label="Close">&times;</button></div>
-  <div class="dlg-body">
+  <div class="dlg-body" tabindex="-1" autofocus>
     <div class="set-row">
       <div><div class="set-name">Canadian plates</div><div class="set-desc">Adds Canada's 10 provinces and 3 territories in their own section below the United States.</div></div>
       <button type="button" class="switch" id="canadaSwitch" role="switch" aria-checked="false" aria-label="Canadian plates"><span></span></button>
+    </div>
+    <div class="set-row">
+      <div><div class="set-name">Appearance</div><div class="set-desc">Auto matches your iPad's light or dark setting.</div></div>
+      <div class="seg" role="group" aria-label="Appearance">
+        <button type="button" class="seg-btn theme-set" data-theme-set="auto">Auto</button>
+        <button type="button" class="seg-btn theme-set" data-theme-set="light">Light</button>
+        <button type="button" class="seg-btn theme-set" data-theme-set="dark">Dark</button>
+      </div>
+    </div>
+    <div class="set-row">
+      <div><div class="set-name">Team badges</div><div class="set-desc">Show NFL teams on the left of each plate and NHL teams on the right.</div></div>
+      <div class="seg" role="group" aria-label="Team badges on plates">
+        <button type="button" class="seg-btn team-btn" data-teams="off">Off</button>
+        <button type="button" class="seg-btn team-btn" data-teams="nfl">NFL</button>
+        <button type="button" class="seg-btn team-btn" data-teams="nhl">NHL</button>
+        <button type="button" class="seg-btn team-btn" data-teams="both">Both</button>
+      </div>
     </div>
     <div class="set-row">
       <div><div class="set-name">Scoreboard style</div><div class="set-desc">Pick the look of the plate counter at the top.</div></div>
@@ -1215,23 +1218,21 @@ function bindReset() {
 }
 function restoreReset() { $("resetWrap").innerHTML = `<button class="btn" id="resetBtn" type="button">Finish trip &amp; log it</button>`; bindReset(); }
 
-// ---------- Theme: follows the iPad until you tap the toggle ----------
+// ---------- Theme: Auto (follows the iPad), Light or Dark, chosen in Settings ----------
 const darkMQ = matchMedia("(prefers-color-scheme: dark)");
 let themeMode = null;   // null = follow device, else "light" | "dark"
 try { const t = localStorage.getItem("plate-hunt-theme"); if (t === "light" || t === "dark") themeMode = t; } catch (e) {}
-function isDark() { return themeMode ? themeMode === "dark" : darkMQ.matches; }
 function applyTheme() {
   if (themeMode) document.documentElement.dataset.theme = themeMode; else delete document.documentElement.dataset.theme;
-  const dark = isDark(), b = $("themeBtn");
-  b.classList.toggle("is-dark", dark);
-  b.setAttribute("aria-label", dark ? "Switch to light mode" : "Switch to dark mode");
+  const dark = themeMode ? themeMode === "dark" : darkMQ.matches;
+  document.querySelectorAll(".theme-set").forEach(b => b.setAttribute("aria-pressed", b.dataset.themeSet === (themeMode || "auto")));
   document.querySelector('meta[name="theme-color"]').setAttribute("content", dark ? "#040a14" : "#e8f0f8");
 }
-$("themeBtn").addEventListener("click", () => {
-  themeMode = isDark() ? "light" : "dark";
-  try { localStorage.setItem("plate-hunt-theme", themeMode); } catch (e) {}
+document.querySelectorAll(".theme-set").forEach(b => b.addEventListener("click", () => {
+  themeMode = b.dataset.themeSet === "auto" ? null : b.dataset.themeSet;
+  try { themeMode ? localStorage.setItem("plate-hunt-theme", themeMode) : localStorage.removeItem("plate-hunt-theme"); } catch (e) {}
   applyTheme();
-});
+}));
 darkMQ.addEventListener?.("change", applyTheme);
 applyTheme();
 
