@@ -167,8 +167,11 @@ section { display: flex; flex-direction: column; gap: 14px; }
 .teams-lbl { font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-soft); padding: 0 6px 0 4px; }
 .team-btn { font: inherit; font-weight: 800; font-size: 12.5px; cursor: pointer; border: 0; border-radius: 7px; padding: 6px 10px; background: transparent; color: var(--ink); }
 .team-btn[aria-pressed="true"] { background: var(--sign); color: var(--sign-ink); }
-.plate .teams { display: flex; justify-content: center; gap: 3px; flex-wrap: nowrap; overflow: hidden; align-items: center; min-height: 15px; }
-.tm { flex: none; font-family: var(--font-body); font-weight: 800; font-size: 9.5px; letter-spacing: .04em; line-height: 1; padding: 3px 6px 2px; background: var(--c1); color: var(--tx); box-shadow: inset 0 0 0 1.5px var(--c2); }
+.plate .teams { position: absolute; top: 24px; bottom: 20px; display: flex; flex-direction: column; justify-content: center; gap: 3px; z-index: 1; }
+.plate .teams.left { left: 9px; align-items: flex-start; }
+.plate .teams.right { right: 9px; align-items: flex-end; }
+.plate.has-l .serial, .plate.has-r .serial { padding-inline: 32px; font-size: clamp(20px, 2.8vw, 27px); letter-spacing: .02em; }
+.tm { flex: none; min-width: 30px; text-align: center; font-family: var(--font-body); font-weight: 800; font-size: 9.5px; letter-spacing: .04em; line-height: 1; padding: 3px 6px 2px; background: var(--c1); color: var(--tx); box-shadow: inset 0 0 0 1.5px var(--c2); }
 .tm.nfl { border-radius: 999px; }           /* football oval */
 .tm.nhl { border-radius: 3px; position: relative; padding-left: 9px; }  /* hockey: square chip with a puck dot */
 .tm.nhl::before { content: ""; position: absolute; left: 3px; top: 50%; width: 4px; height: 4px; margin-top: -2px; border-radius: 50%; background: var(--c2); }
@@ -452,16 +455,15 @@ function textOn(hex) {
   const n = parseInt(hex.slice(1), 16), r = n >> 16 & 255, g = n >> 8 & 255, b = n & 255;
   return (0.299 * r + 0.587 * g + 0.114 * b) > 150 ? "#111111" : "#ffffff";
 }
-function teamChips(abbr) {
-  const list = [];
-  if (ui.teams === "nfl" || ui.teams === "both") (NFL[abbr] || []).forEach(t => list.push(["nfl", ...t]));
-  if (ui.teams === "nhl" || ui.teams === "both") (NHL[abbr] || []).forEach(t => list.push(["nhl", ...t]));
-  if (!list.length) return null;
-  const max = 4, shown = list.length > max ? list.slice(0, max - 1) : list;
-  const chips = shown.map(([lg, code, name, c1, c2]) =>
-    `<span class="tm ${lg}" style="--c1:${c1};--c2:${c2};--tx:${textOn(c1)}" title="${esc(name)}">${code}</span>`).join("");
-  const extra = list.length - shown.length;
-  return `<div class="teams" aria-label="${esc(list.map(t => t[2]).join(", "))}">${chips}${extra ? `<span class="tm more">+${extra}</span>` : ""}</div>`;
+function teamCol(abbr, lg) {
+  const on = ui.teams === lg || ui.teams === "both";
+  const list = on ? ((lg === "nfl" ? NFL : NHL)[abbr] || []) : [];
+  if (!list.length) return "";
+  const side = lg === "nfl" ? "left" : "right";
+  return `<div class="teams ${side}" aria-label="${lg.toUpperCase()}: ${esc(list.map(t => t[1]).join(", "))}">` +
+    list.map(([code, name, c1, c2]) =>
+      `<span class="tm ${lg}" style="--c1:${c1};--c2:${c2};--tx:${textOn(c1)}" title="${esc(name)}">${code}</span>`).join("") +
+    `</div>`;
 }
 const KEY = "plate-hunt-v1";
 
@@ -487,11 +489,12 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 function plateHTML(s) {
-  return `<div class="plate" style="--pbg:${s.bg};--pfg:${s.fg};--pac:${s.ac}">
+  const L = teamCol(s.abbr, "nfl"), R = teamCol(s.abbr, "nhl");
+  return `<div class="plate ${L ? "has-l" : ""} ${R ? "has-r" : ""}" style="--pbg:${s.bg};--pfg:${s.fg};--pac:${s.ac}">${L}${R}
     <span class="bolt l"></span><span class="bolt r"></span>
     <div class="st">${esc(s.name)}</div>
     <div class="serial">${s.abbr}<span class="dot">·</span>${s.year}</div>
-    ${teamChips(s.abbr) || `<div class="slogan">${esc(s.slogan)}</div>`}
+    <div class="slogan">${esc(s.slogan)}</div>
     <span class="stripe"></span>
   </div>`;
 }
