@@ -172,11 +172,9 @@ section { display: flex; flex-direction: column; gap: 14px; }
 .plate .teams.left { left: 9px; align-items: flex-start; }
 .plate .teams.right { right: 9px; align-items: flex-end; }
 .plate.has-l .serial, .plate.has-r .serial { padding-inline: 32px; font-size: clamp(20px, 2.8vw, 27px); letter-spacing: .02em; }
-.tm { flex: none; min-width: 30px; text-align: center; font-family: var(--font-body); font-weight: 800; font-size: 9.5px; letter-spacing: .04em; line-height: 1; padding: 3px 6px 2px; background: var(--c1); color: var(--tx); box-shadow: inset 0 0 0 1.5px var(--c2); }
-.tm.nfl { border-radius: 999px; }           /* football oval */
-.tm.nhl { border-radius: 3px; position: relative; padding-left: 9px; }  /* hockey: square chip with a puck dot */
-.tm.nhl::before { content: ""; position: absolute; left: 3px; top: 50%; width: 4px; height: 4px; margin-top: -2px; border-radius: 50%; background: var(--c2); }
-.tm.more { background: var(--pfg); color: var(--pbg); box-shadow: none; border-radius: 999px; }
+.tm { flex: none; box-sizing: border-box; width: 32px; height: 15px; display: grid; place-items: center; padding: 0; border-radius: 3px;
+  font-family: var(--font-body); font-weight: 800; font-size: 9.5px; letter-spacing: .03em; line-height: 1; text-align: center;
+  background: var(--c1); color: var(--tx); box-shadow: inset 0 0 0 1.5px var(--c2); }
 
 /* theme toggle */
 .theme-btn { display: inline-flex; align-items: center; gap: 6px; font: inherit; font-weight: 800; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; cursor: pointer; border: 2px solid var(--ink); border-radius: 10px; padding: 7px 12px; background: var(--card); color: var(--ink); }
