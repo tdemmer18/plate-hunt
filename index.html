@@ -369,6 +369,21 @@ body.cols-3 .plate .st { font-size: 12.5px; } body.cols-3 .plate .slogan { font-
 .log-form { display: inline-flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .log-form input { font: inherit; font-size: 15px; color: var(--ink); background: var(--card-solid); border: 1px solid var(--rule); border-radius: 10px; padding: 8px 12px; min-width: 0; width: 240px; max-width: 100%; }
 
+/* ---------- Trip bar (bottom of home) and New trip dialog ---------- */
+.trip-bar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; background: var(--card); border: 1px solid var(--rule); border-radius: 18px; padding: 14px 16px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.trip-bar .tb-kicker { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+.trip-bar .tb-name { font-family: var(--font-hud); font-weight: 700; font-size: 20px; letter-spacing: .03em; }
+.trip-bar .tb-sub { font-size: 13px; color: var(--ink-soft); }
+.trip-bar > div:first-child { flex: 1 1 220px; min-width: 0; }
+.trip-bar .tb-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.trip-bar.idle .tb-name { color: var(--ink-soft); }
+.new-dlg { width: min(460px, calc(100% - 32px)); }
+.new-dlg form { display: contents; }
+.new-dlg .dlg-head { grid-template-columns: 1fr auto; }
+.new-lbl { font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: -12px; }
+.new-in { font: inherit; font-size: 17px; color: var(--ink); background: var(--card-solid); border: 1px solid var(--rule); border-radius: 12px; padding: 10px 12px; width: 100%; box-sizing: border-box; }
+.new-in:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); }
+
 /* ---------- Footer, buttons, toast ---------- */
 .foot { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; color: var(--ink-soft); font-size: 13px; }
 .btn { font-family: var(--font-hud); font-weight: 600; font-size: 14px; letter-spacing: .06em; text-transform: uppercase; cursor: pointer; border-radius: 12px; padding: 10px 16px; border: 1px solid var(--rule); background: var(--card-solid); color: var(--ink); }
@@ -572,6 +587,9 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
         <button type="button" class="icon-btn" id="hudToggle" aria-expanded="false" aria-label="Expand scoreboard">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
+        <button type="button" class="icon-btn" id="newTripBtn" aria-label="Start a new trip" title="Start a new trip">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
+        </button>
         <button type="button" class="icon-btn" id="gearBtn" aria-label="Settings">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3.3h-4l-.4 2.6a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1l.4 2.6h4l.4-2.6a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z" transform="translate(-1 0)"/></svg>
         </button>
@@ -618,6 +636,8 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
     <div class="grid" id="roadGrid"></div>
   </section>
 
+  <section class="trip-bar" id="tripBar" aria-label="Current trip"></section>
+
   <div class="foot">
     <span>Progress is saved on this device and works with no signal. <span id="offline" class="offline-pill" hidden>Offline</span></span>
   </div>
@@ -628,6 +648,17 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
 <script src="shapes.js"></script>
 <script src="maps.js"></script>
 <dialog class="info-dlg" id="infoDlg" aria-labelledby="infoTitle"></dialog>
+<dialog class="info-dlg new-dlg" id="newDlg" aria-labelledby="newTitle">
+  <form method="dialog" id="newForm">
+    <div class="dlg-head"><div><div class="kicker">Road trip</div><h2 id="newTitle">New trip</h2></div><button type="button" class="dlg-x" data-close-new aria-label="Close">&times;</button></div>
+    <div class="dlg-body">
+      <p class="hint" id="newNote"></p>
+      <label class="new-lbl" for="newName">Trip name</label>
+      <input id="newName" class="new-in" maxlength="40" autocomplete="off">
+    </div>
+    <div class="dlg-foot"><button type="button" class="btn" data-close-new>Cancel</button><button type="submit" class="btn go" id="newGo">Start trip</button></div>
+  </form>
+</dialog>
 <dialog class="info-dlg set-dlg" id="setDlg" aria-labelledby="setTitle">
   <div class="dlg-head set-head"><div><div class="kicker">System</div><h2 id="setTitle">Settings</h2></div><button type="button" class="dlg-x" data-close-set aria-label="Close">&times;</button></div>
   <div class="dlg-body" tabindex="-1" autofocus>
@@ -725,8 +756,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
         <thead><tr><th class="rk">Rank</th><th>Trip</th><th class="dates-col">Dates</th><th class="num-col">Plates</th><th class="bar-col">Progress</th><th class="act"><span class="sr">Actions</span></th></tr></thead>
         <tbody id="tripsBody"></tbody>
       </table></div>
-      <span id="resetWrap"><button class="btn" id="resetBtn" type="button">Finish trip &amp; log it</button></span>
-      <p class="hint">When a trip ends, tap <b>Finish trip &amp; log it</b>. The trip moves into these standings and a fresh board starts.</p>
+      <p class="hint">Start a trip with the <b>+</b> button at the top of the home screen. It runs until you tap <b>Complete trip</b> at the bottom of the home screen, then it moves into these standings.</p>
     </div>
   </div>
   <div class="dlg-foot"><button type="button" class="btn go" data-close-set>Done</button></div>
@@ -909,6 +939,8 @@ function load() {
   if (!Array.isArray(state.history)) state.history = [];
   if (!state.stars || typeof state.stars !== "object") state.stars = {};
   if (!state.tripStart) { const ts = Object.values(state.captured); state.tripStart = ts.length ? Math.min(...ts) : null; }
+  // state.trip: the running trip { name, start }, or null when no trip is running
+  if (state.trip === undefined) state.trip = Object.keys(state.captured).length ? { name: "Road trip", start: state.tripStart } : null;
 }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
 
@@ -1236,6 +1268,7 @@ function render() {
     $("mapMeta").textContent = `${n} of ${total}${allTime ? " all-time" : ""} · tap a ${ui.canada ? "spot" : "state"} to capture`;
     $("lastSeen").textContent = capList.length ? `Last spotted: ${BY[capList[0]].name}, ${timeLabel(found[capList[0]])}` : "";
   }
+  renderTripBar();
   ui.just = null;
 }
 
@@ -1272,10 +1305,14 @@ function capture(abbr, btn) {
   if (state.captured[abbr]) return;
   const newEver = state.history.length && !allTimeFound()[abbr];
   const go = () => {
-    state.captured[abbr] = Date.now(); if (!state.tripStart) state.tripStart = state.captured[abbr]; ui.just = abbr; save(); render();
+    const autoStart = !state.trip;
+    state.captured[abbr] = Date.now(); if (!state.tripStart) state.tripStart = state.captured[abbr];
+    if (autoStart) state.trip = { name: defaultTripName(), start: state.captured[abbr] };
+    ui.just = abbr; save(); render();
     const rd = $("hud"); rd.classList.remove("ping"); void rd.offsetWidth; rd.classList.add("ping");
     const act = active(), n = act.filter(x => state.captured[x.abbr]).length, s = BY[abbr], m = milestone(n, act.length);
-    if (m) toast(`${s.name} · ${m}`, abbr);
+    if (autoStart) toast(`${s.name} captured · started "${state.trip.name}"`, abbr);
+    else if (m) toast(`${s.name} · ${m}`, abbr);
     else if (["HI", "AK", "NU", "NT", "YT"].includes(abbr)) toast(`${s.name}?! That's a rare find.`, abbr);
     else if (newEver) toast(`${s.name} · new all-time find!`, abbr);
     else toast(`${s.name} captured`, abbr);
@@ -1372,12 +1409,12 @@ function dateRange(a, b) {
 }
 function currentTrip() {
   const ts = Object.values(state.captured);
-  return { id: "current", name: "This trip", current: true, plates: Object.keys(state.captured),
-    start: state.tripStart || (ts.length ? Math.min(...ts) : null), end: ts.length ? Math.max(...ts) : null };
+  return { id: "current", name: state.trip ? state.trip.name : "This trip", current: true, plates: Object.keys(state.captured),
+    start: (state.trip && state.trip.start) || state.tripStart || (ts.length ? Math.min(...ts) : null), end: ts.length ? Math.max(...ts) : null };
 }
 function ranked() {
   const rows = state.history.map(t => ({ ...t }));
-  rows.push(currentTrip());
+  if (state.trip || Object.keys(state.captured).length) rows.push(currentTrip());
   rows.sort((a, b) => b.plates.length - a.plates.length || (a.end || Infinity) - (b.end || Infinity));
   return rows;
 }
@@ -1409,29 +1446,62 @@ document.addEventListener("click", e => {
   renderTrips();
 });
 
-function bindReset() {
-  $("resetBtn").onclick = () => {
-    const n = Object.keys(state.captured).length;
-    if (!n) { toast("Capture at least one plate before logging a trip."); return; }
-    const cur = currentTrip();
-    $("resetWrap").innerHTML = `<form class="log-form" id="logForm">
-      <label for="tripName" class="sr">Trip name</label>
-      <input id="tripName" maxlength="40" value="${esc("Road trip · " + dateRange(cur.start, cur.end))}">
-      <button class="btn danger" type="submit">Log ${n} plate${n === 1 ? "" : "s"} &amp; start fresh</button>
-      <button class="btn" id="noReset" type="button">Keep going</button></form>`;
-    const inp = $("tripName"); inp.focus(); inp.select();
-    $("logForm").onsubmit = ev => {
-      ev.preventDefault();
-      state.history.push({ id: "t" + Date.now(), name: inp.value.trim() || "Road trip", plates: cur.plates, start: cur.start, end: cur.end, logged: Date.now() });
-      state.captured = {}; state.tripStart = null; save(); restoreReset();
-      render(); renderTrips();
-      const place = ranked().findIndex(t => t.id === state.history[state.history.length - 1].id) + 1;
-      toast(`Trip logged in place #${place}. New board ready.`);
-    };
-    $("noReset").onclick = restoreReset;
-  };
+const defaultTripName = () => "Road trip · " + fmtDay(Date.now());
+let confirmComplete = false;
+function renderTripBar() {
+  const bar = $("tripBar"), n = Object.keys(state.captured).length, t = state.trip;
+  bar.classList.toggle("idle", !t);
+  if (!t) {
+    bar.innerHTML = `<div><div class="tb-kicker">No trip running</div><div class="tb-name">Ready when you are</div><div class="tb-sub">Tap + to start a trip. It runs until you complete it here.</div></div>
+      <div class="tb-btns"><button type="button" class="btn go" data-new-trip>Start a trip</button></div>`;
+    return;
+  }
+  const since = t.start ? `Started ${fmtDay(t.start)}` : "Just started";
+  bar.innerHTML = `<div><div class="tb-kicker">Trip in progress</div><div class="tb-name">${esc(t.name)}</div><div class="tb-sub">${since} · ${n} plate${n === 1 ? "" : "s"}</div></div>
+    <div class="tb-btns">${confirmComplete
+      ? `<button type="button" class="btn danger" data-complete-yes>${n ? `Log ${n} plate${n === 1 ? "" : "s"} &amp; complete` : "End trip"}</button><button type="button" class="btn" data-complete-no>Keep going</button>`
+      : `<button type="button" class="btn go" data-complete>Complete trip</button>`}</div>`;
 }
-function restoreReset() { $("resetWrap").innerHTML = `<button class="btn" id="resetBtn" type="button">Finish trip &amp; log it</button>`; bindReset(); }
+// log the running trip into the standings and clear the board; returns its place (or 0 if nothing logged)
+function completeTrip() {
+  const cur = currentTrip(), n = cur.plates.length;
+  let place = 0;
+  if (n) {
+    const id = "t" + Date.now();
+    state.history.push({ id, name: cur.name, plates: cur.plates, start: cur.start, end: cur.end, logged: Date.now() });
+    place = ranked().findIndex(t => t.id === id) + 1;
+  }
+  state.captured = {}; state.tripStart = null; state.trip = null; confirmComplete = false;
+  return place;
+}
+function openNewTrip() {
+  const n = Object.keys(state.captured).length, t = state.trip;
+  $("newNote").textContent = t && n
+    ? `"${t.name}" is still running with ${n} plate${n === 1 ? "" : "s"}. Starting a new trip completes it and logs it in the standings first.`
+    : "Give this trip a name. It runs until you tap Complete trip at the bottom of the home screen.";
+  $("newGo").textContent = t && n ? "Complete & start new" : "Start trip";
+  $("newName").value = defaultTripName();
+  $("newDlg").showModal(); $("newName").focus(); $("newName").select();
+}
+$("newForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const name = $("newName").value.trim() || defaultTripName();
+  const hadPlates = Object.keys(state.captured).length, place = state.trip || hadPlates ? completeTrip() : 0;
+  state.trip = { name, start: Date.now() }; state.tripStart = state.trip.start;
+  save(); $("newDlg").close(); render(); renderTrips();
+  toast(place ? `Last trip logged in place #${place}. "${name}" started.` : `"${name}" started. Happy hunting!`);
+});
+document.addEventListener("click", e => {
+  if (e.target.closest("#newTripBtn, [data-new-trip]")) { openNewTrip(); return; }
+  if (e.target.closest("[data-close-new]") || e.target === $("newDlg")) { $("newDlg").close(); return; }
+  if (e.target.closest("[data-complete]")) { confirmComplete = true; renderTripBar(); return; }
+  if (e.target.closest("[data-complete-no]")) { confirmComplete = false; renderTripBar(); return; }
+  if (e.target.closest("[data-complete-yes]")) {
+    const name = state.trip.name, place = completeTrip();
+    save(); render(); renderTrips();
+    toast(place ? `"${name}" complete · logged in place #${place}. Tap + to start the next one.` : `"${name}" ended. Tap + to start the next one.`);
+  }
+});
 
 // ---------- Theme: Auto (follows the iPad), Light or Dark, chosen in Settings ----------
 const darkMQ = matchMedia("(prefers-color-scheme: dark)");
@@ -1610,7 +1680,7 @@ $("zipForm").addEventListener("submit", async e => {
 function start(data) {
   if (data && data.captured) state = { captured: data.captured };
   else load();
-  bindReset(); applyCols(); render();
+  applyCols(); render();
   addEventListener("load", preloadLogos); addEventListener("online", preloadLogos);
 }
 start({});
