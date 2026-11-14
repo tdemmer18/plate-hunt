@@ -377,12 +377,13 @@ body.cols-3 .plate .st { font-size: 12.5px; } body.cols-3 .plate .slogan { font-
 .log-form input { font: inherit; font-size: 15px; color: var(--ink); background: var(--card-solid); border: 1px solid var(--rule); border-radius: 10px; padding: 8px 12px; min-width: 0; width: 240px; max-width: 100%; }
 
 /* ---------- Trip bar (bottom of home) and New trip dialog ---------- */
-.trip-bar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; background: var(--card); border: 1px solid var(--rule); border-radius: 18px; padding: 14px 16px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
-.trip-bar .tb-kicker { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
-.trip-bar .tb-name { font-family: var(--font-hud); font-weight: 700; font-size: 20px; letter-spacing: .03em; }
-.trip-bar .tb-sub { font-size: 13px; color: var(--ink-soft); }
-.trip-bar > div:first-child { flex: 1 1 220px; min-width: 0; }
-.trip-bar .tb-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.trip-bar { display: flex; flex-direction: row; flex-wrap: nowrap; gap: 12px; align-items: center; background: var(--card); border: 1px solid var(--rule); border-radius: 14px; padding: 8px 8px 8px 14px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.trip-bar .tb-txt { flex: 1 1 auto; min-width: 0; }
+.trip-bar .tb-name { font-family: var(--font-hud); font-weight: 700; font-size: 15px; letter-spacing: .03em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.trip-bar .tb-sub { font-size: 12px; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.trip-bar .tb-sub b { color: var(--good); font-weight: 600; }
+.trip-bar .tb-btns { flex: none; display: flex; gap: 6px; }
+.trip-bar .btn { padding: 7px 12px; font-size: 12.5px; border-radius: 10px; white-space: nowrap; }
 .trip-bar.idle .tb-name { color: var(--ink-soft); }
 .new-dlg { width: min(460px, calc(100% - 32px)); }
 .new-dlg form { display: contents; }
@@ -643,7 +644,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
     <div class="grid" id="roadGrid"></div>
   </section>
 
-  <section class="trip-bar" id="tripBar" aria-label="Current trip"></section>
+  <div class="trip-bar" id="tripBar" role="region" aria-label="Current trip"></div>
 
   <div class="foot">
     <span>Progress is saved on this device and works with no signal. <span id="offline" class="offline-pill" hidden>Offline</span></span>
@@ -1459,15 +1460,15 @@ function renderTripBar() {
   const bar = $("tripBar"), n = Object.keys(state.captured).length, t = state.trip;
   bar.classList.toggle("idle", !t);
   if (!t) {
-    bar.innerHTML = `<div><div class="tb-kicker">No trip running</div><div class="tb-name">Ready when you are</div><div class="tb-sub">Tap + to start a trip. It runs until you complete it here.</div></div>
-      <div class="tb-btns"><button type="button" class="btn go" data-new-trip>Start a trip</button></div>`;
+    bar.innerHTML = `<div class="tb-txt"><div class="tb-name">No trip running</div><div class="tb-sub">Tap + to start one</div></div>
+      <div class="tb-btns"><button type="button" class="btn go" data-new-trip>Start trip</button></div>`;
     return;
   }
-  const since = t.start ? `Started ${fmtDay(t.start)}` : "Just started";
-  bar.innerHTML = `<div><div class="tb-kicker">Trip in progress</div><div class="tb-name">${esc(t.name)}</div><div class="tb-sub">${since} · ${n} plate${n === 1 ? "" : "s"}</div></div>
+  const since = t.start ? `since ${new Date(t.start).toLocaleDateString([], { month: "short", day: "numeric" })}` : "just started";
+  bar.innerHTML = `<div class="tb-txt"><div class="tb-name">${esc(t.name)}</div><div class="tb-sub"><b>● Live</b> · ${n} plate${n === 1 ? "" : "s"} · ${since}</div></div>
     <div class="tb-btns">${confirmComplete
-      ? `<button type="button" class="btn danger" data-complete-yes>${n ? `Log ${n} plate${n === 1 ? "" : "s"} &amp; complete` : "End trip"}</button><button type="button" class="btn" data-complete-no>Keep going</button>`
-      : `<button type="button" class="btn go" data-complete>Complete trip</button>`}</div>`;
+      ? `<button type="button" class="btn danger" data-complete-yes>${n ? "Log it" : "End it"}</button><button type="button" class="btn" data-complete-no>Cancel</button>`
+      : `<button type="button" class="btn go" data-complete>Complete</button>`}</div>`;
 }
 // log the running trip into the standings and clear the board; returns its place (or 0 if nothing logged)
 function completeTrip() {
