@@ -311,6 +311,9 @@ body.cols-3 .plate .st { font-size: 12.5px; } body.cols-3 .plate .slogan { font-
 .pcard.got .plate-btn::after { opacity: 1; box-shadow: 0 0 0 2px color-mix(in srgb, var(--good) 85%, transparent), 0 0 20px -4px color-mix(in srgb, var(--good) 60%, transparent); }
 .check { position: absolute; left: -9px; top: -9px; z-index: 3; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--good); color: #fff; border: 2.5px solid var(--ground); box-shadow: 0 0 14px color-mix(in srgb, var(--good) 70%, transparent); pointer-events: none; }
 .check svg { width: 16px; height: 16px; }
+.check.past { background: color-mix(in srgb, var(--good) 45%, var(--card-solid)); box-shadow: none; }
+.pcard.past .plate-btn::after { box-shadow: 0 0 0 2px color-mix(in srgb, var(--good) 40%, transparent); }
+.tile.got.past { opacity: .72; box-shadow: inset 0 -4px 0 var(--pac); }
 .check.pop { animation: checkPop .45s cubic-bezier(.2,1.6,.4,1) both; }
 @keyframes checkPop { from { transform: scale(0) rotate(-30deg); opacity: 0; } }
 .info-dot { position: absolute; right: -8px; top: -8px; z-index: 3; width: 28px; height: 28px; padding: 0; border-radius: 50%; cursor: pointer; display: grid; place-items: center;
@@ -581,6 +584,11 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
       <span class="seg-lbl">View</span>
       <button type="button" class="seg-btn view-btn" data-view="plates" aria-pressed="true">Plates</button>
       <button type="button" class="seg-btn view-btn" data-view="map" aria-pressed="false">Map</button>
+    </div>
+    <div class="seg" role="group" aria-label="Count plates from">
+      <span class="seg-lbl">Count</span>
+      <button type="button" class="seg-btn" data-scope="trip" aria-pressed="true">Trip</button>
+      <button type="button" class="seg-btn" data-scope="all" aria-pressed="false">All-time</button>
     </div>
     <div class="seg show-ctl" role="group" aria-label="Which plates to show">
       <span class="seg-lbl">Show</span>
@@ -881,6 +889,8 @@ try { const h = localStorage.getItem("plate-hunt-homeloc"); if (h === "none") ui
 try { ui.logos = localStorage.getItem("plate-hunt-logos") !== "off"; } catch (e) {}
 ui.show = "all";      // plates grid: "all" | "left" (only the ones not found yet)
 try { if (localStorage.getItem("plate-hunt-show") === "left") ui.show = "left"; } catch (e) {}
+ui.scope = "trip";    // what counts as found: "trip" (this trip) | "all" (this trip plus every logged trip)
+try { if (localStorage.getItem("plate-hunt-scope") === "all") ui.scope = "all"; } catch (e) {}
 ui.tap = "capture";   // what tapping an uncaptured plate does: "capture" | "details"
 try { if (localStorage.getItem("plate-hunt-tap") === "details") ui.tap = "details"; } catch (e) {}
 try { ui.cols = localStorage.getItem("plate-hunt-cols") === "3" ? 3 : 4; ui.home = localStorage.getItem("plate-hunt-home") || ""; } catch (e) {}
@@ -1168,11 +1178,20 @@ function renderHeader(n, total, capList) {
   });
 }
 
+// all-time finds: abbr -> latest time it was seen (logged trips use the trip's end date)
+function allTimeFound() {
+  const m = {};
+  for (const t of state.history || []) for (const a of t.plates) m[a] = Math.max(m[a] || 0, t.end || t.logged || 0);
+  for (const [a, ts] of Object.entries(state.captured)) m[a] = Math.max(m[a] || 0, ts);
+  return m;
+}
+const foundMap = () => ui.scope === "all" ? allTimeFound() : state.captured;
+
 function render() {
-  const act = active(), actSet = new Set(act.map(s => s.abbr));
-  const capList = Object.keys(state.captured).filter(a => actSet.has(a)).sort((a, b) => state.captured[b] - state.captured[a]);
+  const act = active(), actSet = new Set(act.map(s => s.abbr)), found = foundMap(), allTime = ui.scope === "all";
+  const capList = Object.keys(found).filter(a => actSet.has(a)).sort((a, b) => found[b] - found[a]);
   const n = capList.length, total = act.length;
-  const remaining = act.filter(s => !state.captured[s.abbr]);
+  const remaining = act.filter(s => !found[s.abbr]);
   const roadShown = remaining.filter(matches);
 
   // scoreboard
@@ -1182,39 +1201,40 @@ function render() {
   // plates: one grid; captured plates keep their spot and get a checkmark
   const quick = ui.tap === "capture", onlyLeft = ui.show === "left";
   const shown = (onlyLeft ? remaining : act).filter(matches);
-  $("roadMeta").textContent = `${n} of ${total} found · ` + (quick ? "tap to capture, ⓘ for details" : "tap a plate for details");
+  $("roadMeta").textContent = `${n} of ${total} found${allTime ? " all-time" : ""} · ` + (quick ? "tap to capture, ⓘ for details" : "tap a plate for details");
   const CHECK = `<span class="check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
   const card = s => {
-    const got = !!state.captured[s.abbr];
+    const got = !!found[s.abbr], past = got && !state.captured[s.abbr];
     const btn = got || !quick
-      ? `<button type="button" class="plate-btn" data-info="${s.abbr}" aria-label="${esc(s.name)}${got ? ", captured" : ""}: open details">${plateHTML(s)}</button>`
+      ? `<button type="button" class="plate-btn" data-info="${s.abbr}" aria-label="${esc(s.name)}${got ? past ? ", found on a past trip" : ", captured" : ""}: open details">${plateHTML(s)}</button>`
       : `<button type="button" class="plate-btn" data-cap="${s.abbr}" aria-label="Capture ${esc(s.name)}">${plateHTML(s)}</button><button type="button" class="info-dot" data-info="${s.abbr}" aria-label="${esc(s.name)} details">i</button>`;
-    return `<div class="pcard ${got ? "got" : ""}">${btn}${got ? CHECK.replace('class="check"', `class="check${ui.just === s.abbr ? " pop" : ""}"`) : ""}${state.stars[s.abbr] ? '<span class="star-badge" title="Quiz star">★</span>' : ""}</div>`;
+    return `<div class="pcard ${got ? "got" : ""} ${past ? "past" : ""}">${btn}${got ? CHECK.replace('class="check"', `class="check${past ? " past" : ""}${ui.just === s.abbr ? " pop" : ""}"`) : ""}${state.stars[s.abbr] ? '<span class="star-badge" title="Quiz star">★</span>' : ""}</div>`;
   };
   $("roadGrid").innerHTML = shown.length ? grouped(shown, card, onlyLeft ? "to find" : "plates")
-    : `<div class="empty" style="grid-column:1/-1">${onlyLeft && !remaining.length ? "Every plate captured. Time for a victory milkshake." : ""}</div>`;
+    : `<div class="empty" style="grid-column:1/-1">${onlyLeft && !remaining.length ? (allTime ? "Every plate found across your trips. Legendary." : "Every plate captured. Time for a victory milkshake.") : ""}</div>`;
   // view toggle
   const isMap = ui.view === "map";
   $("mapView").hidden = !isMap;
   $("roadView").hidden = isMap;
   document.querySelectorAll(".show-ctl").forEach(el => el.hidden = isMap);
   document.querySelectorAll("[data-show]").forEach(b => b.setAttribute("aria-pressed", b.dataset.show === ui.show));
+  document.querySelectorAll("[data-scope]").forEach(b => b.setAttribute("aria-pressed", b.dataset.scope === ui.scope));
   document.querySelectorAll(".view-btn").forEach(b => b.setAttribute("aria-pressed", b.dataset.view === ui.view));
   document.querySelectorAll(".team-btn").forEach(b => b.setAttribute("aria-pressed", b.dataset.teams === ui.teams));
 
   // tile map
   if (isMap) {
     const tile = s => {
-      const [c, r] = TILE[s.abbr], got = !!state.captured[s.abbr];
-      return `<button type="button" class="tile ${got ? "got" : ""} ${matches(s) ? "" : "dim"} ${ui.just === s.abbr ? "pop" : ""}"
+      const [c, r] = TILE[s.abbr], got = !!found[s.abbr], past = got && !state.captured[s.abbr];
+      return `<button type="button" class="tile ${got ? "got" : ""} ${past ? "past" : ""} ${matches(s) ? "" : "dim"} ${ui.just === s.abbr ? "pop" : ""}"
         style="grid-column:${c + 1};grid-row:${r + 1};--pbg:${s.bg};--pfg:${s.fg};--pac:${s.ac}"
-        data-tile="${s.abbr}" aria-pressed="${got}" aria-label="${esc(s.name)}${got ? ", captured: tap to uncheck" : ": tap to capture"}" title="${esc(s.name)}">${s.abbr}</button>`;
+        data-tile="${s.abbr}" aria-pressed="${got}" aria-label="${esc(s.name)}${past ? ", found on a past trip: tap to capture for this trip" : got ? ", captured: tap to uncheck" : ": tap to capture"}" title="${esc(s.name)}">${s.abbr}</button>`;
     };
     $("map").innerHTML = STATES.filter(s => !s.ca).map(tile).join("");
     $("mapCa").innerHTML = ui.canada ? CANADA.map(tile).join("") : "";
     $("mapCa").hidden = $("mapCaLbl").hidden = $("mapUsLbl").hidden = !ui.canada;
-    $("mapMeta").textContent = `${n} of ${total} · tap a ${ui.canada ? "spot" : "state"} to capture`;
-    $("lastSeen").textContent = capList.length ? `Last spotted: ${BY[capList[0]].name}, ${timeLabel(state.captured[capList[0]])}` : "";
+    $("mapMeta").textContent = `${n} of ${total}${allTime ? " all-time" : ""} · tap a ${ui.canada ? "spot" : "state"} to capture`;
+    $("lastSeen").textContent = capList.length ? `Last spotted: ${BY[capList[0]].name}, ${timeLabel(found[capList[0]])}` : "";
   }
   ui.just = null;
 }
@@ -1250,12 +1270,14 @@ function milestone(n, total) {
 
 function capture(abbr, btn) {
   if (state.captured[abbr]) return;
+  const newEver = state.history.length && !allTimeFound()[abbr];
   const go = () => {
     state.captured[abbr] = Date.now(); if (!state.tripStart) state.tripStart = state.captured[abbr]; ui.just = abbr; save(); render();
     const rd = $("hud"); rd.classList.remove("ping"); void rd.offsetWidth; rd.classList.add("ping");
     const act = active(), n = act.filter(x => state.captured[x.abbr]).length, s = BY[abbr], m = milestone(n, act.length);
     if (m) toast(`${s.name} · ${m}`, abbr);
     else if (["HI", "AK", "NU", "NT", "YT"].includes(abbr)) toast(`${s.name}?! That's a rare find.`, abbr);
+    else if (newEver) toast(`${s.name} · new all-time find!`, abbr);
     else toast(`${s.name} captured`, abbr);
   };
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -1320,6 +1342,11 @@ document.addEventListener("click", e => {
     delete state.captured[a]; save(); render();
     toast(`${BY[a].name} unchecked`, () => { state.captured[a] = ts; save(); render(); toast(`${BY[a].name} captured again`); });
     return;
+  }
+  const sc = e.target.closest("[data-scope]");
+  if (sc) {
+    ui.scope = sc.dataset.scope; try { localStorage.setItem("plate-hunt-scope", ui.scope); } catch (err) {} render();
+    toast(ui.scope === "all" ? "Counting plates from every trip" : "Counting this trip only"); return;
   }
   const sw = e.target.closest("[data-show]");
   if (sw) { ui.show = sw.dataset.show; try { localStorage.setItem("plate-hunt-show", ui.show); } catch (err) {} render(); return; }
