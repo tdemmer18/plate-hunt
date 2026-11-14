@@ -382,6 +382,15 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
 .shape-svg .cap-ring { fill: none; stroke: var(--accent-2); stroke-width: 1.5; transform-origin: center; transform-box: fill-box; animation: capPulse 1.8s ease-out infinite; }
 @keyframes capPulse { from { transform: scale(.6); opacity: 1; } to { transform: scale(2.4); opacity: 0; } }
 .shape-svg text { font-family: var(--font-mono); font-size: 10px; fill: var(--ink); paint-order: stroke; stroke: var(--card-solid); stroke-width: 3px; }
+.mini-seg { display: inline-flex; gap: 2px; padding: 2px; border: 1px solid var(--rule); border-radius: 9px; background: var(--card-solid); }
+.mini-seg button { font-family: var(--font-hud); font-weight: 600; font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; border: 0; border-radius: 7px; padding: 5px 10px; background: transparent; color: var(--ink-soft); cursor: pointer; }
+.mini-seg button[aria-pressed="true"] { background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent); }
+.panel-t:has(.mini-seg) { align-items: center; }
+.shape-svg.country path.c-st { fill: color-mix(in srgb, var(--accent) 7%, transparent); stroke: color-mix(in srgb, var(--accent) 45%, transparent); stroke-width: .7; filter: none; }
+.shape-svg.country path.c-hi { fill: var(--accent-2); stroke: #fff; stroke-width: 1.2; filter: drop-shadow(0 0 6px var(--accent-2)); }
+.shape-svg .hi-ring, .shape-svg .hi-ring2 { fill: none; stroke: var(--accent-2); stroke-width: 2; }
+.shape-svg .hi-ring2 { transform-origin: center; transform-box: fill-box; animation: capPulse 1.8s ease-out infinite; }
+.map-cap { font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); text-align: center; }
 .dist { font-size: 14px; }
 .dist b { font-family: var(--font-hud); font-size: 20px; color: var(--accent); }
 .dist .muted { color: var(--ink-soft); font-size: 13px; }
@@ -553,6 +562,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
 <script src="info.js"></script>
 <script src="learn.js"></script>
 <script src="shapes.js"></script>
+<script src="maps.js"></script>
 <dialog class="info-dlg" id="infoDlg" aria-labelledby="infoTitle"></dialog>
 <dialog class="info-dlg set-dlg" id="setDlg" aria-labelledby="setTitle">
   <div class="dlg-head set-head"><div><div class="kicker">System</div><h2 id="setTitle">Settings</h2></div><button type="button" class="dlg-x" data-close-set aria-label="Close">&times;</button></div>
@@ -758,7 +768,8 @@ const KEY = "plate-hunt-v1";
 let state = { captured: {}, tripStart: null, history: [], stars: {} };   // captured: abbr -> timestamp
 let ui = { region: "All", q: "", just: null, view: "plates", teams: "off", canada: false };
 try { ui.canada = localStorage.getItem("plate-hunt-canada") === "on"; } catch (e) {}
-ui.cols = 4; ui.home = ""; ui.logos = true; ui.homeLoc = null; ui.header = "radar";
+ui.cols = 4; ui.home = ""; ui.logos = true; ui.homeLoc = null; ui.header = "radar"; ui.mapMode = "state";
+try { if (localStorage.getItem("plate-hunt-mapmode") === "country") ui.mapMode = "country"; } catch (e) {}
 try { const hs = localStorage.getItem("plate-hunt-header"); if (["radar","odometer","sign","kpi","compact"].includes(hs)) ui.header = hs; } catch (e) {}
 try { ui.homeLoc = JSON.parse(localStorage.getItem("plate-hunt-homeloc") || "null"); } catch (e) {}
 try { ui.logos = localStorage.getItem("plate-hunt-logos") !== "off"; } catch (e) {}
@@ -871,6 +882,25 @@ function speak(abbr, btn) {
   btn.classList.add("speaking"); synth.speak(u);
 }
 
+// "Where it is" map: just the state with its capital, or the whole country with the state lit up.
+function whereSVG(abbr) {
+  const s = BY[abbr], capital = INFO[abbr][0];
+  if (ui.mapMode === "country") {
+    const M = s.ca ? CA_MAP : US_MAP, me = M[abbr];
+    const ring = me.s < 18 ? `<circle class="hi-ring" cx="${me.c[0]}" cy="${me.c[1]}" r="10"/><circle class="hi-ring2" cx="${me.c[0]}" cy="${me.c[1]}" r="10"/>` : "";
+    return `<svg class="shape-svg country" viewBox="0 0 480 300" role="img" aria-label="Map of ${s.ca ? "Canada" : "the United States"} with ${esc(s.name)} highlighted">
+      ${Object.entries(M).filter(([k]) => k !== abbr).map(([, v]) => `<path class="c-st" d="${v.d}"/>`).join("")}
+      <path class="c-hi" d="${me.d}"/>${ring}</svg>
+      <div class="map-cap">${esc(s.name)} is lit up${me.s < 18 ? " (circled because it's small)" : ""}</div>`;
+  }
+  const sh = SHAPES[abbr], [cx, cy] = sh.cap, right = cx > 150;
+  return `<svg class="shape-svg" viewBox="0 0 240 160" role="img" aria-label="Outline of ${esc(s.name)} with ${esc(capital)} marked">
+      <path d="${sh.d}"/>
+      <circle class="cap-ring" cx="${cx}" cy="${cy}" r="5"/><circle class="cap-dot" cx="${cx}" cy="${cy}" r="4"/>
+      ${abbr === "DC" ? "" : `<text x="${right ? cx - 9 : cx + 9}" y="${cy + 3.5}" text-anchor="${right ? "end" : "start"}">${esc(capital)}</text>`}
+    </svg>
+    <div class="map-cap">Pink dot = ${abbr === "DC" ? "the U.S. Capitol" : `the capital, ${esc(capital)}`}</div>`;
+}
 function openInfo(abbr) {
   const s = BY[abbr], [capital, city, pop, bird, facts] = INFO[abbr], got = !!state.captured[abbr];
   const [food, people, animal, flower, tree, spots] = LEARN[abbr] || ["", [], "", "", "", []];
@@ -879,7 +909,6 @@ function openInfo(abbr) {
   const totalTeams = leagues.reduce((n, [, l]) => n + l.length, 0);
   const stat = (k, v) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div></div>`;
   const popRank = (s.ca ? POP_RANK_CA : POP_RANK).indexOf(abbr) + 1;
-  const sh = SHAPES[abbr], [cx, cy] = sh.cap, right = cx > 150;
   const syms = [["animal", "Animal", animal], ["flower", "Flower", flower], ["tree", "Tree", tree], ["bird", "Bird", bird]].filter(x => x[2]);
   const kind = s.ca ? (["YT", "NT", "NU"].includes(abbr) ? "Territory" : "Province") : abbr === "DC" ? "Federal district" : "State";
   $("infoDlg").innerHTML = `
@@ -894,12 +923,12 @@ function openInfo(abbr) {
     <div class="dlg-body" tabindex="-1" autofocus>
       <div class="top-row">
         <div class="panel shape-box">
-          <p class="panel-t">Where it is <small>pink dot = capital</small></p>
-          <svg class="shape-svg" viewBox="0 0 240 160" role="img" aria-label="Outline of ${esc(s.name)} with ${esc(capital)} marked">
-            <path d="${sh.d}"/>
-            <circle class="cap-ring" cx="${cx}" cy="${cy}" r="5"/><circle class="cap-dot" cx="${cx}" cy="${cy}" r="4"/>
-            ${abbr === "DC" ? "" : `<text x="${right ? cx - 9 : cx + 9}" y="${cy + 3.5}" text-anchor="${right ? "end" : "start"}">${esc(capital)}</text>`}
-          </svg>
+          <p class="panel-t">Where it is
+            <span class="mini-seg" role="group" aria-label="Map view">
+              <button type="button" data-mapmode="state" aria-pressed="${ui.mapMode === "state"}">${s.ca ? (kind === "Territory" ? "Territory" : "Province") : "State"}</button>
+              <button type="button" data-mapmode="country" aria-pressed="${ui.mapMode === "country"}">${s.ca ? "Canada" : "U.S."}</button>
+            </span></p>
+          <div class="shape-holder" data-abbr="${abbr}">${whereSVG(abbr)}</div>
           ${distanceHTML(abbr)}
         </div>
         <div class="stats">
@@ -1099,6 +1128,14 @@ document.addEventListener("click", e => {
   const ib = e.target.closest("[data-info]");
   if (ib) { openInfo(ib.dataset.info); return; }
   if (e.target.closest("[data-close]") || e.target === $("infoDlg")) { closeInfo(); return; }
+  const mm = e.target.closest("[data-mapmode]");
+  if (mm) {
+    ui.mapMode = mm.dataset.mapmode; try { localStorage.setItem("plate-hunt-mapmode", ui.mapMode); } catch (err) {}
+    const holder = mm.closest(".shape-box").querySelector(".shape-holder");
+    holder.innerHTML = whereSVG(holder.dataset.abbr);
+    mm.parentNode.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b === mm));
+    return;
+  }
   const qo = e.target.closest(".q-opt");
   if (qo && !qo.disabled) { answerQuiz(qo); return; }
   if (e.target.closest("[data-qnew]")) { const box = e.target.closest(".quiz"); box.innerHTML = quizHTML(box.dataset.abbr); return; }
