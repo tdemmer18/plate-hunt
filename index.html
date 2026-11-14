@@ -143,6 +143,83 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 #themeBtn.is-dark .ic-sun { display: block; }
 #themeBtn.is-dark .ic-moon { display: none; }
 
+.hud-body { display: contents; }
+.hud[data-style="sign"], .hud[data-style="kpi"], .hud[data-style="compact"] { grid-template-columns: 1fr auto; }
+.hud.ping .radar .pulse { animation: ping .9s ease-out; }
+.hud.ping .odo-digits, .hud.ping .hwy-shield, .hud.ping .kpi.big, .hud.ping .c-count { animation: flash .7s ease-out; }
+@keyframes flash { 30% { box-shadow: 0 0 0 3px var(--accent), 0 0 30px var(--glow); } }
+
+/* odometer */
+.odo { display: grid; justify-items: center; gap: 8px; padding: 14px 18px; border-radius: 16px; background: color-mix(in srgb, var(--ground) 80%, transparent); border: 1px solid var(--rule); }
+.odo-lbl { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); }
+.odo-digits { display: flex; gap: 4px; padding: 6px; border-radius: 10px; background: #05080d; box-shadow: inset 0 2px 8px rgba(0,0,0,.8); }
+.odo-d { position: relative; width: clamp(34px, 4.6vw, 46px); height: clamp(48px, 6.4vw, 64px); overflow: hidden; border-radius: 6px; background: linear-gradient(#1b1f26, #0b0e13 45%, #0b0e13 55%, #1b1f26); }
+.odo-d.last { background: linear-gradient(#f4f1e8, #d9d4c5 45%, #d9d4c5 55%, #f4f1e8); }
+.odo-d::after { content: ""; position: absolute; inset: 0; background: linear-gradient(rgba(0,0,0,.45), transparent 30%, transparent 70%, rgba(0,0,0,.45)); pointer-events: none; }
+.odo-roll { position: absolute; left: 0; right: 0; top: 0; display: flex; flex-direction: column; transform: translateY(calc(var(--d) * -10%)); transition: transform .8s cubic-bezier(.3,1.4,.5,1); }
+.odo-roll i { font-style: normal; height: clamp(48px, 6.4vw, 64px); display: grid; place-items: center; font-family: var(--font-mono); font-weight: 700; font-size: clamp(30px, 4vw, 40px); color: #f4f1e8; }
+.odo-d.last .odo-roll i { color: #0b0e13; }
+.odo-sub { display: flex; gap: 12px; font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); }
+.odo-sub b { color: var(--ink); }
+
+/* highway sign */
+.hwy { grid-column: 1; background: #0d6a43; color: #fff; border-radius: 14px; padding: 6px; box-shadow: 0 10px 24px -14px rgba(0,0,0,.6); }
+.hwy-in { border: 3px solid #fff; border-radius: 10px; padding: 14px 18px; display: grid; gap: 12px; }
+.hwy-top { display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: center; }
+.hwy-shield { width: 74px; height: 80px; display: grid; place-items: center; background: #1f4fa3; color: #fff; border: 3px solid #fff; border-radius: 10px 10px 38px 38px; box-shadow: inset 0 14px 0 #c2302a; }
+.hwy-shield b { font-family: "Overpass", var(--font-body); font-weight: 800; font-size: 30px; padding-top: 12px; font-variant-numeric: tabular-nums; }
+.hwy-name { font-family: "Overpass", var(--font-body); font-weight: 800; font-size: clamp(30px, 5vw, 46px); line-height: 1; text-transform: uppercase; }
+.hwy-sub { font-family: "Overpass", var(--font-body); font-weight: 600; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; opacity: .9; margin-top: 4px; }
+.hwy-exit { display: grid; justify-items: center; background: #f1c232; color: #1d231f; border-radius: 8px; padding: 6px 12px; font-family: "Overpass", var(--font-body); font-weight: 800; font-size: 10px; letter-spacing: .14em; line-height: 1.1; }
+.hwy-exit b { font-size: 30px; letter-spacing: 0; }
+.hwy-rows { display: flex; gap: 24px; flex-wrap: wrap; font-family: "Overpass", var(--font-body); }
+.hwy-rows div { display: flex; gap: 10px; align-items: baseline; }
+.hwy-rows span { font-size: 13px; letter-spacing: .1em; text-transform: uppercase; opacity: .9; }
+.hwy-rows b { font-size: 24px; font-weight: 800; }
+.hwy .road { background: #2b2f30; }
+.hwy .road .fill { background: #f1c232; box-shadow: none; }
+.hwy .marks { color: rgba(255,255,255,.85); } .hwy .marks #pctLbl, .hwy .marks [data-pct] { color: #f1c232; }
+.hud[data-style="sign"] { padding: 10px; }
+.hud[data-style="sign"] .corner { display: none; }
+
+/* dashboard tiles */
+.kpi-wrap { grid-column: 1; display: grid; gap: 14px; min-width: 0; }
+.kpi-title { display: flex; align-items: center; gap: 10px; }
+.kpi-h { margin: 0 !important; font-size: clamp(26px, 4vw, 36px) !important; }
+.kpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+.kpi { border: 1px solid var(--rule); border-radius: 12px; padding: 10px 12px; background: color-mix(in srgb, var(--ground) 60%, transparent); min-width: 0; }
+.kpi.big { border-color: color-mix(in srgb, var(--accent) 55%, var(--rule)); box-shadow: 0 0 18px -8px var(--glow); }
+.kpi .k { font-family: var(--font-mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-soft); }
+.kpi .v { font-family: var(--font-hud); font-weight: 700; font-size: 28px; line-height: 1.1; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.kpi .v small { font-size: 15px; color: var(--ink-soft); font-weight: 600; }
+.kpi.big .v { color: var(--accent); }
+.kpi .v.gold { color: #e0a800; }
+.kpi .v.sm { font-size: 16px; padding-top: 6px; }
+
+/* compact */
+.compact { grid-column: 1; display: grid; grid-template-columns: auto auto 1fr; gap: 18px; align-items: center; min-width: 0; }
+.c-h { margin: 0 !important; font-size: clamp(22px, 3vw, 28px) !important; }
+.c-count { font-family: var(--font-hud); font-weight: 700; font-size: 30px; line-height: 1; padding: 6px 12px; border-radius: 10px; border: 1px solid color-mix(in srgb, var(--accent) 50%, var(--rule)); font-variant-numeric: tabular-nums; }
+.c-count small { font-size: 16px; color: var(--ink-soft); }
+.c-route .marks { margin-top: 6px; }
+.hud[data-style="compact"] { padding: 12px 16px; }
+.hud[data-style="compact"] .corner { display: none; }
+.hud[data-style="compact"] .hud-btns { flex-direction: row; align-self: center; }
+
+/* style picker in settings */
+.hdr-pick { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; width: 100%; }
+.hdr-opt { font-family: var(--font-hud); font-weight: 600; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; cursor: pointer; display: grid; justify-items: center; gap: 6px; padding: 8px 4px; border-radius: 12px; border: 1px solid var(--rule); background: var(--card-solid); color: var(--ink); }
+.hdr-opt[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 16px -6px var(--glow); background: color-mix(in srgb, var(--accent) 10%, var(--card-solid)); }
+.hp { width: 54px; height: 34px; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 2px; background: var(--ground-2); position: relative; overflow: hidden; }
+.hp-radar::before { content: ""; width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--accent); background: conic-gradient(color-mix(in srgb, var(--accent) 50%, transparent), transparent 30%); }
+.hp-odo i { font-style: normal; width: 12px; height: 20px; display: grid; place-items: center; background: #0b0e13; color: #f4f1e8; font-family: var(--font-mono); font-size: 11px; border-radius: 2px; }
+.hp-odo i:last-child { background: #f4f1e8; color: #0b0e13; }
+.hp-sign { background: #0d6a43; box-shadow: inset 0 0 0 2px #0d6a43, inset 0 0 0 3.5px #fff; }
+.hp-sign::before { content: ""; width: 12px; height: 14px; background: #1f4fa3; border: 1.5px solid #fff; border-radius: 2px 2px 7px 7px; margin-right: 18px; }
+.hp-sign::after { content: ""; position: absolute; right: 7px; width: 10px; height: 8px; background: #f1c232; border-radius: 2px; }
+.hp-kpi i { width: 13px; height: 18px; border-radius: 3px; border: 1.5px solid var(--accent); }
+.hp-compact::before { content: ""; width: 40px; height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--accent-2), var(--accent) 60%, var(--rule) 60%); }
+
 /* ---------- Controls ---------- */
 .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 .seg { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 3px; padding: 4px; border-radius: 14px; background: var(--card); border: 1px solid var(--rule); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
@@ -378,6 +455,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
   .plate .st { font-size: 10px; } .plate .slogan { font-size: 9.5px; }
   .tm.has-logo { width: 21px; height: 21px; }
 }
+@media (max-width: 900px) { .kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 760px) {
   .top-row, .two-col, .leagues { grid-template-columns: 1fr; }
   .sym-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -385,6 +463,10 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
 @media (max-width: 560px) {
   .hud { grid-template-columns: 1fr auto; }
   .hud-main { grid-column: 1 / -1; grid-row: 2; }
+  .kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .compact { grid-template-columns: auto 1fr; } .c-route { grid-column: 1 / -1; }
+  .hdr-pick { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .hwy { grid-column: 1 / -1; grid-row: 2; }
   .radar { justify-self: start; }
   .hud-btns { flex-direction: row; }
   .plate .serial, body.cols-3 .plate .serial { font-size: 26px; }
@@ -404,26 +486,9 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
 
 <div class="wrap">
   <header class="signpost">
-    <div class="hud">
+    <div class="hud" id="hud">
       <span class="corner c1"></span><span class="corner c2"></span><span class="corner c3"></span>
-      <div class="hud-main">
-        <div class="eyebrow"><span class="blip"></span>Road trip scanner online</div>
-        <h1>Plate<span>Hunt</span></h1>
-        <div class="route" aria-hidden="true">
-          <div class="road">
-            <div class="fill" id="fill"></div>
-            <svg class="car" id="car" viewBox="0 0 30 30"><circle cx="15" cy="15" r="13" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".5" style="color:var(--accent)"/><path d="M8 15h11M15 9l6 6-6 6" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
-          <div class="marks"><span>START</span><span id="pctLbl">0%</span><span>COAST TO COAST</span></div>
-        </div>
-      </div>
-      <div class="radar" id="radar">
-        <div class="sweep"></div><div class="pulse"></div>
-        <div class="tally" aria-live="polite">
-          <span class="num" id="count">0</span><span class="of"> / <span id="total">51</span></span>
-          <span class="lbl" id="tallyLbl">Plates captured</span>
-        </div>
-      </div>
+      <div class="hud-body" id="hudBody"></div>
       <div class="hud-btns">
         <button type="button" class="icon-btn" id="gearBtn" aria-label="Settings">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3.3h-4l-.4 2.6a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1l.4 2.6h4l.4-2.6a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z" transform="translate(-1 0)"/></svg>
@@ -509,6 +574,16 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
     <div class="set-row">
       <div><div class="set-name">Canadian plates</div><div class="set-desc">Adds Canada's 10 provinces and 3 territories in their own section below the United States.</div></div>
       <button type="button" class="switch" id="canadaSwitch" role="switch" aria-checked="false" aria-label="Canadian plates"><span></span></button>
+    </div>
+    <div class="set-row">
+      <div><div class="set-name">Scoreboard style</div><div class="set-desc">Pick the look of the plate counter at the top.</div></div>
+      <div class="hdr-pick" role="group" aria-label="Scoreboard style">
+        <button type="button" class="hdr-opt" data-header="radar"><span class="hp hp-radar"></span>Radar</button>
+        <button type="button" class="hdr-opt" data-header="odometer"><span class="hp hp-odo"><i>0</i><i>1</i><i>2</i></span>Odometer</button>
+        <button type="button" class="hdr-opt" data-header="sign"><span class="hp hp-sign"></span>Highway sign</button>
+        <button type="button" class="hdr-opt" data-header="kpi"><span class="hp hp-kpi"><i></i><i></i><i></i></span>Dashboard</button>
+        <button type="button" class="hdr-opt" data-header="compact"><span class="hp hp-compact"></span>Compact</button>
+      </div>
     </div>
     <div class="set-row">
       <div><div class="set-name">Official team logos</div><div class="set-desc">Shows real team logos instead of letter badges. They download from ESPN the first time you're online, then work offline.</div></div>
@@ -680,7 +755,8 @@ const KEY = "plate-hunt-v1";
 let state = { captured: {}, tripStart: null, history: [], stars: {} };   // captured: abbr -> timestamp
 let ui = { region: "All", q: "", just: null, view: "plates", teams: "off", canada: false };
 try { ui.canada = localStorage.getItem("plate-hunt-canada") === "on"; } catch (e) {}
-ui.cols = 4; ui.home = ""; ui.logos = true; ui.homeLoc = null;
+ui.cols = 4; ui.home = ""; ui.logos = true; ui.homeLoc = null; ui.header = "radar";
+try { const hs = localStorage.getItem("plate-hunt-header"); if (["radar","odometer","sign","kpi","compact"].includes(hs)) ui.header = hs; } catch (e) {}
 try { ui.homeLoc = JSON.parse(localStorage.getItem("plate-hunt-homeloc") || "null"); } catch (e) {}
 try { ui.logos = localStorage.getItem("plate-hunt-logos") !== "off"; } catch (e) {}
 try { ui.cols = localStorage.getItem("plate-hunt-cols") === "3" ? 3 : 4; ui.home = localStorage.getItem("plate-hunt-home") || ""; } catch (e) {}
@@ -861,6 +937,7 @@ function openInfo(abbr) {
 function syncSettings() {
   $("canadaSwitch").setAttribute("aria-checked", ui.canada);
   $("logoSwitch").setAttribute("aria-checked", ui.logos);
+  document.querySelectorAll("[data-header]").forEach(b => b.setAttribute("aria-pressed", b.dataset.header === ui.header));
   document.querySelectorAll("[data-cols]").forEach(b => b.setAttribute("aria-pressed", String(ui.cols) === b.dataset.cols));
   const h = ui.homeLoc;
   $("homeDesc").textContent = h ? `Home: ${h.place}, ${h.st} (${h.zip}). Saved only on this device.` : "Each plate's details will show how far it is from home. Saved only on this device.";
@@ -884,6 +961,60 @@ function grouped(list, card, word) {
          (ca.length ? head("Canada", ca.length) + ca.map(card).join("") : "");
 }
 
+// ---------- Scoreboard styles ----------
+const HEADERS = [["radar", "Radar"], ["odometer", "Odometer"], ["sign", "Highway sign"], ["kpi", "Dashboard"], ["compact", "Compact"]];
+const ROUTE = `<div class="route" aria-hidden="true"><div class="road"><div class="fill" data-fill></div>
+  <svg class="car" data-car viewBox="0 0 30 30"><circle cx="15" cy="15" r="13" fill="none" stroke="var(--accent)" stroke-width="1.5" opacity=".5"/><path d="M8 15h11M15 9l6 6-6 6" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+  <div class="marks"><span>START</span><span data-pct>0%</span><span>COAST TO COAST</span></div></div>`;
+const TITLE = `<div class="eyebrow"><span class="blip"></span>Road trip scanner online</div><h1>Plate<span>Hunt</span></h1>`;
+const HEADER_HTML = {
+  radar: () => `<div class="hud-main">${TITLE}${ROUTE}</div>
+    <div class="radar"><div class="sweep"></div><div class="pulse"></div>
+      <div class="tally"><span class="num" data-n>0</span><span class="of"> / <span data-total></span></span><span class="lbl" data-left></span></div></div>`,
+  odometer: () => `<div class="hud-main">${TITLE}${ROUTE}</div>
+    <div class="odo"><div class="odo-lbl">Plates found</div><div class="odo-digits" data-odo></div>
+      <div class="odo-sub"><span>of <b data-total></b></span><span data-left></span></div></div>`,
+  sign: () => `<div class="hwy"><div class="hwy-in">
+      <div class="hwy-top"><span class="hwy-shield"><b data-n>0</b></span><div><div class="hwy-name">Plate Hunt</div><div class="hwy-sub">Plates found · of <span data-total></span></div></div>
+        <div class="hwy-exit">NEXT<b data-next></b>PLATES</div></div>
+      <div class="hwy-rows"><div><span>Still out there</span><b data-leftn></b></div><div><span>Complete</span><b data-pct>0%</b></div></div>
+      ${ROUTE}</div></div>`,
+  kpi: () => `<div class="hud-main kpi-wrap"><div class="kpi-title"><span class="blip"></span><h1 class="kpi-h">Plate<span>Hunt</span></h1></div>
+      <div class="kpis">
+        <div class="kpi big"><div class="k">Found</div><div class="v"><span data-n>0</span><small>/<span data-total></span></small></div></div>
+        <div class="kpi"><div class="k">To go</div><div class="v" data-leftn></div></div>
+        <div class="kpi"><div class="k">Complete</div><div class="v" data-pct>0%</div></div>
+        <div class="kpi"><div class="k">Quiz stars</div><div class="v gold" data-stars></div></div>
+        <div class="kpi"><div class="k">Rare finds</div><div class="v" data-rare></div></div>
+        <div class="kpi"><div class="k">Last spotted</div><div class="v sm" data-last></div></div>
+      </div>${ROUTE}</div>`,
+  compact: () => `<div class="hud-main compact"><h1 class="c-h">Plate<span>Hunt</span></h1>
+      <div class="c-count"><span data-n>0</span><small>/<span data-total></span></small></div>
+      <div class="c-route">${ROUTE}</div></div>`,
+};
+let shownHeader = null;
+function renderHeader(n, total, capList) {
+  const hud = $("hud");
+  if (shownHeader !== ui.header) { $("hudBody").innerHTML = HEADER_HTML[ui.header](); hud.dataset.style = ui.header; shownHeader = ui.header; }
+  const q = sel => hud.querySelectorAll(sel), set = (sel, v) => q(sel).forEach(el => { el.textContent = v; });
+  const pct = Math.round(n / total * 100);
+  q("[data-n]").forEach(el => { if (el.textContent !== String(n)) { el.textContent = n; el.classList.remove("bump"); void el.offsetWidth; el.classList.add("bump"); } });
+  set("[data-total]", total); set("[data-pct]", pct + "%"); set("[data-leftn]", total - n);
+  set("[data-left]", n === total ? "Every plate found!" : `${total - n} still out there`);
+  set("[data-next]", total - n);
+  set("[data-stars]", "★ " + Object.keys(state.stars).length);
+  set("[data-rare]", ["AK", "HI", "NU", "NT", "YT"].filter(a => capList.includes(a)).length);
+  set("[data-last]", capList.length ? BY[capList[0]].name : "None yet");
+  q("[data-fill]").forEach(el => el.style.width = pct + "%");
+  q("[data-car]").forEach(el => el.style.left = `calc(15px + (100% - 30px) * ${n / total})`);
+  q("[data-odo]").forEach(el => {
+    const str = String(n).padStart(3, "0");
+    if (el.dataset.v === str) return;
+    el.dataset.v = str;
+    el.innerHTML = [...str].map((d, i) => `<span class="odo-d${i === str.length - 1 ? " last" : ""}"><span class="odo-roll" style="--d:${d}">${[0,1,2,3,4,5,6,7,8,9].map(x => `<i>${x}</i>`).join("")}</span></span>`).join("");
+  });
+}
+
 function render() {
   const act = active(), actSet = new Set(act.map(s => s.abbr));
   const capList = Object.keys(state.captured).filter(a => actSet.has(a)).sort((a, b) => state.captured[b] - state.captured[a]);
@@ -893,14 +1024,7 @@ function render() {
   const capShown = capList.map(a => BY[a]).filter(matches);
 
   // scoreboard
-  const cnt = $("count");
-  if (cnt.textContent !== String(n)) { cnt.textContent = n; cnt.classList.remove("bump"); void cnt.offsetWidth; cnt.classList.add("bump"); }
-  $("total").textContent = total;
-  $("tallyLbl").textContent = n === total ? "Every plate found!" : `${total - n} still out there`;
-  const pct = Math.round(n / total * 100);
-  $("pctLbl").textContent = pct + "%";
-  $("fill").style.width = pct + "%";
-  $("car").style.left = `calc(22px + (100% - 44px) * ${n / total})`;
+  renderHeader(n, total, capList);
 
 
   // road
@@ -958,7 +1082,7 @@ function capture(abbr, btn) {
   if (state.captured[abbr]) return;
   const go = () => {
     state.captured[abbr] = Date.now(); if (!state.tripStart) state.tripStart = state.captured[abbr]; ui.just = abbr; save(); render();
-    const rd = $("radar"); rd.classList.remove("ping"); void rd.offsetWidth; rd.classList.add("ping");
+    const rd = $("hud"); rd.classList.remove("ping"); void rd.offsetWidth; rd.classList.add("ping");
     const act = active(), n = act.filter(x => state.captured[x.abbr]).length, s = BY[abbr], m = milestone(n, act.length);
     if (m) toast(m);
     else if (["HI", "AK", "NU", "NT", "YT"].includes(abbr)) toast(`${s.name}?! That's a rare find.`);
@@ -981,6 +1105,8 @@ document.addEventListener("click", e => {
   if (cb) { ui.cols = +cb.dataset.cols; try { localStorage.setItem("plate-hunt-cols", ui.cols); } catch (err) {} applyCols(); syncSettings(); return; }
   if (e.target.closest("#gearBtn")) { syncSettings(); $("setDlg").showModal(); return; }
   if (e.target.closest("[data-close-set]") || e.target === $("setDlg")) { $("setDlg").close(); return; }
+  const hb = e.target.closest("[data-header]");
+  if (hb) { ui.header = hb.dataset.header; try { localStorage.setItem("plate-hunt-header", ui.header); } catch (err) {} syncSettings(); render(); return; }
   if (e.target.closest("#logoSwitch")) {
     ui.logos = !ui.logos; try { localStorage.setItem("plate-hunt-logos", ui.logos ? "on" : "off"); } catch (err) {}
     syncSettings(); render(); preloadLogos(); toast(ui.logos ? "Team logos on" : "Letter badges on"); return;
