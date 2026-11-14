@@ -375,7 +375,8 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
 @media (hover: none) { .plate-btn:hover, .tile:hover { transform: none; } .plate-btn:hover::after { opacity: 0; } }
 
 /* ---------- Popup (HUD panel) ---------- */
-.info-dlg { position: relative; border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--rule)); padding: 0; border-radius: 22px; width: min(760px, calc(100% - 32px)); max-height: min(90vh, 980px);
+.info-dlg { position: fixed; inset: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px); margin: auto; border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--rule)); padding: 0; border-radius: 22px; width: min(760px, calc(100% - 32px)); height: fit-content;
+  max-height: min(90vh, 980px); max-height: min(calc(100dvh - 32px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)), 980px);
   background: var(--card-solid); color: var(--ink); overflow: hidden; box-shadow: 0 0 60px -10px var(--glow), 0 30px 70px -20px rgba(0,0,0,.7); }
 .info-dlg::backdrop { background: rgba(2, 8, 18, .7); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
 .info-dlg[open] { display: flex; flex-direction: column; animation: dlgIn .28s cubic-bezier(.2,.9,.3,1.1); }
