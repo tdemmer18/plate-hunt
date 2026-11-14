@@ -1,6 +1,6 @@
 // Plate Hunt service worker: caches the whole app so it runs with no signal.
 // Bump VERSION whenever any file changes so devices pick up the update.
-const VERSION = "plate-hunt-v4";
+const VERSION = "plate-hunt-v5";
 const FILES = [
   "./", "index.html", "fonts.css", "manifest.webmanifest",
   "fonts/BigShouldersDisplay-0.woff2", "fonts/Overpass-1.woff", "fonts/Overpass-2.woff2", "fonts/OverpassMono-3.woff2",

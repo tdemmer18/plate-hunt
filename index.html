@@ -13,6 +13,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Plate Hunt">
+<script>try { const t = localStorage.getItem("plate-hunt-theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) {}</script>
 <link rel="stylesheet" href="fonts.css">
 <style>
 :root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
@@ -177,6 +178,11 @@ section { display: flex; flex-direction: column; gap: 14px; }
 .tm.nhl::before { content: ""; position: absolute; left: 3px; top: 50%; width: 4px; height: 4px; margin-top: -2px; border-radius: 50%; background: var(--c2); }
 .tm.more { background: var(--pfg); color: var(--pbg); box-shadow: none; border-radius: 999px; }
 
+/* theme toggle */
+.theme-btn { display: inline-flex; align-items: center; gap: 6px; font: inherit; font-weight: 800; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; cursor: pointer; border: 2px solid var(--ink); border-radius: 10px; padding: 7px 12px; background: var(--card); color: var(--ink); }
+.theme-btn .ic { width: 18px; height: 18px; display: none; }
+.theme-btn[data-mode="auto"] .ic-auto, .theme-btn[data-mode="light"] .ic-light, .theme-btn[data-mode="dark"] .ic-dark { display: block; }
+
 /* view toggle */
 .views { display: inline-flex; border: 2px solid var(--ink); border-radius: 10px; overflow: hidden; margin-left: auto; }
 .view-btn { font: inherit; font-weight: 800; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; cursor: pointer; border: 0; padding: 8px 14px; background: transparent; color: var(--ink); }
@@ -312,6 +318,12 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
       <button type="button" class="view-btn" data-view="map" aria-pressed="false">Map</button>
       <button type="button" class="view-btn" data-view="trips" aria-pressed="false">Trips</button>
     </div>
+    <button type="button" class="theme-btn" id="themeBtn" aria-label="Theme: Auto. Tap to change">
+      <svg class="ic ic-auto" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>
+      <svg class="ic ic-light" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></g></svg>
+      <svg class="ic ic-dark" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" fill="currentColor"/></svg>
+      <span id="themeLbl">Auto</span>
+    </button>
   </div>
 
   <section id="mapView" aria-labelledby="h-map" hidden>
@@ -694,6 +706,26 @@ function bindReset() {
   };
 }
 function restoreReset() { $("resetWrap").innerHTML = `<button class="btn" id="resetBtn" type="button">Finish trip &amp; log it</button>`; bindReset(); }
+
+// ---------- Theme: Auto (follows iPad setting) -> Light -> Dark ----------
+const THEMES = ["auto", "light", "dark"];
+function applyTheme(mode) {
+  if (mode === "auto") delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = mode;
+  const b = $("themeBtn"); b.dataset.mode = mode;
+  const name = mode[0].toUpperCase() + mode.slice(1);
+  $("themeLbl").textContent = name; b.setAttribute("aria-label", `Theme: ${name}. Tap to change`);
+  const dark = mode === "dark" || (mode === "auto" && matchMedia("(prefers-color-scheme: dark)").matches);
+  document.querySelector('meta[name="theme-color"]').setAttribute("content", dark ? "#16191a" : "#0d6a43");
+}
+let themeMode = "auto";
+try { const t = localStorage.getItem("plate-hunt-theme"); if (THEMES.includes(t)) themeMode = t; } catch (e) {}
+$("themeBtn").addEventListener("click", () => {
+  themeMode = THEMES[(THEMES.indexOf(themeMode) + 1) % THEMES.length];
+  try { localStorage.setItem("plate-hunt-theme", themeMode); } catch (e) {}
+  applyTheme(themeMode); toast(themeMode === "auto" ? "Theme follows your iPad setting" : `${themeMode[0].toUpperCase() + themeMode.slice(1)} mode on`);
+});
+matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", () => applyTheme(themeMode));
+applyTheme(themeMode);
 
 function start(data) {
   if (data && data.captured) state = { captured: data.captured };
