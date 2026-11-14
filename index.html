@@ -248,6 +248,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 /* ---------- Controls ---------- */
 .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 .show-ctl { margin-left: auto; }
+@media (max-width: 560px) { .controls .seg-lbl { display: none; } }
 .seg { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 3px; padding: 4px; border-radius: 14px; background: var(--card); border: 1px solid var(--rule); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
 .seg-lbl { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); padding: 0 8px 0 8px; }
 .seg-btn { font-family: var(--font-hud); font-weight: 600; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; border: 1px solid transparent; border-radius: 10px; padding: 0 13px; min-height: 36px; background: transparent; color: var(--ink); }
@@ -375,7 +376,7 @@ body.cols-3 .plate .st { font-size: 12.5px; } body.cols-3 .plate .slogan { font-
   border: 1px solid var(--accent); box-shadow: 0 0 30px -6px var(--glow), 0 14px 30px -12px rgba(0,0,0,.6);
   transition: transform .35s cubic-bezier(.2,1.3,.4,1), visibility 0s .35s; z-index: 30; max-width: calc(100vw - 32px); text-align: center; }
 .toast-undo { margin-left: 14px; padding: 6px 12px; border-radius: 9px; border: 1px solid var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); font: inherit; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
-.toast { display: flex; align-items: center; justify-content: center; }
+.toast { display: flex; align-items: center; justify-content: center; inset: auto auto calc(20px + env(safe-area-inset-bottom, 0px)) 50%; margin: 0; overflow: visible; }
 .toast.show { transform: translate(-50%, 0); visibility: visible; transition: transform .35s cubic-bezier(.2,1.3,.4,1); }
 button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 @media (hover: none) { .plate-btn:hover, .tile:hover { transform: none; } .plate-btn:hover::after { opacity: 0; } }
@@ -473,10 +474,16 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
 .dlg-foot { position: relative; display: flex; gap: 10px; justify-content: flex-end; padding: 14px 20px calc(16px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--rule); flex-wrap: wrap; background: color-mix(in srgb, var(--ground-2) 40%, var(--card-solid)); }
 
 /* settings */
-.set-dlg { width: min(500px, calc(100% - 32px)); }
 .set-head { grid-template-columns: 1fr auto; }
 .set-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--rule); flex-wrap: wrap; }
 .set-row:last-child { border-bottom: 0; }
+.set-trips { flex-direction: column; align-items: stretch; }
+.set-trips .set-desc { max-width: none; }
+.set-dlg { width: min(640px, calc(100% - 32px)); }
+.set-dlg .standings { min-width: 0; font-size: 14px; }
+.set-dlg .standings th, .set-dlg .standings td { padding: 10px; }
+.set-dlg .log-form { display: flex; flex-wrap: wrap; gap: 8px; }
+@media (max-width: 560px) { .set-dlg .bar-col, .set-dlg .dates-col { display: none; } .set-dlg .standings .rk { width: 44px; } }
 .set-name { font-weight: 700; font-size: 16px; }
 .set-desc { font-size: 13.5px; color: var(--ink-soft); margin-top: 2px; max-width: 40ch; }
 .switch { flex: none; width: 56px; height: 32px; border-radius: 999px; border: 1px solid var(--rule); padding: 3px; cursor: pointer; background: var(--ground-2); transition: background .2s; }
@@ -571,7 +578,6 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
       <span class="seg-lbl">View</span>
       <button type="button" class="seg-btn view-btn" data-view="plates" aria-pressed="true">Plates</button>
       <button type="button" class="seg-btn view-btn" data-view="map" aria-pressed="false">Map</button>
-      <button type="button" class="seg-btn view-btn" data-view="trips" aria-pressed="false">Trips</button>
     </div>
     <div class="seg show-ctl" role="group" aria-label="Which plates to show">
       <span class="seg-lbl">Show</span>
@@ -601,21 +607,8 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
     <div class="grid" id="roadGrid"></div>
   </section>
 
-  <section id="tripsView" aria-labelledby="h-trips" hidden>
-    <div class="sec-head">
-      <h2 id="h-trips">Trip standings</h2>
-      <span class="meta" id="tripsMeta"></span>
-    </div>
-    <div class="stand-wrap"><table class="standings">
-      <thead><tr><th class="rk">Rank</th><th>Trip</th><th>Dates</th><th class="num-col">Plates</th><th class="bar-col">Progress</th><th class="act"><span class="sr">Actions</span></th></tr></thead>
-      <tbody id="tripsBody"></tbody>
-    </table></div>
-    <p class="hint">When a trip ends, tap <b>Finish trip &amp; log it</b> at the bottom of the page. The trip moves into these standings and a fresh board starts.</p>
-  </section>
-
   <div class="foot">
     <span>Progress is saved on this device and works with no signal. <span id="offline" class="offline-pill" hidden>Offline</span></span>
-    <span id="resetWrap"><button class="btn" id="resetBtn" type="button">Finish trip &amp; log it</button></span>
   </div>
 </div>
 
@@ -707,10 +700,19 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
         <button type="submit" class="btn go zip-btn">Set</button>
       </form>
     </div>
+    <div class="set-row set-trips">
+      <div><div class="set-name" id="h-trips">Trips</div><div class="set-desc" id="tripsMeta"></div></div>
+      <div class="stand-wrap"><table class="standings" aria-labelledby="h-trips">
+        <thead><tr><th class="rk">Rank</th><th>Trip</th><th class="dates-col">Dates</th><th class="num-col">Plates</th><th class="bar-col">Progress</th><th class="act"><span class="sr">Actions</span></th></tr></thead>
+        <tbody id="tripsBody"></tbody>
+      </table></div>
+      <span id="resetWrap"><button class="btn" id="resetBtn" type="button">Finish trip &amp; log it</button></span>
+      <p class="hint">When a trip ends, tap <b>Finish trip &amp; log it</b>. The trip moves into these standings and a fresh board starts.</p>
+    </div>
   </div>
   <div class="dlg-foot"><button type="button" class="btn go" data-close-set>Done</button></div>
 </dialog>
-<div class="toast" id="toast" role="status"></div>
+<div class="toast" id="toast" role="status" popover="manual"></div>
 
 <script>
 // abbr, name, slogan, region, year, bg, fg, accent
@@ -869,7 +871,7 @@ ui.tap = "capture";   // what tapping an uncaptured plate does: "capture" | "det
 try { if (localStorage.getItem("plate-hunt-tap") === "details") ui.tap = "details"; } catch (e) {}
 try { ui.cols = localStorage.getItem("plate-hunt-cols") === "3" ? 3 : 4; ui.home = localStorage.getItem("plate-hunt-home") || ""; } catch (e) {}
 try { const t = localStorage.getItem("plate-hunt-teams"); if (["nfl","nhl","both"].includes(t)) ui.teams = t; } catch (e) {}
-try { const v = localStorage.getItem("plate-hunt-view"); if (v === "map" || v === "trips") ui.view = v; } catch (e) {}
+try { const v = localStorage.getItem("plate-hunt-view"); if (v === "map") ui.view = v; } catch (e) {}
 // Tile map positions: [col, row] on a 12 x 8 grid
 const TILE = {YT:[1,0],NT:[2,0],NU:[4,0],NL:[10,0],BC:[1,1],AB:[2,1],SK:[3,1],MB:[4,1],ON:[6,1],QC:[8,1],NB:[10,1],PE:[11,1],NS:[11,2],
   AK:[0,0],ME:[11,0],WI:[6,1],VT:[10,1],NH:[11,1],WA:[1,2],ID:[2,2],MT:[3,2],ND:[4,2],MN:[5,2],IL:[6,2],MI:[7,2],NY:[9,2],MA:[10,2],
@@ -1176,13 +1178,11 @@ function render() {
   $("roadGrid").innerHTML = shown.length ? grouped(shown, card, onlyLeft ? "to find" : "plates")
     : `<div class="empty" style="grid-column:1/-1">${onlyLeft && !remaining.length ? "Every plate captured. Time for a victory milkshake." : ""}</div>`;
   // view toggle
-  const isMap = ui.view === "map", isTrips = ui.view === "trips";
-  $("mapView").hidden = !isMap; $("tripsView").hidden = !isTrips;
-  $("roadView").hidden = isMap || isTrips;
-  document.querySelectorAll(".show-ctl").forEach(el => el.hidden = isMap || isTrips);
+  const isMap = ui.view === "map";
+  $("mapView").hidden = !isMap;
+  $("roadView").hidden = isMap;
+  document.querySelectorAll(".show-ctl").forEach(el => el.hidden = isMap);
   document.querySelectorAll("[data-show]").forEach(b => b.setAttribute("aria-pressed", b.dataset.show === ui.show));
-  document.querySelectorAll(".filter-ctl").forEach(el => el.hidden = isTrips);
-  if (isTrips) renderTrips();
   document.querySelectorAll(".view-btn").forEach(b => b.setAttribute("aria-pressed", b.dataset.view === ui.view));
   document.querySelectorAll(".team-btn").forEach(b => b.setAttribute("aria-pressed", b.dataset.teams === ui.teams));
 
@@ -1211,6 +1211,8 @@ function toast(msg, undo) {
     const u = document.createElement("button"); u.type = "button"; u.className = "toast-undo"; u.textContent = "Undo";
     u.addEventListener("click", () => typeof undo === "function" ? undo() : undoCapture(undo)); t.append(u);
   }
+  // re-open as a popover so it sits above any open dialog (Settings, details)
+  if (t.showPopover) { try { if (t.matches(":popover-open")) t.hidePopover(); t.showPopover(); void t.offsetWidth; } catch (e) {} }
   t.classList.add("show");
   clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), undo ? 5000 : 2600);
 }
@@ -1265,7 +1267,7 @@ document.addEventListener("click", e => {
   if (tp) { ui.tap = tp.dataset.tap; try { localStorage.setItem("plate-hunt-tap", ui.tap); } catch (err) {} syncSettings(); render(); return; }
   const cb = e.target.closest("[data-cols]");
   if (cb) { ui.cols = +cb.dataset.cols; try { localStorage.setItem("plate-hunt-cols", ui.cols); } catch (err) {} applyCols(); syncSettings(); return; }
-  if (e.target.closest("#gearBtn")) { syncSettings(); $("setDlg").showModal(); return; }
+  if (e.target.closest("#gearBtn")) { syncSettings(); renderTrips(); $("setDlg").showModal(); return; }
   if (e.target.closest("[data-close-set]") || e.target === $("setDlg")) { $("setDlg").close(); return; }
   if (e.target.closest("#hudToggle")) { ui.hudOpen = !ui.hudOpen; try { localStorage.setItem("plate-hunt-hud-open", ui.hudOpen ? "1" : "0"); } catch (err) {} render(); return; }
   const hb = e.target.closest("[data-header]");
@@ -1341,9 +1343,9 @@ function renderTrips() {
     return `<tr class="${t.current ? "current" : ""}">
       <td><span class="rank ${i < 3 && n ? "r" + (i + 1) : ""}">${i + 1}</span></td>
       <td><span class="trip-name">${esc(t.name)}</span>${t.current ? '<span class="live">In progress</span>' : ""}${sub ? `<div class="trip-sub">${esc(sub)}</div>` : ""}</td>
-      <td class="dates">${dateRange(t.start, t.end)}</td>
+      <td class="dates dates-col">${dateRange(t.start, t.end)}</td>
       <td class="num-col"><span class="score">${n}<small>/${total}</small></span></td>
-      <td><div class="bar" title="${pct}%"><i style="width:${pct}%"></i></div></td>
+      <td class="bar-col"><div class="bar" title="${pct}%"><i style="width:${pct}%"></i></div></td>
       <td class="act">${act}</td>
     </tr>`;
   }).join("");
@@ -1372,8 +1374,7 @@ function bindReset() {
       ev.preventDefault();
       state.history.push({ id: "t" + Date.now(), name: inp.value.trim() || "Road trip", plates: cur.plates, start: cur.start, end: cur.end, logged: Date.now() });
       state.captured = {}; state.tripStart = null; save(); restoreReset();
-      ui.view = "trips"; try { localStorage.setItem("plate-hunt-view", "trips"); } catch (err) {}
-      render(); window.scrollTo({ top: 0, behavior: "smooth" });
+      render(); renderTrips();
       const place = ranked().findIndex(t => t.id === state.history[state.history.length - 1].id) + 1;
       toast(`Trip logged in place #${place}. New board ready.`);
     };
