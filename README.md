@@ -14,6 +14,6 @@ After that it runs full screen with no internet at all. Progress is saved on the
 
 ## How it's built
 
-Plain HTML, CSS and JavaScript with no build step. State and province facts, team lists and bird photo credits live in `info.js`. Bird photos are from Wikimedia Commons; see `CREDITS.md`. `sw.js` is a service worker that caches every file for offline play. The fonts are stored in the repo, so nothing loads from the internet.
+Plain HTML, CSS and JavaScript with no build step. State and province facts and team lists live in `info.js`, extra learning content in `learn.js`, and outline drawings (from Natural Earth and the U.S. Census, both public domain) in `shapes.js`. `sw.js` is a service worker that caches every file for offline play. The fonts are stored in the repo, so nothing loads from the internet.
 
 To publish changes, edit the files, bump `VERSION` in `sw.js`, and push to `main`.

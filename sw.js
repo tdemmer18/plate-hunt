@@ -1,12 +1,28 @@
 // Plate Hunt service worker: caches the whole app so it runs with no signal.
 // Bump VERSION whenever any file changes so devices pick up the update.
-const VERSION = "plate-hunt-v9";
+const VERSION = "plate-hunt-v10";
 const FILES = [
-  "./", "index.html", "fonts.css", "info.js", "manifest.webmanifest",
-  "fonts/BigShouldersDisplay-0.woff2", "fonts/Overpass-1.woff", "fonts/Overpass-2.woff2", "fonts/OverpassMono-3.woff2",
+  "./",
+  "index.html",
+  "fonts.css",
+  "info.js",
+  "learn.js",
+  "shapes.js",
+  "manifest.webmanifest",
+  "fonts/BigShouldersDisplay-0.woff2",
+  "fonts/ChakraPetch-0.woff2",
+  "fonts/ChakraPetch-1.woff2",
+  "fonts/ChakraPetch-2.woff2",
+  "fonts/JetBrainsMono-3.woff2",
+  "fonts/Outfit-4.woff2",
+  "fonts/Overpass-1.woff",
+  "fonts/Overpass-2.woff2",
+  "fonts/OverpassMono-3.woff2",
   "icons/icon.svg",
-  "birds/american-goldfinch.jpg", "birds/american-robin.jpg", "birds/atlantic-puffin.jpg", "birds/baltimore-oriole.jpg", "birds/black-capped-chickadee.jpg", "birds/blue-jay.jpg", "birds/brown-pelican.jpg", "birds/brown-thrasher.jpg", "birds/cactus-wren.jpg", "birds/california-gull.jpg", "birds/california-quail.jpg", "birds/carolina-wren.jpg", "birds/common-loon.jpg", "birds/common-pheasant.jpg", "birds/common-raven.jpg", "birds/delaware-blue-hen.jpg", "birds/eastern-bluebird.jpg", "birds/great-grey-owl.jpg", "birds/great-horned-owl.jpg", "birds/greater-roadrunner.jpg", "birds/gyrfalcon.jpg", "birds/hawaiian-goose.jpg", "birds/hermit-thrush.jpg", "birds/lark-bunting.jpg", "birds/mountain-bluebird.jpg", "birds/northern-cardinal.jpg", "birds/northern-flicker.jpg", "birds/northern-mockingbird.jpg", "birds/osprey.jpg", "birds/purple-finch.jpg", "birds/rhode-island-red.jpg", "birds/rock-ptarmigan.jpg", "birds/ruffed-grouse.jpg", "birds/scissor-tailed-flycatcher.jpg", "birds/sharp-tailed-grouse.jpg", "birds/snowy-owl.jpg", "birds/steller-s-jay.jpg", "birds/western-meadowlark.jpg", "birds/willow-ptarmigan.jpg", "birds/wood-thrush.jpg",
-  "icons/icon-180.png", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png"
+  "icons/icon-180.png",
+  "icons/icon-192.png",
+  "icons/icon-512.png",
+  "icons/icon-maskable-512.png"
 ];
 
 self.addEventListener("install", e => {
