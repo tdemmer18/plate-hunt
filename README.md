@@ -14,6 +14,6 @@ After that it runs full screen with no internet at all. Progress is saved on the
 
 ## How it's built
 
-Plain HTML, CSS and JavaScript with no build step. `sw.js` is a service worker that caches every file for offline play. The fonts are stored in the repo, so nothing loads from the internet.
+Plain HTML, CSS and JavaScript with no build step. State facts and team lists live in `info.js`. `sw.js` is a service worker that caches every file for offline play. The fonts are stored in the repo, so nothing loads from the internet.
 
 To publish changes, edit the files, bump `VERSION` in `sw.js`, and push to `main`.

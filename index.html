@@ -98,17 +98,14 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 
 /* ---------- Controls ---------- */
 .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-.search {
-  flex: 1 1 220px; min-width: 0; font: inherit; font-size: 15px; color: var(--ink);
-  background: var(--card); border: 2px solid var(--rule); border-radius: 10px; padding: 10px 14px;
-}
-.search:focus-visible, button:focus-visible { outline: 3px solid var(--line); outline-offset: 2px; }
-.chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.chip {
-  font: inherit; font-weight: 700; font-size: 13px; letter-spacing: .04em; cursor: pointer;
-  background: transparent; color: var(--ink-soft); border: 2px solid var(--rule); border-radius: 999px; padding: 6px 12px;
-}
-.chip[aria-pressed="true"] { background: var(--ink); color: var(--ground); border-color: var(--ink); }
+button:focus-visible { outline: 3px solid var(--line); outline-offset: 2px; }
+.seg { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 3px; border: 2px solid var(--rule); border-radius: 10px; padding: 3px; background: var(--card); }
+.seg-btns { display: contents; }
+.seg-lbl { font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-soft); padding: 0 6px 0 5px; }
+.seg-btn { font: inherit; font-weight: 800; font-size: 12.5px; letter-spacing: .05em; text-transform: uppercase; cursor: pointer; border: 0; border-radius: 7px; padding: 0 11px; min-height: 34px; background: transparent; color: var(--ink); }
+.seg-btn:hover { background: var(--ground-2); }
+.seg-btn[aria-pressed="true"] { background: var(--ink); color: var(--ground); }
+.seg-btn .ct { opacity: .6; margin-left: 5px; font-variant-numeric: tabular-nums; }
 
 /* ---------- Sections ---------- */
 section { display: flex; flex-direction: column; gap: 14px; }
@@ -164,10 +161,6 @@ section { display: flex; flex-direction: column; gap: 14px; }
 @keyframes leave { to { transform: translateY(-14px) scale(.9) rotate(4deg); opacity: 0; } }
 
 /* team badges */
-.teams-ctl { display: inline-flex; align-items: center; gap: 4px; border: 2px solid var(--rule); border-radius: 10px; padding: 3px; background: var(--card); }
-.teams-lbl { font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-soft); padding: 0 6px 0 4px; }
-.team-btn { font: inherit; font-weight: 800; font-size: 12.5px; cursor: pointer; border: 0; border-radius: 7px; padding: 6px 10px; background: transparent; color: var(--ink); }
-.team-btn[aria-pressed="true"] { background: var(--sign); color: var(--sign-ink); }
 .plate .teams { position: absolute; top: 24px; bottom: 20px; display: flex; flex-direction: column; justify-content: center; gap: 3px; z-index: 1; }
 .plate .teams.left { left: 9px; align-items: flex-start; }
 .plate .teams.right { right: 9px; align-items: flex-end; }
@@ -176,15 +169,56 @@ section { display: flex; flex-direction: column; gap: 14px; }
   font-family: var(--font-body); font-weight: 800; font-size: 9.5px; letter-spacing: .03em; line-height: 1; text-align: center;
   background: var(--c1); color: var(--tx); box-shadow: inset 0 0 0 1.5px var(--c2); }
 
-/* theme toggle */
-.theme-btn { display: inline-flex; align-items: center; gap: 6px; font: inherit; font-weight: 800; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; cursor: pointer; border: 2px solid var(--ink); border-radius: 10px; padding: 7px 12px; background: var(--card); color: var(--ink); }
-.theme-btn .ic { width: 18px; height: 18px; display: none; }
-.theme-btn[data-mode="auto"] .ic-auto, .theme-btn[data-mode="light"] .ic-light, .theme-btn[data-mode="dark"] .ic-dark { display: block; }
+
+/* info button */
+.pcard, .cap { position: relative; }
+.pcard .plate-btn, .cap .plate-btn { width: 100%; }
+.info-btn { position: absolute; left: -8px; top: -8px; z-index: 2; width: 30px; height: 30px; border-radius: 50%; padding: 0; cursor: pointer;
+  display: grid; place-items: center; background: var(--ink); color: var(--ground); border: 2px solid var(--ground);
+  font: italic 800 15px/1 Georgia, "Times New Roman", serif; box-shadow: 0 3px 8px -3px rgba(0,0,0,.5); }
+.info-btn:active { transform: scale(.92); }
+
+/* state info popup */
+.info-dlg { border: 0; padding: 0; border-radius: 18px; width: min(600px, calc(100% - 32px)); max-height: min(88vh, 900px);
+  background: var(--card); color: var(--ink); box-shadow: 0 30px 60px -20px rgba(0,0,0,.6); overflow: hidden; }
+.info-dlg::backdrop { background: rgba(10, 14, 12, .62); }
+.info-dlg[open] { display: flex; flex-direction: column; animation: dlgIn .22s ease-out; }
+@keyframes dlgIn { from { transform: translateY(16px) scale(.98); opacity: 0; } }
+.dlg-head { background: var(--sign); color: var(--sign-ink); padding: 18px 20px 16px; display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: center; }
+.dlg-head .plate { width: 170px; }
+.dlg-head .plate .serial { font-size: 30px; }
+.dlg-head h2 { margin: 0; font-family: var(--font-display); font-weight: 900; font-size: 34px; line-height: 1; text-transform: uppercase; text-wrap: balance; }
+.dlg-head .nick { font-size: 13px; font-weight: 600; opacity: .9; margin-top: 4px; }
+.dlg-x { align-self: start; width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--sign-ink); background: transparent; color: var(--sign-ink); font: 800 20px/1 var(--font-body); cursor: pointer; }
+.dlg-body > * { flex-shrink: 0; }
+.dlg-body:focus { outline: none; }
+.dlg-body { overflow-y: auto; padding: 18px 20px 6px; display: flex; flex-direction: column; gap: 18px; -webkit-overflow-scrolling: touch; }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: 12px; overflow: hidden; }
+.stat { background: var(--card); padding: 10px 12px; min-width: 0; }
+.stat .k { font-size: 10.5px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-soft); }
+.stat .v { font-family: var(--font-display); font-weight: 800; font-size: 22px; line-height: 1.1; margin-top: 2px; overflow-wrap: anywhere; }
+.stat .v small { font-family: var(--font-body); font-size: 12px; font-weight: 600; color: var(--ink-soft); }
+.dlg-body h3 { margin: 0 0 8px; font-family: var(--font-display); font-weight: 800; font-size: 22px; text-transform: uppercase; letter-spacing: .02em; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.dlg-body h3 small { font-family: var(--font-mono); font-size: 12px; font-weight: 500; color: var(--ink-soft); text-transform: none; letter-spacing: 0; }
+.leagues { display: grid; gap: 8px; }
+.league { display: grid; grid-template-columns: 52px 1fr; gap: 10px; align-items: start; padding: 8px 0; border-top: 1px solid var(--rule); }
+.league:first-child { border-top: 0; padding-top: 0; }
+.lg-name { font-weight: 800; font-size: 13px; letter-spacing: .08em; padding-top: 2px; }
+.lg-name span { display: block; font-family: var(--font-mono); font-size: 11px; font-weight: 500; color: var(--ink-soft); letter-spacing: 0; }
+.lg-teams { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.lg-team { display: flex; align-items: center; gap: 8px; font-size: 14.5px; }
+.lg-none { color: var(--ink-soft); font-size: 14px; font-style: italic; }
+.facts { margin: 0; padding-left: 22px; display: grid; gap: 8px; font-size: 15px; line-height: 1.45; max-width: 65ch; }
+.facts li::marker { font-family: var(--font-display); font-weight: 900; color: var(--sign); }
+.dlg-foot { display: flex; gap: 10px; justify-content: flex-end; padding: 14px 20px calc(16px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--rule); flex-wrap: wrap; }
+.btn.go { background: var(--sign); border-color: var(--sign); color: var(--sign-ink); }
+@media (max-width: 560px) {
+  .dlg-head { grid-template-columns: 1fr auto; }
+  .dlg-head .plate { grid-column: 1 / -1; grid-row: 2; width: 140px; }
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 
 /* view toggle */
-.views { display: inline-flex; border: 2px solid var(--ink); border-radius: 10px; overflow: hidden; margin-left: auto; }
-.view-btn { font: inherit; font-weight: 800; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; cursor: pointer; border: 0; padding: 8px 14px; background: transparent; color: var(--ink); }
-.view-btn[aria-pressed="true"] { background: var(--ink); color: var(--ground); }
 
 /* tile map */
 .map-wrap { background: var(--ground-2); border-radius: 14px; padding: clamp(10px, 3vw, 24px); }
@@ -301,27 +335,28 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
   </header>
 
   <div class="controls">
-    <label for="q" style="position:absolute;left:-9999px">Search states</label>
-    <input id="q" class="search filter-ctl" type="search" placeholder="Spotted one? Type a state or abbreviation…" autocomplete="off">
-    <div class="chips filter-ctl" role="group" aria-label="Filter by region" id="chips"></div>
-    <div class="teams-ctl filter-ctl" role="group" aria-label="Team badges on plates">
-      <span class="teams-lbl">Teams</span>
-      <button type="button" class="team-btn" data-teams="off">Off</button>
-      <button type="button" class="team-btn" data-teams="nfl">NFL</button>
-      <button type="button" class="team-btn" data-teams="nhl">NHL</button>
-      <button type="button" class="team-btn" data-teams="both">Both</button>
+    <div class="seg filter-ctl" role="group" aria-label="Region">
+      <span class="seg-lbl">Region</span><span class="seg-btns" id="chips"></span>
     </div>
-    <div class="views" role="group" aria-label="Choose view">
-      <button type="button" class="view-btn" data-view="plates" aria-pressed="true">Plates</button>
-      <button type="button" class="view-btn" data-view="map" aria-pressed="false">Map</button>
-      <button type="button" class="view-btn" data-view="trips" aria-pressed="false">Trips</button>
+    <div class="seg filter-ctl" role="group" aria-label="Team badges on plates">
+      <span class="seg-lbl">Teams</span>
+      <button type="button" class="seg-btn team-btn" data-teams="off">Off</button>
+      <button type="button" class="seg-btn team-btn" data-teams="nfl">NFL</button>
+      <button type="button" class="seg-btn team-btn" data-teams="nhl">NHL</button>
+      <button type="button" class="seg-btn team-btn" data-teams="both">Both</button>
     </div>
-    <button type="button" class="theme-btn" id="themeBtn" aria-label="Theme: Auto. Tap to change">
-      <svg class="ic ic-auto" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>
-      <svg class="ic ic-light" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></g></svg>
-      <svg class="ic ic-dark" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" fill="currentColor"/></svg>
-      <span id="themeLbl">Auto</span>
-    </button>
+    <div class="seg" role="group" aria-label="View">
+      <span class="seg-lbl">View</span>
+      <button type="button" class="seg-btn view-btn" data-view="plates" aria-pressed="true">Plates</button>
+      <button type="button" class="seg-btn view-btn" data-view="map" aria-pressed="false">Map</button>
+      <button type="button" class="seg-btn view-btn" data-view="trips" aria-pressed="false">Trips</button>
+    </div>
+    <div class="seg" role="group" aria-label="Theme">
+      <span class="seg-lbl">Theme</span>
+      <button type="button" class="seg-btn theme-set" data-theme-set="auto">Auto</button>
+      <button type="button" class="seg-btn theme-set" data-theme-set="light">Light</button>
+      <button type="button" class="seg-btn theme-set" data-theme-set="dark">Dark</button>
+    </div>
   </div>
 
   <section id="mapView" aria-labelledby="h-map" hidden>
@@ -371,6 +406,8 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
   </div>
 </div>
 
+<script src="info.js"></script>
+<dialog class="info-dlg" id="infoDlg" aria-labelledby="infoTitle"></dialog>
 <div class="toast" id="toast" role="status"></div>
 
 <script>
@@ -443,7 +480,7 @@ const NFL = {
   MO:[["KC","Kansas City Chiefs","#E31837","#FFB81C"]], NV:[["LV","Las Vegas Raiders","#101010","#A5ACAF"]],
   CA:[["LAC","Los Angeles Chargers","#0080C6","#FFC20E"],["LAR","Los Angeles Rams","#003594","#FFA300"],["SF","San Francisco 49ers","#AA0000","#B3995D"]],
   MN:[["MIN","Minnesota Vikings","#4F2683","#FFC62F"]], MA:[["NE","New England Patriots","#002244","#C60C30"]],
-  LA:[["NO","New Orleans Saints","#101820","#D3BC8D"]], NJ:[["NYG","New York Giants","#0B2265","#A71930"],["NYJ","New York Jets","#125740","#FFFFFF"]],
+  LA:[["NO","New Orleans Saints","#101820","#D3BC8D"]],
   PA:[["PHI","Philadelphia Eagles","#004C54","#A5ACAF"],["PIT","Pittsburgh Steelers","#101820","#FFB612"]],
   WA:[["SEA","Seattle Seahawks","#002244","#69BE28"]], TN:[["TEN","Tennessee Titans","#0C2340","#4B92DB"]],
   DC:[["WAS","Washington Commanders","#5A1414","#FFB612"]],
@@ -498,8 +535,8 @@ function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catc
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
-function plateHTML(s) {
-  const L = teamCol(s.abbr, "nfl"), R = teamCol(s.abbr, "nhl");
+function plateHTML(s, plain) {
+  const L = plain ? "" : teamCol(s.abbr, "nfl"), R = plain ? "" : teamCol(s.abbr, "nhl");
   return `<div class="plate ${L ? "has-l" : ""} ${R ? "has-r" : ""}" style="--pbg:${s.bg};--pfg:${s.fg};--pac:${s.ac}">${L}${R}
     <span class="bolt l"></span><span class="bolt r"></span>
     <div class="st">${esc(s.name)}</div>
@@ -511,10 +548,58 @@ function plateHTML(s) {
 
 function matches(s) {
   if (ui.region !== "All" && s.region !== ui.region) return false;
-  const q = ui.q.trim().toLowerCase();
-  if (!q) return true;
-  return s.name.toLowerCase().includes(q) || s.abbr.toLowerCase() === q || s.slogan.toLowerCase().includes(q);
+  return true;
 }
+
+function infoBtn(s) { return `<button type="button" class="info-btn" data-info="${s.abbr}" aria-label="About ${esc(s.name)}">i</button>`; }
+
+const POP_RANK = Object.keys(INFO).filter(a => a !== "DC").sort((a, b) => INFO[b][2] - INFO[a][2]);
+function chip(lg, t) { return `<span class="tm ${lg}" style="--c1:${t[2]};--c2:${t[3]};--tx:${textOn(t[2])}">${t[0]}</span>`; }
+function openInfo(abbr) {
+  const s = BY[abbr], [capital, city, pop, bird, facts] = INFO[abbr], got = !!state.captured[abbr];
+  const order = ORDER.indexOf(abbr) + 1;
+  const leagues = [["NFL", NFL], ["NBA", NBA], ["MLB", MLB], ["NHL", NHL]].map(([lg, data]) => [lg, data[abbr] || []]);
+  const totalTeams = leagues.reduce((n, [, l]) => n + l.length, 0);
+  const stat = (k, v) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div></div>`;
+  const ord = n => n + (["th","st","nd","rd"][(n % 100 - 20) % 10] || ["th","st","nd","rd"][n % 100] || "th");
+  const popRank = POP_RANK.indexOf(abbr) + 1;
+  $("infoDlg").innerHTML = `
+    <div class="dlg-head">
+      ${plateHTML(s, true)}
+      <div><h2 id="infoTitle">${esc(s.name)}</h2><div class="nick">${esc(s.slogan)} · ${s.region}</div></div>
+      <button type="button" class="dlg-x" data-close aria-label="Close">&times;</button>
+    </div>
+    <div class="dlg-body" tabindex="-1" autofocus>
+      <div class="stats">
+        ${order ? stat("Joined the Union", `${ord(order)} <small>of 50</small>`) : stat("Statehood", "Not a state")}
+        ${stat(order ? "Statehood year" : "Founded", s.year)}
+        ${stat("Capital", esc(capital))}
+        ${stat("Largest city", esc(city))}
+        ${stat("Population", `${(pop / 1e6 >= 1 ? (pop / 1e6).toFixed(1) + "M" : Math.round(pop / 1000) + "K")}${popRank ? ` <small>${ord(popRank)} most</small>` : ""}`)}
+        ${stat("State bird", esc(bird))}
+      </div>
+      <div>
+        <h3>Pro sports teams <small>${totalTeams ? `${totalTeams} team${totalTeams === 1 ? "" : "s"}` : "none"}</small></h3>
+        <div class="leagues">${leagues.map(([lg, list]) => `
+          <div class="league"><div class="lg-name">${lg}<span>${list.length}</span></div>
+            <div class="lg-teams">${list.length ? list.map(t => `<div class="lg-team">${chip(lg.toLowerCase(), t)}<span>${esc(t[1])}</span></div>`).join("") : `<span class="lg-none">No ${lg} team</span>`}</div>
+          </div>`).join("")}
+        </div>
+      </div>
+      <div>
+        <h3>Fun facts</h3>
+        <ol class="facts">${facts.map(f => `<li>${esc(f)}</li>`).join("")}</ol>
+      </div>
+    </div>
+    <div class="dlg-foot">
+      <button type="button" class="btn" data-close>Close</button>
+      <button type="button" class="btn ${got ? "danger" : "go"}" data-dlg-toggle="${abbr}">${got ? "&#8634; Uncheck" : "&#10003; Capture"} ${esc(s.name)}</button>
+    </div>`;
+  const d = $("infoDlg");
+  if (!d.open) { d.showModal ? d.showModal() : d.setAttribute("open", ""); }
+  const body = d.querySelector(".dlg-body"); body.scrollTop = 0; body.focus({ preventScroll: true });
+}
+function closeInfo() { const d = $("infoDlg"); if (d.close) d.close(); else d.removeAttribute("open"); }
 
 function timeLabel(ts) {
   const d = new Date(ts), now = new Date();
@@ -542,23 +627,23 @@ function render() {
   // chips
   $("chips").innerHTML = REGIONS.map(r => {
     const left = r === "All" ? remaining.length : remaining.filter(s => s.region === r).length;
-    return `<button type="button" class="chip" data-r="${r}" aria-pressed="${ui.region === r}">${r} · ${left}</button>`;
+    return `<button type="button" class="seg-btn" data-r="${r}" aria-pressed="${ui.region === r}">${r}<span class="ct">${left}</span></button>`;
   }).join("");
 
   // road
   $("roadMeta").textContent = `${remaining.length} to find` + (roadShown.length !== remaining.length ? ` · showing ${roadShown.length}` : "");
   $("roadGrid").innerHTML = roadShown.length ? roadShown.map(s =>
-    `<button type="button" class="plate-btn" data-cap="${s.abbr}" aria-label="Capture ${esc(s.name)}">${plateHTML(s)}</button>`
-  ).join("") : `<div class="empty" style="grid-column:1/-1">${remaining.length ? "No plates match that search. Try another state or clear the filter." : "Every plate captured. Time for a victory milkshake."}</div>`;
+    `<div class="pcard"><button type="button" class="plate-btn" data-cap="${s.abbr}" aria-label="Capture ${esc(s.name)}">${plateHTML(s)}</button>${infoBtn(s)}</div>`
+  ).join("") : `<div class="empty" style="grid-column:1/-1">${remaining.length ? "Every plate in this region is captured. Pick another region." : "Every plate captured. Time for a victory milkshake."}</div>`;
 
   // captured
   $("capMeta").textContent = n ? `${n} captured · tap a plate to uncheck` : "Nothing yet";
   $("capGrid").innerHTML = capShown.length ? capShown.map(s =>
     `<div class="cap ${ui.just === s.abbr ? "just" : ""}">
-      <button type="button" class="plate-btn" data-rel="${s.abbr}" aria-label="Uncheck ${esc(s.name)}" title="Tap to uncheck" style="width:100%"><div style="position:relative">${plateHTML(s)}<span class="stamp" aria-hidden="true">&#10003;</span></div></button>
+      <button type="button" class="plate-btn" data-rel="${s.abbr}" aria-label="Uncheck ${esc(s.name)}" title="Tap to uncheck" style="width:100%"><div style="position:relative">${plateHTML(s)}<span class="stamp" aria-hidden="true">&#10003;</span></div></button>${infoBtn(s)}
       <div class="cap-meta"><span>${timeLabel(state.captured[s.abbr])}</span><button type="button" class="release" data-rel="${s.abbr}" aria-label="Uncheck ${esc(s.name)}">&#8634; Uncheck</button></div>
     </div>`
-  ).join("") : `<div class="empty" style="grid-column:1/-1">${n ? "None of your captured plates match this filter." : "Tap a plate above the moment you spot it on the highway. It lands here with a stamp."}</div>`;
+  ).join("") : `<div class="empty" style="grid-column:1/-1">${n ? "No captured plates in this region yet." : "Tap a plate above the moment you spot it on the highway. It lands here with a checkmark."}</div>`;
   // view toggle
   const isMap = ui.view === "map", isTrips = ui.view === "trips";
   $("mapView").hidden = !isMap; $("tripsView").hidden = !isTrips;
@@ -604,8 +689,18 @@ function capture(abbr, btn) {
 }
 
 document.addEventListener("click", e => {
+  const ib = e.target.closest("[data-info]");
+  if (ib) { openInfo(ib.dataset.info); return; }
+  if (e.target.closest("[data-close]") || e.target === $("infoDlg")) { closeInfo(); return; }
+  const dt = e.target.closest("[data-dlg-toggle]");
+  if (dt) {
+    const a = dt.dataset.dlgToggle; closeInfo();
+    if (state.captured[a]) { delete state.captured[a]; save(); render(); toast(`${BY[a].name} unchecked · back on the road`); }
+    else capture(a);
+    return;
+  }
   const cap = e.target.closest("[data-cap]");
-  if (cap) return capture(cap.dataset.cap, cap.classList.contains("tile") ? null : cap);
+  if (cap) return capture(cap.dataset.cap, cap.classList.contains("tile") ? null : (cap.closest(".pcard") || cap));
   const rel = e.target.closest("[data-rel]");
   if (rel) {
     const a = rel.dataset.rel, card = rel.classList.contains("tile") ? null : rel.closest(".cap");
@@ -621,12 +716,6 @@ document.addEventListener("click", e => {
   if (chip) { ui.region = chip.dataset.r; render(); return; }
 });
 
-$("q").addEventListener("input", e => { ui.q = e.target.value; render(); });
-$("q").addEventListener("keydown", e => {
-  if (e.key !== "Enter") return;
-  const hit = STATES.filter(s => !state.captured[s.abbr] && matches(s));
-  if (hit.length === 1) { capture(hit[0].abbr); e.target.value = ""; ui.q = ""; }
-});
 
 // ---------- Trip log ----------
 const fmtDay = ts => new Date(ts).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" });
@@ -705,23 +794,21 @@ function bindReset() {
 }
 function restoreReset() { $("resetWrap").innerHTML = `<button class="btn" id="resetBtn" type="button">Finish trip &amp; log it</button>`; bindReset(); }
 
-// ---------- Theme: Auto (follows iPad setting) -> Light -> Dark ----------
+// ---------- Theme: Auto (follows iPad setting), Light, Dark ----------
 const THEMES = ["auto", "light", "dark"];
 function applyTheme(mode) {
   if (mode === "auto") delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = mode;
-  const b = $("themeBtn"); b.dataset.mode = mode;
-  const name = mode[0].toUpperCase() + mode.slice(1);
-  $("themeLbl").textContent = name; b.setAttribute("aria-label", `Theme: ${name}. Tap to change`);
+  document.querySelectorAll(".theme-set").forEach(b => b.setAttribute("aria-pressed", b.dataset.themeSet === mode));
   const dark = mode === "dark" || (mode === "auto" && matchMedia("(prefers-color-scheme: dark)").matches);
   document.querySelector('meta[name="theme-color"]').setAttribute("content", dark ? "#16191a" : "#0d6a43");
 }
 let themeMode = "auto";
 try { const t = localStorage.getItem("plate-hunt-theme"); if (THEMES.includes(t)) themeMode = t; } catch (e) {}
-$("themeBtn").addEventListener("click", () => {
-  themeMode = THEMES[(THEMES.indexOf(themeMode) + 1) % THEMES.length];
+document.querySelectorAll(".theme-set").forEach(b => b.addEventListener("click", () => {
+  themeMode = b.dataset.themeSet;
   try { localStorage.setItem("plate-hunt-theme", themeMode); } catch (e) {}
-  applyTheme(themeMode); toast(themeMode === "auto" ? "Theme follows your iPad setting" : `${themeMode[0].toUpperCase() + themeMode.slice(1)} mode on`);
-});
+  applyTheme(themeMode);
+}));
 matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", () => applyTheme(themeMode));
 applyTheme(themeMode);
 
