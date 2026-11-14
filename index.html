@@ -196,6 +196,36 @@ section { display: flex; flex-direction: column; gap: 14px; }
 button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 .plate-btn:active, .tile:active { transform: scale(.96); }
 
+/* trip standings */
+.stand-wrap { overflow-x: auto; background: var(--card); border: 2px solid var(--rule); border-radius: 14px; }
+.standings { width: 100%; border-collapse: collapse; font-size: 15px; min-width: 560px; }
+.standings th { text-align: left; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-soft); padding: 12px 14px; border-bottom: 2px solid var(--rule); }
+.standings td { padding: 12px 14px; border-bottom: 1px solid var(--rule); vertical-align: middle; }
+.standings tr:last-child td { border-bottom: 0; }
+.standings .rk { width: 64px; }
+.standings .num-col { text-align: right; width: 90px; }
+.standings .bar-col { width: 26%; }
+.standings .act { width: 1%; white-space: nowrap; text-align: right; }
+.rank { font-family: var(--font-display); font-weight: 900; font-size: 26px; line-height: 1; display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--rule); color: var(--ink-soft); }
+.rank.r1 { background: #f1c232; border-color: #b08a12; color: #3b2c00; }
+.rank.r2 { background: #d5dade; border-color: #8e979d; color: #2a2f33; }
+.rank.r3 { background: #e0a874; border-color: #9c6431; color: #3b2108; }
+.trip-name { font-weight: 800; font-size: 16px; }
+.trip-sub { font-size: 12.5px; color: var(--ink-soft); }
+.live { display: inline-block; font-size: 10.5px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; background: var(--sign); color: var(--sign-ink); border-radius: 999px; padding: 2px 8px; margin-left: 6px; vertical-align: 2px; }
+.standings tr.current td { background: color-mix(in srgb, var(--sign) 8%, transparent); }
+.dates { font-family: var(--font-mono); font-size: 13px; white-space: nowrap; }
+.score { font-family: var(--font-display); font-weight: 900; font-size: 28px; font-variant-numeric: tabular-nums; }
+.score small { font-size: 16px; color: var(--ink-soft); font-weight: 600; }
+.bar { height: 10px; background: var(--ground-2); border-radius: 999px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--sign); border-radius: 999px; }
+.del { font: inherit; font-size: 12px; font-weight: 700; background: none; border: 2px solid var(--rule); border-radius: 999px; padding: 3px 10px; color: var(--ink-soft); cursor: pointer; }
+.del.sure { border-color: var(--stamp); color: var(--stamp); }
+.hint { color: var(--ink-soft); font-size: 13.5px; margin: 0; max-width: 65ch; }
+.sr { position: absolute; left: -9999px; }
+.log-form { display: inline-flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.log-form input { font: inherit; font-size: 15px; color: var(--ink); background: var(--card); border: 2px solid var(--rule); border-radius: 8px; padding: 7px 10px; min-width: 0; width: 220px; max-width: 100%; }
+
 /* footer / reset */
 .foot { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; color: var(--ink-soft); font-size: 13px; }
 .btn { font: inherit; font-weight: 700; font-size: 13px; cursor: pointer; border-radius: 8px; padding: 8px 14px; border: 2px solid var(--rule); background: var(--card); color: var(--ink); }
@@ -253,11 +283,12 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
 
   <div class="controls">
     <label for="q" style="position:absolute;left:-9999px">Search states</label>
-    <input id="q" class="search" type="search" placeholder="Spotted one? Type a state or abbreviation…" autocomplete="off">
-    <div class="chips" role="group" aria-label="Filter by region" id="chips"></div>
+    <input id="q" class="search filter-ctl" type="search" placeholder="Spotted one? Type a state or abbreviation…" autocomplete="off">
+    <div class="chips filter-ctl" role="group" aria-label="Filter by region" id="chips"></div>
     <div class="views" role="group" aria-label="Choose view">
       <button type="button" class="view-btn" data-view="plates" aria-pressed="true">Plates</button>
       <button type="button" class="view-btn" data-view="map" aria-pressed="false">Map</button>
+      <button type="button" class="view-btn" data-view="trips" aria-pressed="false">Trips</button>
     </div>
   </div>
 
@@ -282,6 +313,18 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
     <div class="grid" id="roadGrid"></div>
   </section>
 
+  <section id="tripsView" aria-labelledby="h-trips" hidden>
+    <div class="sec-head">
+      <h2 id="h-trips">Trip standings</h2>
+      <span class="meta" id="tripsMeta"></span>
+    </div>
+    <div class="stand-wrap"><table class="standings">
+      <thead><tr><th class="rk">Rank</th><th>Trip</th><th>Dates</th><th class="num-col">Plates</th><th class="bar-col">Progress</th><th class="act"><span class="sr">Actions</span></th></tr></thead>
+      <tbody id="tripsBody"></tbody>
+    </table></div>
+    <p class="hint">When a trip ends, tap <b>Finish trip &amp; log it</b> at the bottom of the page. The trip moves into these standings and a fresh board starts.</p>
+  </section>
+
   <section id="capView" aria-labelledby="h-cap">
     <div class="sec-head">
       <h2 id="h-cap">Captured</h2>
@@ -292,7 +335,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
 
   <div class="foot">
     <span>Progress is saved on this device and works with no signal. <span id="offline" class="offline-pill" hidden>Offline</span></span>
-    <span id="resetWrap"><button class="btn" id="resetBtn" type="button">Start a new trip</button></span>
+    <span id="resetWrap"><button class="btn" id="resetBtn" type="button">Finish trip &amp; log it</button></span>
   </div>
 </div>
 
@@ -357,9 +400,9 @@ const BY = Object.fromEntries(STATES.map(s => [s.abbr, s]));
 const REGIONS = ["All","West","Midwest","South","Northeast"];
 const KEY = "plate-hunt-v1";
 
-let state = { captured: {} };   // abbr -> timestamp
+let state = { captured: {}, tripStart: null, history: [] };   // captured: abbr -> timestamp
 let ui = { region: "All", q: "", just: null, view: "plates" };
-try { if (localStorage.getItem("plate-hunt-view") === "map") ui.view = "map"; } catch (e) {}
+try { const v = localStorage.getItem("plate-hunt-view"); if (v === "map" || v === "trips") ui.view = v; } catch (e) {}
 // Tile map positions: [col, row] on a 12 x 8 grid
 const TILE = {AK:[0,0],ME:[11,0],WI:[6,1],VT:[10,1],NH:[11,1],WA:[1,2],ID:[2,2],MT:[3,2],ND:[4,2],MN:[5,2],IL:[6,2],MI:[7,2],NY:[9,2],MA:[10,2],
   OR:[1,3],NV:[2,3],WY:[3,3],SD:[4,3],IA:[5,3],IN:[6,3],OH:[7,3],PA:[8,3],NJ:[9,3],CT:[10,3],RI:[11,3],
@@ -369,6 +412,8 @@ const TILE = {AK:[0,0],ME:[11,0],WI:[6,1],VT:[10,1],NH:[11,1],WA:[1,2],ID:[2,2],
 
 function load() {
   try { const raw = localStorage.getItem(KEY); if (raw) { const s = JSON.parse(raw); if (s && s.captured) state = s; } } catch (e) {}
+  if (!Array.isArray(state.history)) state.history = [];
+  if (!state.tripStart) { const ts = Object.values(state.captured); state.tripStart = ts.length ? Math.min(...ts) : null; }
 }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
 
@@ -436,8 +481,11 @@ function render() {
     </div>`
   ).join("") : `<div class="empty" style="grid-column:1/-1">${n ? "None of your captured plates match this filter." : "Tap a plate above the moment you spot it on the highway. It lands here with a stamp."}</div>`;
   // view toggle
-  const isMap = ui.view === "map";
-  $("mapView").hidden = !isMap; $("roadView").hidden = isMap; $("capView").hidden = isMap;
+  const isMap = ui.view === "map", isTrips = ui.view === "trips";
+  $("mapView").hidden = !isMap; $("tripsView").hidden = !isTrips;
+  $("roadView").hidden = isMap || isTrips; $("capView").hidden = isMap || isTrips;
+  document.querySelectorAll(".filter-ctl").forEach(el => el.hidden = isTrips);
+  if (isTrips) renderTrips();
   document.querySelectorAll(".view-btn").forEach(b => b.setAttribute("aria-pressed", b.dataset.view === ui.view));
 
   // tile map
@@ -465,7 +513,7 @@ const MILESTONES = { 1: "First plate on the board!", 10: "Double digits. Keep sc
 function capture(abbr, btn) {
   if (state.captured[abbr]) return;
   const go = () => {
-    state.captured[abbr] = Date.now(); ui.just = abbr; save(); render();
+    state.captured[abbr] = Date.now(); if (!state.tripStart) state.tripStart = state.captured[abbr]; ui.just = abbr; save(); render();
     const n = Object.keys(state.captured).length, s = BY[abbr];
     if (MILESTONES[n]) toast(MILESTONES[n]);
     else if (abbr === "HI" || abbr === "AK") toast(`${s.name}?! That's a rare find.`);
@@ -498,17 +546,82 @@ $("q").addEventListener("keydown", e => {
   if (hit.length === 1) { capture(hit[0].abbr); e.target.value = ""; ui.q = ""; }
 });
 
-// Reset with an inline confirm
+// ---------- Trip log ----------
+const fmtDay = ts => new Date(ts).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" });
+function dateRange(a, b) {
+  if (!a) return "Not started";
+  const A = new Date(a), B = new Date(b || a);
+  if (A.toDateString() === B.toDateString()) return fmtDay(a);
+  if (A.getFullYear() === B.getFullYear()) {
+    const left = A.toLocaleDateString([], { month: "short", day: "numeric" });
+    const right = A.getMonth() === B.getMonth() ? B.getDate() : B.toLocaleDateString([], { month: "short", day: "numeric" });
+    return `${left} – ${right}, ${B.getFullYear()}`;
+  }
+  return `${fmtDay(a)} – ${fmtDay(b)}`;
+}
+function currentTrip() {
+  const ts = Object.values(state.captured);
+  return { id: "current", name: "This trip", current: true, plates: Object.keys(state.captured),
+    start: state.tripStart || (ts.length ? Math.min(...ts) : null), end: ts.length ? Math.max(...ts) : null };
+}
+function ranked() {
+  const rows = state.history.map(t => ({ ...t }));
+  rows.push(currentTrip());
+  rows.sort((a, b) => b.plates.length - a.plates.length || (a.end || Infinity) - (b.end || Infinity));
+  return rows;
+}
+let pendingDelete = null;
+function renderTrips() {
+  const rows = ranked(), total = STATES.length;
+  $("tripsMeta").textContent = `${state.history.length} logged trip${state.history.length === 1 ? "" : "s"} · ranked by plates found`;
+  $("tripsBody").innerHTML = rows.map((t, i) => {
+    const n = t.plates.length, pct = Math.round(n / total * 100);
+    const rare = ["AK", "HI"].filter(a => t.plates.includes(a)).map(a => BY[a].name);
+    const sub = [rare.length ? `Rare: ${rare.join(" & ")}` : "", n === total ? "Full sweep!" : ""].filter(Boolean).join(" · ");
+    const act = t.current ? "" : `<button type="button" class="del ${pendingDelete === t.id ? "sure" : ""}" data-del="${t.id}">${pendingDelete === t.id ? "Tap again to delete" : "Delete"}</button>`;
+    return `<tr class="${t.current ? "current" : ""}">
+      <td><span class="rank ${i < 3 && n ? "r" + (i + 1) : ""}">${i + 1}</span></td>
+      <td><span class="trip-name">${esc(t.name)}</span>${t.current ? '<span class="live">In progress</span>' : ""}${sub ? `<div class="trip-sub">${esc(sub)}</div>` : ""}</td>
+      <td class="dates">${dateRange(t.start, t.end)}</td>
+      <td class="num-col"><span class="score">${n}<small>/${total}</small></span></td>
+      <td><div class="bar" title="${pct}%"><i style="width:${pct}%"></i></div></td>
+      <td class="act">${act}</td>
+    </tr>`;
+  }).join("");
+}
+document.addEventListener("click", e => {
+  const d = e.target.closest("[data-del]");
+  if (!d) return;
+  if (pendingDelete === d.dataset.del) {
+    state.history = state.history.filter(t => t.id !== d.dataset.del); pendingDelete = null; save(); toast("Trip deleted");
+  } else pendingDelete = d.dataset.del;
+  renderTrips();
+});
+
 function bindReset() {
   $("resetBtn").onclick = () => {
-    $("resetWrap").innerHTML = `<span class="confirm">Clear all ${Object.keys(state.captured).length} plates?
-      <button class="btn danger" id="yesReset" type="button">Clear trip</button>
-      <button class="btn" id="noReset" type="button">Keep going</button></span>`;
-    $("yesReset").onclick = () => { state.captured = {}; save(); restoreReset(); render(); toast("New trip. Odometer reset."); };
+    const n = Object.keys(state.captured).length;
+    if (!n) { toast("Capture at least one plate before logging a trip."); return; }
+    const cur = currentTrip();
+    $("resetWrap").innerHTML = `<form class="log-form" id="logForm">
+      <label for="tripName" class="sr">Trip name</label>
+      <input id="tripName" maxlength="40" value="${esc("Road trip · " + dateRange(cur.start, cur.end))}">
+      <button class="btn danger" type="submit">Log ${n} plate${n === 1 ? "" : "s"} &amp; start fresh</button>
+      <button class="btn" id="noReset" type="button">Keep going</button></form>`;
+    const inp = $("tripName"); inp.focus(); inp.select();
+    $("logForm").onsubmit = ev => {
+      ev.preventDefault();
+      state.history.push({ id: "t" + Date.now(), name: inp.value.trim() || "Road trip", plates: cur.plates, start: cur.start, end: cur.end, logged: Date.now() });
+      state.captured = {}; state.tripStart = null; save(); restoreReset();
+      ui.view = "trips"; try { localStorage.setItem("plate-hunt-view", "trips"); } catch (err) {}
+      render(); window.scrollTo({ top: 0, behavior: "smooth" });
+      const place = ranked().findIndex(t => t.id === state.history[state.history.length - 1].id) + 1;
+      toast(`Trip logged in place #${place}. New board ready.`);
+    };
     $("noReset").onclick = restoreReset;
   };
 }
-function restoreReset() { $("resetWrap").innerHTML = `<button class="btn" id="resetBtn" type="button">Start a new trip</button>`; bindReset(); }
+function restoreReset() { $("resetWrap").innerHTML = `<button class="btn" id="resetBtn" type="button">Finish trip &amp; log it</button>`; bindReset(); }
 
 function start(data) {
   if (data && data.captured) state = { captured: data.captured };
