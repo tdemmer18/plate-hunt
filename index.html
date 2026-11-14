@@ -13,7 +13,8 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Plate Hunt">
-<script>try { const t = localStorage.getItem("plate-hunt-theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) {}</script>
+<script>try { const t = localStorage.getItem("plate-hunt-theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) {}
+try { let s = localStorage.getItem("plate-hunt-season") || "classic"; if (s === "auto") s = ["winter","winter","spring","spring","spring","summer","summer","summer","fall","fall","fall","winter"][new Date().getMonth()]; if (s !== "classic") document.documentElement.dataset.season = s; } catch (e) {}</script>
 <link rel="stylesheet" href="fonts.css">
 <style>
 :root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
@@ -59,16 +60,30 @@ img { max-width: 100%; }
   --accent: #38d8ff; --accent-2: #ff52b4; --good: #3df2a6; --glow: rgba(56, 216, 255, .28);
   --sign-ink: #03111f; --stamp: #ff5a73; color-scheme: dark;
 }
+/* ---------- Seasonal themes: each has a light and dark palette plus a faint background motif ---------- */
+:root[data-season="spring"] { --ground: #f3f8ef; --ground-2: #e6f0de; --ink: #1c2a1a; --ink-soft: #5b6e57; --card: rgba(255, 255, 255, .8); --card-solid: #fbfdf8; --rule: #cfe0c4; --accent: #3a8f45; --accent-2: #d9578f; --good: #2f9e5e; --glow: rgba(58, 143, 69, .22); --sign-ink: #ffffff; --stamp: #d94f6e; color-scheme: light; --motif: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cg fill='%23e46fa0' fill-opacity='.16'%3E%3Cellipse cx='30' cy='40' rx='7' ry='4' transform='rotate(30 30 40)'/%3E%3Cellipse cx='120' cy='25' rx='6' ry='3.5' transform='rotate(-20 120 25)'/%3E%3Cellipse cx='85' cy='110' rx='7' ry='4' transform='rotate(60 85 110)'/%3E%3Cellipse cx='160' cy='140' rx='5' ry='3' transform='rotate(10 160 140)'/%3E%3Cellipse cx='25' cy='155' rx='6' ry='3.5' transform='rotate(-45 25 155)'/%3E%3C/g%3E%3C/svg%3E"); }
+@media (prefers-color-scheme: dark) { :root[data-season="spring"]:not([data-theme="light"]) { --ground: #0c140e; --ground-2: #132018; --ink: #eaf6e6; --ink-soft: #93ab8e; --card: rgba(20, 36, 24, .72); --card-solid: #142418; --rule: #24402b; --accent: #7fe08a; --accent-2: #ff9cc6; --good: #6cf0a0; --glow: rgba(127, 224, 138, .26); --sign-ink: #07140a; --stamp: #ff7a96; color-scheme: dark; } }
+:root[data-season="spring"][data-theme="dark"] { --ground: #0c140e; --ground-2: #132018; --ink: #eaf6e6; --ink-soft: #93ab8e; --card: rgba(20, 36, 24, .72); --card-solid: #142418; --rule: #24402b; --accent: #7fe08a; --accent-2: #ff9cc6; --good: #6cf0a0; --glow: rgba(127, 224, 138, .26); --sign-ink: #07140a; --stamp: #ff7a96; color-scheme: dark; }
+:root[data-season="summer"] { --ground: #fff7e8; --ground-2: #fdebcc; --ink: #2a1a08; --ink-soft: #7a6245; --card: rgba(255, 255, 255, .8); --card-solid: #fffbf3; --rule: #f0d7aa; --accent: #00899a; --accent-2: #f2661f; --good: #1d9d5c; --glow: rgba(242, 102, 31, .22); --sign-ink: #ffffff; --stamp: #e2412f; color-scheme: light; --motif: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cg fill='none' stroke='%23ff9a2f' stroke-opacity='.18' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='50' cy='50' r='9'/%3E%3Cpath d='M50 32v-6M50 74v-6M32 50h-6M74 50h-6M37 37l-4-4M63 63l4 4M37 63l-4 4M63 37l4-4'/%3E%3Cpath d='M110 150q12-10 24 0t24 0t24 0' /%3E%3C/g%3E%3C/svg%3E"); }
+@media (prefers-color-scheme: dark) { :root[data-season="summer"]:not([data-theme="light"]) { --ground: #100b15; --ground-2: #1a1322; --ink: #fff1e0; --ink-soft: #b49c86; --card: rgba(30, 20, 36, .72); --card-solid: #1e1424; --rule: #3a2a40; --accent: #ffb340; --accent-2: #ff5f7e; --good: #4ff0b0; --glow: rgba(255, 179, 64, .28); --sign-ink: #1a0f02; --stamp: #ff6a5a; color-scheme: dark; } }
+:root[data-season="summer"][data-theme="dark"] { --ground: #100b15; --ground-2: #1a1322; --ink: #fff1e0; --ink-soft: #b49c86; --card: rgba(30, 20, 36, .72); --card-solid: #1e1424; --rule: #3a2a40; --accent: #ffb340; --accent-2: #ff5f7e; --good: #4ff0b0; --glow: rgba(255, 179, 64, .28); --sign-ink: #1a0f02; --stamp: #ff6a5a; color-scheme: dark; }
+:root[data-season="fall"] { --ground: #f8f0e6; --ground-2: #efe1cf; --ink: #2b1a10; --ink-soft: #7a6150; --card: rgba(255, 252, 247, .8); --card-solid: #fffaf3; --rule: #e2cbb2; --accent: #b84d17; --accent-2: #8e2b3a; --good: #5a8a2a; --glow: rgba(184, 77, 23, .22); --sign-ink: #ffffff; --stamp: #b8322a; color-scheme: light; --motif: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cg fill='%23c2541b' fill-opacity='.15'%3E%3Cpath d='M40 30c12 4 18 14 14 28-14-2-22-12-14-28z'/%3E%3Cpath d='M140 70c-14 0-22 10-20 24 14 2 22-8 20-24z'/%3E%3Cpath d='M70 140c10 8 12 20 2 30-10-8-12-20-2-30z'/%3E%3Cpath d='M170 170c-6-10-16-12-26-6 6 10 16 12 26 6z'/%3E%3C/g%3E%3C/svg%3E"); }
+@media (prefers-color-scheme: dark) { :root[data-season="fall"]:not([data-theme="light"]) { --ground: #120c08; --ground-2: #1d140d; --ink: #f6e8da; --ink-soft: #b09684; --card: rgba(36, 24, 16, .72); --card-solid: #24180f; --rule: #43301f; --accent: #ff9a3c; --accent-2: #e2566a; --good: #b6d65a; --glow: rgba(255, 154, 60, .26); --sign-ink: #1a0c02; --stamp: #ff6b5a; color-scheme: dark; } }
+:root[data-season="fall"][data-theme="dark"] { --ground: #120c08; --ground-2: #1d140d; --ink: #f6e8da; --ink-soft: #b09684; --card: rgba(36, 24, 16, .72); --card-solid: #24180f; --rule: #43301f; --accent: #ff9a3c; --accent-2: #e2566a; --good: #b6d65a; --glow: rgba(255, 154, 60, .26); --sign-ink: #1a0c02; --stamp: #ff6b5a; color-scheme: dark; }
+:root[data-season="winter"] { --ground: #eef4fa; --ground-2: #e0eaf4; --ink: #102033; --ink-soft: #56697e; --card: rgba(255, 255, 255, .82); --card-solid: #fafdff; --rule: #cbd9e8; --accent: #2f6fb8; --accent-2: #7a5cc8; --good: #1f8f78; --glow: rgba(47, 111, 184, .2); --sign-ink: #ffffff; --stamp: #c8334d; color-scheme: light; --motif: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cg fill='none' stroke='%237fb4e8' stroke-opacity='.28' stroke-width='1.6' stroke-linecap='round'%3E%3Cpath d='M45 30v30M32 37.5l26 15M32 52.5l26-15'/%3E%3Cpath d='M150 100v20M141 105l18 10M141 115l18-10'/%3E%3Cpath d='M80 150v24M70 156l20 12M70 168l20-12'/%3E%3C/g%3E%3Cg fill='%237fb4e8' fill-opacity='.25'%3E%3Ccircle cx='120' cy='40' r='2'/%3E%3Ccircle cx='20' cy='110' r='1.5'/%3E%3Ccircle cx='180' cy='180' r='2'/%3E%3C/g%3E%3C/svg%3E"); }
+@media (prefers-color-scheme: dark) { :root[data-season="winter"]:not([data-theme="light"]) { --ground: #070d18; --ground-2: #0e1828; --ink: #eef6ff; --ink-soft: #94a8c0; --card: rgba(16, 28, 46, .72); --card-solid: #101c2e; --rule: #22344e; --accent: #9fd4ff; --accent-2: #c4a8ff; --good: #7ff0d6; --glow: rgba(159, 212, 255, .26); --sign-ink: #06101e; --stamp: #ff7088; color-scheme: dark; } }
+:root[data-season="winter"][data-theme="dark"] { --ground: #070d18; --ground-2: #0e1828; --ink: #eef6ff; --ink-soft: #94a8c0; --card: rgba(16, 28, 46, .72); --card-solid: #101c2e; --rule: #22344e; --accent: #9fd4ff; --accent-2: #c4a8ff; --good: #7ff0d6; --glow: rgba(159, 212, 255, .26); --sign-ink: #06101e; --stamp: #ff7088; color-scheme: dark; }
 * { box-sizing: border-box; }
 body {
   color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5;
   background-color: var(--ground);
   background-image:
+    var(--motif, none),
     radial-gradient(900px 520px at 85% -8%, var(--glow), transparent 70%),
     radial-gradient(700px 420px at -10% 30%, color-mix(in srgb, var(--accent-2) 12%, transparent), transparent 70%),
     linear-gradient(color-mix(in srgb, var(--rule) 45%, transparent) 1px, transparent 1px),
     linear-gradient(90deg, color-mix(in srgb, var(--rule) 45%, transparent) 1px, transparent 1px);
-  background-size: auto, auto, 44px 44px, 44px 44px;
+  background-size: auto, auto, auto, 44px 44px, 44px 44px;
   background-attachment: fixed;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
@@ -203,6 +218,15 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .hud[data-style="compact"] .corner { display: none; }
 .hud[data-style="compact"] .hud-btns { flex-direction: row; align-self: center; }
 
+/* collapse toggle (phones only) */
+#hudToggle { display: none; }
+#hudToggle svg { transition: transform .25s; }
+#hudToggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+
+/* weather layer: sits behind the content */
+#wx { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+.wrap { position: relative; z-index: 1; }
+
 /* style picker in settings */
 .hdr-pick { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; width: 100%; }
 .hdr-opt { font-family: var(--font-hud); font-weight: 600; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; cursor: pointer; display: grid; justify-items: center; gap: 6px; padding: 8px 4px; border-radius: 12px; border: 1px solid var(--rule); background: var(--card-solid); color: var(--ink); }
@@ -216,6 +240,10 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .hp-sign::after { content: ""; position: absolute; right: 7px; width: 10px; height: 8px; background: #f1c232; border-radius: 2px; }
 .hp-kpi i { width: 13px; height: 18px; border-radius: 3px; border: 1.5px solid var(--accent); }
 .hp-compact::before { content: ""; width: 40px; height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--accent-2), var(--accent) 60%, var(--rule) 60%); }
+
+.season-pick { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.sp { width: 54px; height: 34px; border-radius: 6px; display: flex; overflow: hidden; border: 1px solid var(--rule); }
+.sp i { flex: 1; }
 
 /* ---------- Controls ---------- */
 .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
@@ -467,8 +495,31 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
   .sym-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 560px) {
-  .hud { grid-template-columns: 1fr auto; }
+  .hud { grid-template-columns: 1fr auto; padding: 12px 14px; gap: 10px; border-radius: 16px; }
   .hud-main { grid-column: 1 / -1; grid-row: 2; }
+  #hudToggle { display: grid; }
+  .icon-btn { width: 34px; height: 34px; border-radius: 10px; } .icon-btn svg { width: 17px; height: 17px; }
+  .hud .corner { width: 12px; height: 12px; }
+  /* smaller scoreboards on phones */
+  .eyebrow { font-size: 10px; letter-spacing: .16em; }
+  .hud h1 { font-size: 28px; margin: 2px 0 8px; }
+  .radar { width: 92px; } .tally .num { font-size: 30px; } .tally .of { font-size: 14px; } .tally .lbl { font-size: 8px; margin-top: 4px; }
+  .odo { padding: 8px 10px; gap: 6px; } .odo-d { width: 26px; height: 38px; } .odo-roll i { height: 38px; font-size: 24px; }
+  .hud[data-style="sign"] { padding: 8px; } .hwy-in { padding: 10px 12px; gap: 8px; } .hwy-top { gap: 10px; }
+  .hwy-shield { width: 50px; height: 54px; border-radius: 8px 8px 26px 26px; box-shadow: inset 0 10px 0 #c2302a; } .hwy-shield b { font-size: 20px; padding-top: 8px; }
+  .hwy-name { font-size: 22px; } .hwy-sub { font-size: 10px; } .hwy-exit { padding: 4px 8px; font-size: 8px; } .hwy-exit b { font-size: 20px; }
+  .hwy-rows { gap: 14px; } .hwy-rows span { font-size: 10px; } .hwy-rows b { font-size: 17px; }
+  .kpi-wrap { gap: 8px; } .kpi-h { font-size: 22px !important; } .kpis { gap: 6px; }
+  .kpi { padding: 6px 8px; border-radius: 9px; } .kpi .k { font-size: 8.5px; } .kpi .v { font-size: 20px; } .kpi .v small { font-size: 12px; } .kpi .v.sm { font-size: 12px; padding-top: 4px; }
+  .c-h { font-size: 20px !important; } .c-count { font-size: 22px; padding: 4px 9px; } .c-count small { font-size: 13px; }
+  /* collapsed: one thin bar */
+  .hud.is-mini { padding: 8px 10px 8px 14px; gap: 10px; }
+  .hud.is-mini .hud-main { grid-column: 1; grid-row: 1; }
+  .hud.is-mini .compact { grid-template-columns: auto auto 1fr; gap: 10px; }
+  .hud.is-mini .c-route { grid-column: auto; }
+  .hud.is-mini .marks { display: none; }
+  .hud.is-mini .c-h { font-size: 17px !important; } .hud.is-mini .c-count { font-size: 17px; padding: 3px 7px; } .hud.is-mini .c-count small { font-size: 11px; }
+  .hud.is-mini .road { height: 10px; } .hud.is-mini .road::before { inset: 4px 6px; } .hud.is-mini .road .car { width: 22px; height: 22px; }
   .kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .compact { grid-template-columns: auto 1fr; } .c-route { grid-column: 1 / -1; }
   .hdr-pick { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -488,6 +539,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
 </style>
 </head>
 <body>
+<canvas id="wx" aria-hidden="true"></canvas>
 
 
 <div class="wrap">
@@ -496,6 +548,9 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
       <span class="corner c1"></span><span class="corner c2"></span><span class="corner c3"></span>
       <div class="hud-body" id="hudBody"></div>
       <div class="hud-btns">
+        <button type="button" class="icon-btn" id="hudToggle" aria-expanded="false" aria-label="Expand scoreboard">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
         <button type="button" class="icon-btn" id="gearBtn" aria-label="Settings">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3.3h-4l-.4 2.6a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1l.4 2.6h4l.4-2.6a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z" transform="translate(-1 0)"/></svg>
         </button>
@@ -577,6 +632,29 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
         <button type="button" class="seg-btn theme-set" data-theme-set="auto">Auto</button>
         <button type="button" class="seg-btn theme-set" data-theme-set="light">Light</button>
         <button type="button" class="seg-btn theme-set" data-theme-set="dark">Dark</button>
+      </div>
+    </div>
+    <div class="set-row">
+      <div><div class="set-name">Season theme</div><div class="set-desc">Colors for the time of year. By date switches on its own each season. Works with light and dark.</div></div>
+      <div class="hdr-pick season-pick" role="group" aria-label="Season theme">
+        <button type="button" class="hdr-opt season-set" data-season-set="classic"><span class="sp"><i style="background:#0a7fd4"></i><i style="background:#c8338a"></i><i style="background:#040a14"></i></span>Classic</button>
+        <button type="button" class="hdr-opt season-set" data-season-set="auto"><span class="sp"><i style="background:#3a8f45"></i><i style="background:#f2661f"></i><i style="background:#b84d17"></i></span>By date</button>
+        <button type="button" class="hdr-opt season-set" data-season-set="spring"><span class="sp"><i style="background:#7fe08a"></i><i style="background:#ff9cc6"></i><i style="background:#f3f8ef"></i></span>Spring</button>
+        <button type="button" class="hdr-opt season-set" data-season-set="summer"><span class="sp"><i style="background:#00899a"></i><i style="background:#ffb340"></i><i style="background:#fff7e8"></i></span>Summer</button>
+        <button type="button" class="hdr-opt season-set" data-season-set="fall"><span class="sp"><i style="background:#b84d17"></i><i style="background:#8e2b3a"></i><i style="background:#f8f0e6"></i></span>Fall</button>
+        <button type="button" class="hdr-opt season-set" data-season-set="winter"><span class="sp"><i style="background:#9fd4ff"></i><i style="background:#7a5cc8"></i><i style="background:#eef4fa"></i></span>Winter</button>
+      </div>
+    </div>
+    <div class="set-row">
+      <div><div class="set-name">Weather</div><div class="set-desc">Animated weather behind the plates, just for fun.</div></div>
+      <div class="seg" role="group" aria-label="Weather">
+        <button type="button" class="seg-btn wx-set" data-wx="off">Off</button>
+        <button type="button" class="seg-btn wx-set" data-wx="sun">Sun</button>
+        <button type="button" class="seg-btn wx-set" data-wx="rain">Rain</button>
+        <button type="button" class="seg-btn wx-set" data-wx="storm">Storm</button>
+        <button type="button" class="seg-btn wx-set" data-wx="snow">Snow</button>
+        <button type="button" class="seg-btn wx-set" data-wx="fog">Fog</button>
+        <button type="button" class="seg-btn wx-set" data-wx="leaves">Leaves</button>
       </div>
     </div>
     <div class="set-row">
@@ -1025,9 +1103,17 @@ const HEADER_HTML = {
       <div class="c-route">${ROUTE}</div></div>`,
 };
 let shownHeader = null;
+// On phones the scoreboard starts collapsed to a thin bar; the chevron expands it to the chosen style.
+const phoneMQ = matchMedia("(max-width: 560px)");
+ui.hudOpen = false;
+try { ui.hudOpen = localStorage.getItem("plate-hunt-hud-open") === "1"; } catch (e) {}
 function renderHeader(n, total, capList) {
-  const hud = $("hud");
-  if (shownHeader !== ui.header) { $("hudBody").innerHTML = HEADER_HTML[ui.header](); hud.dataset.style = ui.header; shownHeader = ui.header; }
+  const hud = $("hud"), mini = phoneMQ.matches && !ui.hudOpen, key = mini ? "mini" : ui.header;
+  if (shownHeader !== key) {
+    const style = mini ? "compact" : ui.header;
+    $("hudBody").innerHTML = HEADER_HTML[style](); hud.dataset.style = style; hud.classList.toggle("is-mini", mini); shownHeader = key;
+  }
+  const tg = $("hudToggle"); tg.setAttribute("aria-expanded", !mini); tg.setAttribute("aria-label", mini ? "Expand scoreboard" : "Collapse scoreboard");
   const q = sel => hud.querySelectorAll(sel), set = (sel, v) => q(sel).forEach(el => { el.textContent = v; });
   const pct = Math.round(n / total * 100);
   q("[data-n]").forEach(el => { if (el.textContent !== String(n)) { el.textContent = n; el.classList.remove("bump"); void el.offsetWidth; el.classList.add("bump"); } });
@@ -1145,6 +1231,7 @@ document.addEventListener("click", e => {
   if (cb) { ui.cols = +cb.dataset.cols; try { localStorage.setItem("plate-hunt-cols", ui.cols); } catch (err) {} applyCols(); syncSettings(); return; }
   if (e.target.closest("#gearBtn")) { syncSettings(); $("setDlg").showModal(); return; }
   if (e.target.closest("[data-close-set]") || e.target === $("setDlg")) { $("setDlg").close(); return; }
+  if (e.target.closest("#hudToggle")) { ui.hudOpen = !ui.hudOpen; try { localStorage.setItem("plate-hunt-hud-open", ui.hudOpen ? "1" : "0"); } catch (err) {} render(); return; }
   const hb = e.target.closest("[data-header]");
   if (hb) { ui.header = hb.dataset.header; try { localStorage.setItem("plate-hunt-header", ui.header); } catch (err) {} syncSettings(); render(); return; }
   if (e.target.closest("#logoSwitch")) {
@@ -1259,12 +1346,28 @@ function restoreReset() { $("resetWrap").innerHTML = `<button class="btn" id="re
 const darkMQ = matchMedia("(prefers-color-scheme: dark)");
 let themeMode = null;   // null = follow device, else "light" | "dark"
 try { const t = localStorage.getItem("plate-hunt-theme"); if (t === "light" || t === "dark") themeMode = t; } catch (e) {}
-function applyTheme() {
-  if (themeMode) document.documentElement.dataset.theme = themeMode; else delete document.documentElement.dataset.theme;
-  const dark = themeMode ? themeMode === "dark" : darkMQ.matches;
-  document.querySelectorAll(".theme-set").forEach(b => b.setAttribute("aria-pressed", b.dataset.themeSet === (themeMode || "auto")));
-  document.querySelector('meta[name="theme-color"]').setAttribute("content", dark ? "#040a14" : "#e8f0f8");
+// Season: "classic" (no season), "auto" (by calendar month) or a fixed season.
+const SEASONS = ["classic", "auto", "spring", "summer", "fall", "winter"];
+let seasonMode = "classic";
+try { const v = localStorage.getItem("plate-hunt-season"); if (SEASONS.includes(v)) seasonMode = v; } catch (e) {}
+function currentSeason() {
+  if (seasonMode !== "auto") return seasonMode;
+  return ["winter", "winter", "spring", "spring", "spring", "summer", "summer", "summer", "fall", "fall", "fall", "winter"][new Date().getMonth()];
 }
+function applyTheme() {
+  const root = document.documentElement, season = currentSeason();
+  if (themeMode) root.dataset.theme = themeMode; else delete root.dataset.theme;
+  if (season === "classic") delete root.dataset.season; else root.dataset.season = season;
+  document.querySelectorAll(".theme-set").forEach(b => b.setAttribute("aria-pressed", b.dataset.themeSet === (themeMode || "auto")));
+  document.querySelectorAll(".season-set").forEach(b => b.setAttribute("aria-pressed", b.dataset.seasonSet === seasonMode));
+  const ground = getComputedStyle(root).getPropertyValue("--ground").trim();
+  document.querySelector('meta[name="theme-color"]').setAttribute("content", ground || "#040a14");
+}
+document.querySelectorAll(".season-set").forEach(b => b.addEventListener("click", () => {
+  seasonMode = b.dataset.seasonSet;
+  try { localStorage.setItem("plate-hunt-season", seasonMode); } catch (e) {}
+  applyTheme();
+}));
 document.querySelectorAll(".theme-set").forEach(b => b.addEventListener("click", () => {
   themeMode = b.dataset.themeSet === "auto" ? null : b.dataset.themeSet;
   try { themeMode ? localStorage.setItem("plate-hunt-theme", themeMode) : localStorage.removeItem("plate-hunt-theme"); } catch (e) {}
@@ -1272,6 +1375,128 @@ document.querySelectorAll(".theme-set").forEach(b => b.addEventListener("click",
 }));
 darkMQ.addEventListener?.("change", applyTheme);
 applyTheme();
+phoneMQ.addEventListener?.("change", () => render());
+
+// ---------- Weather: a canvas behind the content ----------
+const WX = ["off", "sun", "rain", "storm", "snow", "fog", "leaves"];
+const wx = { mode: "off", parts: [], raf: 0, last: 0, w: 0, h: 0, flash: 0, nextBolt: 0, t: 0 };
+try { const v = localStorage.getItem("plate-hunt-weather"); if (WX.includes(v)) wx.mode = v; } catch (e) {}
+const calmMQ = matchMedia("(prefers-reduced-motion: reduce)");
+const wxCanvas = $("wx"), wxCtx = wxCanvas.getContext("2d");
+function wxIsDark() {
+  const g = getComputedStyle(document.documentElement).getPropertyValue("--ground").trim().replace("#", "");
+  if (g.length < 6) return darkMQ.matches;
+  const [r, gg, b] = [0, 2, 4].map(i => parseInt(g.slice(i, i + 2), 16));
+  return (0.299 * r + 0.587 * gg + 0.114 * b) < 128;
+}
+function wxSize() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  wx.w = innerWidth; wx.h = innerHeight;
+  wxCanvas.width = wx.w * dpr; wxCanvas.height = wx.h * dpr;
+  wxCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+const rnd = (a, b) => a + Math.random() * (b - a);
+function wxSeed() {
+  const area = wx.w * wx.h / (1000 * 800), n = k => Math.round(Math.max(20, Math.min(k * 2, k * area)));
+  const P = [];
+  if (wx.mode === "rain" || wx.mode === "storm") {
+    const storm = wx.mode === "storm";
+    for (let i = 0; i < n(storm ? 260 : 150); i++) P.push({ x: rnd(0, wx.w), y: rnd(-wx.h, wx.h), v: rnd(storm ? 1100 : 800, storm ? 1500 : 1150), l: rnd(10, storm ? 24 : 18), a: rnd(.18, .45) });
+  } else if (wx.mode === "snow") {
+    for (let i = 0; i < n(130); i++) P.push({ x: rnd(0, wx.w), y: rnd(0, wx.h), r: rnd(1.2, 3.6), v: rnd(25, 70), ph: rnd(0, 6.3), sw: rnd(10, 30), a: rnd(.5, .95) });
+  } else if (wx.mode === "fog") {
+    for (let i = 0; i < 9; i++) P.push({ x: rnd(-200, wx.w), y: rnd(0, wx.h), r: rnd(220, 420), v: rnd(6, 18) * (Math.random() < .5 ? -1 : 1), a: rnd(.10, .2) });
+  } else if (wx.mode === "sun") {
+    for (let i = 0; i < n(26); i++) P.push({ x: rnd(0, wx.w), y: rnd(0, wx.h), r: rnd(1, 2.6), v: rnd(6, 16), ph: rnd(0, 6.3) });
+  } else if (wx.mode === "leaves") {
+    const cols = ["#c2541b", "#e08a1e", "#a8321e", "#d6a320", "#8a4a1c"];
+    for (let i = 0; i < n(34); i++) P.push({ x: rnd(0, wx.w), y: rnd(-wx.h, wx.h), s: rnd(7, 13), v: rnd(35, 75), ph: rnd(0, 6.3), sw: rnd(30, 70), rot: rnd(0, 6.3), spin: rnd(-2, 2), c: cols[i % cols.length] });
+  }
+  wx.parts = P; wx.nextBolt = wx.t + rnd(2, 5);
+}
+function wxDraw(dt) {
+  const c = wxCtx, W = wx.w, H = wx.h, dark = wxIsDark();
+  wx.t += dt;
+  c.clearRect(0, 0, W, H);
+  if (wx.mode === "rain" || wx.mode === "storm") {
+    const slant = wx.mode === "storm" ? .32 : .16;
+    c.strokeStyle = dark ? "rgb(170, 200, 235)" : "rgb(60, 95, 140)"; c.lineWidth = 1.2; c.lineCap = "round";
+    for (const p of wx.parts) {
+      p.y += p.v * dt; p.x += p.v * slant * dt;
+      if (p.y > H) { p.y = rnd(-60, -10); p.x = rnd(-W * slant, W); }
+      c.globalAlpha = p.a; c.beginPath(); c.moveTo(p.x, p.y); c.lineTo(p.x - p.l * slant, p.y - p.l); c.stroke();
+    }
+    if (wx.mode === "storm") {
+      if (wx.t > wx.nextBolt) { wx.flash = 1; wx.nextBolt = wx.t + rnd(4, 10); wx.double = Math.random() < .5; }
+      if (wx.flash > 0) {
+        c.globalAlpha = Math.min(1, wx.flash) * (dark ? .32 : .45); c.fillStyle = dark ? "#dfe9ff" : "#ffffff"; c.fillRect(0, 0, W, H);
+        wx.flash -= dt * 4; if (wx.flash <= 0 && wx.double) { wx.double = false; wx.flash = .7; }
+      }
+    }
+  } else if (wx.mode === "snow") {
+    c.fillStyle = dark ? "#ffffff" : "#8fb0d4";
+    for (const p of wx.parts) {
+      p.y += p.v * dt; p.ph += dt * .8;
+      if (p.y > H + 5) { p.y = -5; p.x = rnd(0, W); }
+      c.globalAlpha = p.a * (dark ? .8 : .75); c.beginPath(); c.arc(p.x + Math.sin(p.ph) * p.sw, p.y, p.r, 0, 6.283); c.fill();
+    }
+  } else if (wx.mode === "fog") {
+    for (const p of wx.parts) {
+      p.x += p.v * dt; if (p.x - p.r > W) p.x = -p.r; if (p.x + p.r < 0) p.x = W + p.r;
+      const g = c.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r), col = dark ? "180, 195, 215" : "255, 255, 255";
+      g.addColorStop(0, `rgba(${col}, ${p.a * (dark ? .7 : 1.6)})`); g.addColorStop(1, `rgba(${col}, 0)`);
+      c.globalAlpha = 1; c.fillStyle = g; c.fillRect(p.x - p.r, p.y - p.r, p.r * 2, p.r * 2);
+    }
+  } else if (wx.mode === "sun") {
+    const cx = W * .88, cy = H * .04, R = Math.max(W, H) * 1.1;
+    const g = c.createRadialGradient(cx, cy, 0, cx, cy, Math.max(W, H) * .6);
+    g.addColorStop(0, dark ? "rgba(255, 196, 92, .30)" : "rgba(255, 190, 60, .40)"); g.addColorStop(1, "rgba(255, 190, 60, 0)");
+    c.globalAlpha = 1; c.fillStyle = g; c.fillRect(0, 0, W, H);
+    c.save(); c.translate(cx, cy); c.rotate(wx.t * .03);
+    c.fillStyle = dark ? "rgba(255, 210, 120, .05)" : "rgba(255, 180, 40, .08)";
+    for (let i = 0; i < 14; i++) { c.rotate(6.283 / 14); c.beginPath(); c.moveTo(0, 0); c.lineTo(R, -R * .07); c.lineTo(R, R * .07); c.fill(); }
+    c.restore();
+    c.fillStyle = dark ? "#ffd27a" : "#f0a020";
+    for (const p of wx.parts) {
+      p.y -= p.v * dt; p.ph += dt; if (p.y < -5) { p.y = H + 5; p.x = rnd(0, W); }
+      c.globalAlpha = .25 + .25 * Math.sin(p.ph * 2); c.beginPath(); c.arc(p.x + Math.sin(p.ph) * 8, p.y, p.r, 0, 6.283); c.fill();
+    }
+  } else if (wx.mode === "leaves") {
+    for (const p of wx.parts) {
+      p.y += p.v * dt; p.ph += dt * 1.2; p.rot += p.spin * dt;
+      if (p.y > H + 20) { p.y = -20; p.x = rnd(0, W); }
+      c.save(); c.translate(p.x + Math.sin(p.ph) * p.sw, p.y); c.rotate(p.rot); c.scale(1, .55 + .45 * Math.abs(Math.cos(p.ph)));
+      c.globalAlpha = dark ? .55 : .5; c.fillStyle = p.c;
+      c.beginPath(); c.moveTo(0, -p.s); c.quadraticCurveTo(p.s * .8, 0, 0, p.s); c.quadraticCurveTo(-p.s * .8, 0, 0, -p.s); c.fill();
+      c.restore();
+    }
+  }
+  c.globalAlpha = 1;
+}
+function wxLoop(ts) {
+  const dt = Math.min(.05, (ts - (wx.last || ts)) / 1000); wx.last = ts;
+  wxDraw(dt);
+  wx.raf = requestAnimationFrame(wxLoop);
+}
+function wxStart() {
+  cancelAnimationFrame(wx.raf); wx.raf = 0; wx.last = 0;
+  document.querySelectorAll(".wx-set").forEach(b => b.setAttribute("aria-pressed", b.dataset.wx === wx.mode));
+  wxCanvas.hidden = wx.mode === "off";
+  if (wx.mode === "off") return;
+  wxSize(); wxSeed();
+  if (calmMQ.matches || document.hidden) { wxDraw(0); return; }   // reduced motion: one still frame
+  wx.raf = requestAnimationFrame(wxLoop);
+}
+document.querySelectorAll(".wx-set").forEach(b => b.addEventListener("click", () => {
+  wx.mode = b.dataset.wx;
+  try { localStorage.setItem("plate-hunt-weather", wx.mode); } catch (e) {}
+  wxStart();
+}));
+let wxResizeT;
+addEventListener("resize", () => { clearTimeout(wxResizeT); wxResizeT = setTimeout(() => { if (wx.mode !== "off") wxStart(); }, 150); });
+document.addEventListener("visibilitychange", wxStart);
+calmMQ.addEventListener?.("change", wxStart);
+wxStart();
 
 // Home ZIP: looked up once online, then stored on this device only.
 $("zipForm").addEventListener("submit", async e => {
