@@ -81,7 +81,14 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   font-size: clamp(34px, 7vw, 56px); line-height: .95; letter-spacing: .01em; text-transform: uppercase;
   text-wrap: balance;
 }
-.tally { text-align: right; font-family: var(--font-display); line-height: .85; }
+.tally { text-align: right; font-family: var(--font-display); line-height: .85; padding-right: 50px; }
+.sign-inner { position: relative; }
+.theme-btn { position: absolute; top: 12px; right: 12px; width: 40px; height: 40px; border-radius: 50%; padding: 0; cursor: pointer;
+  display: grid; place-items: center; background: transparent; color: var(--sign-ink); border: 2px solid var(--sign-ink); }
+.theme-btn svg { width: 20px; height: 20px; }
+.theme-btn .ic-sun { display: none; }
+.theme-btn.is-dark .ic-sun { display: block; }
+.theme-btn.is-dark .ic-moon { display: none; }
 .tally .num { font-size: clamp(56px, 12vw, 96px); font-weight: 900; font-variant-numeric: tabular-nums; display: inline-block; }
 .tally .num.bump { animation: bump .45s ease-out; }
 .tally .of { font-size: clamp(22px, 4vw, 32px); font-weight: 600; opacity: .85; }
@@ -170,13 +177,8 @@ section { display: flex; flex-direction: column; gap: 14px; }
   background: var(--c1); color: var(--tx); box-shadow: inset 0 0 0 1.5px var(--c2); }
 
 
-/* info button */
 .pcard, .cap { position: relative; }
 .pcard .plate-btn, .cap .plate-btn { width: 100%; }
-.info-btn { position: absolute; left: -8px; top: -8px; z-index: 2; width: 30px; height: 30px; border-radius: 50%; padding: 0; cursor: pointer;
-  display: grid; place-items: center; background: var(--ink); color: var(--ground); border: 2px solid var(--ground);
-  font: italic 800 15px/1 Georgia, "Times New Roman", serif; box-shadow: 0 3px 8px -3px rgba(0,0,0,.5); }
-.info-btn:active { transform: scale(.92); }
 
 /* state info popup */
 .info-dlg { border: 0; padding: 0; border-radius: 18px; width: min(600px, calc(100% - 32px)); max-height: min(88vh, 900px);
@@ -321,6 +323,10 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
           </div>
           <h1>Plate Hunt</h1>
         </div>
+        <button type="button" class="theme-btn" id="themeBtn" aria-label="Switch to dark mode">
+          <svg class="ic-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" fill="currentColor"/></svg>
+          <svg class="ic-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></g></svg>
+        </button>
         <div class="tally" aria-live="polite">
           <span class="num" id="count">0</span><span class="of"> / <span id="total">51</span></span>
           <span class="lbl" id="tallyLbl">Plates captured</span>
@@ -335,9 +341,6 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
   </header>
 
   <div class="controls">
-    <div class="seg filter-ctl" role="group" aria-label="Region">
-      <span class="seg-lbl">Region</span><span class="seg-btns" id="chips"></span>
-    </div>
     <div class="seg filter-ctl" role="group" aria-label="Team badges on plates">
       <span class="seg-lbl">Teams</span>
       <button type="button" class="seg-btn team-btn" data-teams="off">Off</button>
@@ -351,18 +354,12 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
       <button type="button" class="seg-btn view-btn" data-view="map" aria-pressed="false">Map</button>
       <button type="button" class="seg-btn view-btn" data-view="trips" aria-pressed="false">Trips</button>
     </div>
-    <div class="seg" role="group" aria-label="Theme">
-      <span class="seg-lbl">Theme</span>
-      <button type="button" class="seg-btn theme-set" data-theme-set="auto">Auto</button>
-      <button type="button" class="seg-btn theme-set" data-theme-set="light">Light</button>
-      <button type="button" class="seg-btn theme-set" data-theme-set="dark">Dark</button>
-    </div>
   </div>
 
   <section id="mapView" aria-labelledby="h-map" hidden>
     <div class="sec-head">
       <h2 id="h-map">The map</h2>
-      <span class="meta" id="mapMeta">Tap a state to check or uncheck it</span>
+      <span class="meta" id="mapMeta">Tap a state for details</span>
     </div>
     <div class="map-wrap"><div class="map" id="map"></div></div>
     <div class="legend">
@@ -375,7 +372,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
   <section id="roadView" aria-labelledby="h-road">
     <div class="sec-head">
       <h2 id="h-road">On the road</h2>
-      <span class="meta" id="roadMeta">Tap a plate when you spot it</span>
+      <span class="meta" id="roadMeta">Tap a plate for details</span>
     </div>
     <div class="grid" id="roadGrid"></div>
   </section>
@@ -395,7 +392,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
   <section id="capView" aria-labelledby="h-cap">
     <div class="sec-head">
       <h2 id="h-cap">Captured</h2>
-      <span class="meta" id="capMeta">Tap a plate to uncheck it</span>
+      <span class="meta" id="capMeta">Newest first</span>
     </div>
     <div class="grid" id="capGrid"></div>
   </section>
@@ -547,11 +544,9 @@ function plateHTML(s, plain) {
 }
 
 function matches(s) {
-  if (ui.region !== "All" && s.region !== ui.region) return false;
   return true;
 }
 
-function infoBtn(s) { return `<button type="button" class="info-btn" data-info="${s.abbr}" aria-label="About ${esc(s.name)}">i</button>`; }
 
 const POP_RANK = Object.keys(INFO).filter(a => a !== "DC").sort((a, b) => INFO[b][2] - INFO[a][2]);
 function chip(lg, t) { return `<span class="tm ${lg}" style="--c1:${t[2]};--c2:${t[3]};--tx:${textOn(t[2])}">${t[0]}</span>`; }
@@ -624,26 +619,21 @@ function render() {
   $("fill").style.width = pct + "%";
   $("car").style.left = `calc(22px + (100% - 44px) * ${n / total})`;
 
-  // chips
-  $("chips").innerHTML = REGIONS.map(r => {
-    const left = r === "All" ? remaining.length : remaining.filter(s => s.region === r).length;
-    return `<button type="button" class="seg-btn" data-r="${r}" aria-pressed="${ui.region === r}">${r}<span class="ct">${left}</span></button>`;
-  }).join("");
 
   // road
-  $("roadMeta").textContent = `${remaining.length} to find` + (roadShown.length !== remaining.length ? ` · showing ${roadShown.length}` : "");
+  $("roadMeta").textContent = `${remaining.length} to find · tap a plate for details`;
   $("roadGrid").innerHTML = roadShown.length ? roadShown.map(s =>
-    `<div class="pcard"><button type="button" class="plate-btn" data-cap="${s.abbr}" aria-label="Capture ${esc(s.name)}">${plateHTML(s)}</button>${infoBtn(s)}</div>`
-  ).join("") : `<div class="empty" style="grid-column:1/-1">${remaining.length ? "Every plate in this region is captured. Pick another region." : "Every plate captured. Time for a victory milkshake."}</div>`;
+    `<div class="pcard"><button type="button" class="plate-btn" data-info="${s.abbr}" aria-label="${esc(s.name)}: open details">${plateHTML(s)}</button></div>`
+  ).join("") : `<div class="empty" style="grid-column:1/-1">${remaining.length ? "" : "Every plate captured. Time for a victory milkshake."}</div>`;
 
   // captured
-  $("capMeta").textContent = n ? `${n} captured · tap a plate to uncheck` : "Nothing yet";
+  $("capMeta").textContent = n ? `${n} captured · newest first` : "Nothing yet";
   $("capGrid").innerHTML = capShown.length ? capShown.map(s =>
     `<div class="cap ${ui.just === s.abbr ? "just" : ""}">
-      <button type="button" class="plate-btn" data-rel="${s.abbr}" aria-label="Uncheck ${esc(s.name)}" title="Tap to uncheck" style="width:100%"><div style="position:relative">${plateHTML(s)}<span class="stamp" aria-hidden="true">&#10003;</span></div></button>${infoBtn(s)}
+      <button type="button" class="plate-btn" data-info="${s.abbr}" aria-label="${esc(s.name)}, captured: open details" style="width:100%"><div style="position:relative">${plateHTML(s)}<span class="stamp" aria-hidden="true">&#10003;</span></div></button>
       <div class="cap-meta"><span>${timeLabel(state.captured[s.abbr])}</span><button type="button" class="release" data-rel="${s.abbr}" aria-label="Uncheck ${esc(s.name)}">&#8634; Uncheck</button></div>
     </div>`
-  ).join("") : `<div class="empty" style="grid-column:1/-1">${n ? "No captured plates in this region yet." : "Tap a plate above the moment you spot it on the highway. It lands here with a checkmark."}</div>`;
+  ).join("") : `<div class="empty" style="grid-column:1/-1">${n ? "" : "Tap a plate above the moment you spot it on the highway. It lands here with a checkmark."}</div>`;
   // view toggle
   const isMap = ui.view === "map", isTrips = ui.view === "trips";
   $("mapView").hidden = !isMap; $("tripsView").hidden = !isTrips;
@@ -659,9 +649,9 @@ function render() {
       const [c, r] = TILE[s.abbr], got = !!state.captured[s.abbr];
       return `<button type="button" class="tile ${got ? "got" : ""} ${matches(s) ? "" : "dim"} ${ui.just === s.abbr ? "pop" : ""}"
         style="grid-column:${c + 1};grid-row:${r + 1};--pbg:${s.bg};--pfg:${s.fg};--pac:${s.ac}"
-        data-${got ? "rel" : "cap"}="${s.abbr}" aria-pressed="${got}" aria-label="${esc(s.name)}${got ? ", captured. Tap to uncheck" : ". Tap to capture"}" title="${esc(s.name)}">${s.abbr}</button>`;
+        data-info="${s.abbr}" aria-pressed="${got}" aria-label="${esc(s.name)}${got ? ", captured" : ""}: open details" title="${esc(s.name)}">${s.abbr}</button>`;
     }).join("");
-    $("mapMeta").textContent = `${n} of ${total} · tap a state to check or uncheck`;
+    $("mapMeta").textContent = `${n} of ${total} · tap a state for details`;
     $("lastSeen").textContent = capList.length ? `Last spotted: ${BY[capList[0]].name}, ${timeLabel(state.captured[capList[0]])}` : "";
   }
   ui.just = null;
@@ -712,8 +702,6 @@ document.addEventListener("click", e => {
   if (tb) { ui.teams = tb.dataset.teams; try { localStorage.setItem("plate-hunt-teams", ui.teams); } catch (err) {} render(); return; }
   const vb = e.target.closest("[data-view]");
   if (vb) { ui.view = vb.dataset.view; try { localStorage.setItem("plate-hunt-view", ui.view); } catch (err) {} render(); return; }
-  const chip = e.target.closest("[data-r]");
-  if (chip) { ui.region = chip.dataset.r; render(); return; }
 });
 
 
@@ -794,23 +782,25 @@ function bindReset() {
 }
 function restoreReset() { $("resetWrap").innerHTML = `<button class="btn" id="resetBtn" type="button">Finish trip &amp; log it</button>`; bindReset(); }
 
-// ---------- Theme: Auto (follows iPad setting), Light, Dark ----------
-const THEMES = ["auto", "light", "dark"];
-function applyTheme(mode) {
-  if (mode === "auto") delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = mode;
-  document.querySelectorAll(".theme-set").forEach(b => b.setAttribute("aria-pressed", b.dataset.themeSet === mode));
-  const dark = mode === "dark" || (mode === "auto" && matchMedia("(prefers-color-scheme: dark)").matches);
+// ---------- Theme: follows the iPad until you tap the toggle ----------
+const darkMQ = matchMedia("(prefers-color-scheme: dark)");
+let themeMode = null;   // null = follow device, else "light" | "dark"
+try { const t = localStorage.getItem("plate-hunt-theme"); if (t === "light" || t === "dark") themeMode = t; } catch (e) {}
+function isDark() { return themeMode ? themeMode === "dark" : darkMQ.matches; }
+function applyTheme() {
+  if (themeMode) document.documentElement.dataset.theme = themeMode; else delete document.documentElement.dataset.theme;
+  const dark = isDark(), b = $("themeBtn");
+  b.classList.toggle("is-dark", dark);
+  b.setAttribute("aria-label", dark ? "Switch to light mode" : "Switch to dark mode");
   document.querySelector('meta[name="theme-color"]').setAttribute("content", dark ? "#16191a" : "#0d6a43");
 }
-let themeMode = "auto";
-try { const t = localStorage.getItem("plate-hunt-theme"); if (THEMES.includes(t)) themeMode = t; } catch (e) {}
-document.querySelectorAll(".theme-set").forEach(b => b.addEventListener("click", () => {
-  themeMode = b.dataset.themeSet;
+$("themeBtn").addEventListener("click", () => {
+  themeMode = isDark() ? "light" : "dark";
   try { localStorage.setItem("plate-hunt-theme", themeMode); } catch (e) {}
-  applyTheme(themeMode);
-}));
-matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", () => applyTheme(themeMode));
-applyTheme(themeMode);
+  applyTheme();
+});
+darkMQ.addEventListener?.("change", applyTheme);
+applyTheme();
 
 function start(data) {
   if (data && data.captured) state = { captured: data.captured };
