@@ -162,6 +162,18 @@ section { display: flex; flex-direction: column; gap: 14px; }
 .leaving { animation: leave .32s ease-in forwards; pointer-events: none; }
 @keyframes leave { to { transform: translateY(-14px) scale(.9) rotate(4deg); opacity: 0; } }
 
+/* team badges */
+.teams-ctl { display: inline-flex; align-items: center; gap: 4px; border: 2px solid var(--rule); border-radius: 10px; padding: 3px; background: var(--card); }
+.teams-lbl { font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-soft); padding: 0 6px 0 4px; }
+.team-btn { font: inherit; font-weight: 800; font-size: 12.5px; cursor: pointer; border: 0; border-radius: 7px; padding: 6px 10px; background: transparent; color: var(--ink); }
+.team-btn[aria-pressed="true"] { background: var(--sign); color: var(--sign-ink); }
+.plate .teams { display: flex; justify-content: center; gap: 3px; flex-wrap: nowrap; overflow: hidden; align-items: center; min-height: 15px; }
+.tm { flex: none; font-family: var(--font-body); font-weight: 800; font-size: 9.5px; letter-spacing: .04em; line-height: 1; padding: 3px 6px 2px; background: var(--c1); color: var(--tx); box-shadow: inset 0 0 0 1.5px var(--c2); }
+.tm.nfl { border-radius: 999px; }           /* football oval */
+.tm.nhl { border-radius: 3px; position: relative; padding-left: 9px; }  /* hockey: square chip with a puck dot */
+.tm.nhl::before { content: ""; position: absolute; left: 3px; top: 50%; width: 4px; height: 4px; margin-top: -2px; border-radius: 50%; background: var(--c2); }
+.tm.more { background: var(--pfg); color: var(--pbg); box-shadow: none; border-radius: 999px; }
+
 /* view toggle */
 .views { display: inline-flex; border: 2px solid var(--ink); border-radius: 10px; overflow: hidden; margin-left: auto; }
 .view-btn { font: inherit; font-weight: 800; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; cursor: pointer; border: 0; padding: 8px 14px; background: transparent; color: var(--ink); }
@@ -285,6 +297,13 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
     <label for="q" style="position:absolute;left:-9999px">Search states</label>
     <input id="q" class="search filter-ctl" type="search" placeholder="Spotted one? Type a state or abbreviation…" autocomplete="off">
     <div class="chips filter-ctl" role="group" aria-label="Filter by region" id="chips"></div>
+    <div class="teams-ctl filter-ctl" role="group" aria-label="Team badges on plates">
+      <span class="teams-lbl">Teams</span>
+      <button type="button" class="team-btn" data-teams="off">Off</button>
+      <button type="button" class="team-btn" data-teams="nfl">NFL</button>
+      <button type="button" class="team-btn" data-teams="nhl">NHL</button>
+      <button type="button" class="team-btn" data-teams="both">Both</button>
+    </div>
     <div class="views" role="group" aria-label="Choose view">
       <button type="button" class="view-btn" data-view="plates" aria-pressed="true">Plates</button>
       <button type="button" class="view-btn" data-view="map" aria-pressed="false">Map</button>
@@ -398,10 +417,57 @@ const STATES = [
 ].map(([abbr,name,slogan,region,year,bg,fg,ac]) => ({abbr,name,slogan,region,year,bg,fg,ac}));
 const BY = Object.fromEntries(STATES.map(s => [s.abbr, s]));
 const REGIONS = ["All","West","Midwest","South","Northeast"];
+// Team badges: [abbr, team name, primary color, secondary color]. Colors only; no official logos.
+const NFL = {
+  AZ:[["ARI","Arizona Cardinals","#97233F","#FFB612"]], GA:[["ATL","Atlanta Falcons","#A71930","#101820"]],
+  MD:[["BAL","Baltimore Ravens","#241773","#9E7C0C"]], NY:[["BUF","Buffalo Bills","#00338D","#C60C30"],["NYG","New York Giants","#0B2265","#A71930"],["NYJ","New York Jets","#125740","#FFFFFF"]],
+  NC:[["CAR","Carolina Panthers","#0085CA","#101820"]], IL:[["CHI","Chicago Bears","#0B162A","#C83803"]],
+  OH:[["CIN","Cincinnati Bengals","#FB4F14","#101820"],["CLE","Cleveland Browns","#311D00","#FF3C00"]],
+  TX:[["DAL","Dallas Cowboys","#003594","#869397"],["HOU","Houston Texans","#03202F","#A71930"]],
+  CO:[["DEN","Denver Broncos","#FB4F14","#002244"]], MI:[["DET","Detroit Lions","#0076B6","#B0B7BC"]],
+  WI:[["GB","Green Bay Packers","#203731","#FFB612"]], IN:[["IND","Indianapolis Colts","#002C5F","#A2AAAD"]],
+  FL:[["JAX","Jacksonville Jaguars","#006778","#D7A22A"],["MIA","Miami Dolphins","#008E97","#FC4C02"],["TB","Tampa Bay Buccaneers","#D50A0A","#34302B"]],
+  MO:[["KC","Kansas City Chiefs","#E31837","#FFB81C"]], NV:[["LV","Las Vegas Raiders","#101010","#A5ACAF"]],
+  CA:[["LAC","Los Angeles Chargers","#0080C6","#FFC20E"],["LAR","Los Angeles Rams","#003594","#FFA300"],["SF","San Francisco 49ers","#AA0000","#B3995D"]],
+  MN:[["MIN","Minnesota Vikings","#4F2683","#FFC62F"]], MA:[["NE","New England Patriots","#002244","#C60C30"]],
+  LA:[["NO","New Orleans Saints","#101820","#D3BC8D"]], NJ:[["NYG","New York Giants","#0B2265","#A71930"],["NYJ","New York Jets","#125740","#FFFFFF"]],
+  PA:[["PHI","Philadelphia Eagles","#004C54","#A5ACAF"],["PIT","Pittsburgh Steelers","#101820","#FFB612"]],
+  WA:[["SEA","Seattle Seahawks","#002244","#69BE28"]], TN:[["TEN","Tennessee Titans","#0C2340","#4B92DB"]],
+  DC:[["WAS","Washington Commanders","#5A1414","#FFB612"]],
+};
+const NHL = {
+  CA:[["ANA","Anaheim Ducks","#F47A38","#101010"],["LAK","Los Angeles Kings","#111111","#A2AAAD"],["SJS","San Jose Sharks","#006D75","#EA7200"]],
+  MA:[["BOS","Boston Bruins","#FFB81C","#101010"]], NY:[["BUF","Buffalo Sabres","#003087","#FFB81C"],["NYI","New York Islanders","#00539B","#F47D30"],["NYR","New York Rangers","#0038A8","#CE1126"]],
+  NC:[["CAR","Carolina Hurricanes","#CE1126","#101010"]], IL:[["CHI","Chicago Blackhawks","#CF0A2C","#101010"]],
+  CO:[["COL","Colorado Avalanche","#6F263D","#236192"]], OH:[["CBJ","Columbus Blue Jackets","#002654","#CE1126"]],
+  TX:[["DAL","Dallas Stars","#006847","#8F8F8C"]], MI:[["DET","Detroit Red Wings","#CE1126","#FFFFFF"]],
+  FL:[["FLA","Florida Panthers","#C8102E","#041E42"],["TBL","Tampa Bay Lightning","#002868","#FFFFFF"]],
+  MN:[["MIN","Minnesota Wild","#154734","#A6192E"]], TN:[["NSH","Nashville Predators","#FFB81C","#041E42"]],
+  NJ:[["NJD","New Jersey Devils","#CE1126","#101010"]], PA:[["PHI","Philadelphia Flyers","#F74902","#101010"],["PIT","Pittsburgh Penguins","#101010","#FCB514"]],
+  WA:[["SEA","Seattle Kraken","#001628","#99D9D9"]], MO:[["STL","St. Louis Blues","#002F87","#FCB514"]],
+  NV:[["VGK","Vegas Golden Knights","#B4975A","#333F42"]], DC:[["WSH","Washington Capitals","#C8102E","#041E42"]],
+  UT:[["UTA","Utah Mammoth","#101010","#6CACE4"]],
+};
+function textOn(hex) {
+  const n = parseInt(hex.slice(1), 16), r = n >> 16 & 255, g = n >> 8 & 255, b = n & 255;
+  return (0.299 * r + 0.587 * g + 0.114 * b) > 150 ? "#111111" : "#ffffff";
+}
+function teamChips(abbr) {
+  const list = [];
+  if (ui.teams === "nfl" || ui.teams === "both") (NFL[abbr] || []).forEach(t => list.push(["nfl", ...t]));
+  if (ui.teams === "nhl" || ui.teams === "both") (NHL[abbr] || []).forEach(t => list.push(["nhl", ...t]));
+  if (!list.length) return null;
+  const max = 4, shown = list.length > max ? list.slice(0, max - 1) : list;
+  const chips = shown.map(([lg, code, name, c1, c2]) =>
+    `<span class="tm ${lg}" style="--c1:${c1};--c2:${c2};--tx:${textOn(c1)}" title="${esc(name)}">${code}</span>`).join("");
+  const extra = list.length - shown.length;
+  return `<div class="teams" aria-label="${esc(list.map(t => t[2]).join(", "))}">${chips}${extra ? `<span class="tm more">+${extra}</span>` : ""}</div>`;
+}
 const KEY = "plate-hunt-v1";
 
 let state = { captured: {}, tripStart: null, history: [] };   // captured: abbr -> timestamp
-let ui = { region: "All", q: "", just: null, view: "plates" };
+let ui = { region: "All", q: "", just: null, view: "plates", teams: "off" };
+try { const t = localStorage.getItem("plate-hunt-teams"); if (["nfl","nhl","both"].includes(t)) ui.teams = t; } catch (e) {}
 try { const v = localStorage.getItem("plate-hunt-view"); if (v === "map" || v === "trips") ui.view = v; } catch (e) {}
 // Tile map positions: [col, row] on a 12 x 8 grid
 const TILE = {AK:[0,0],ME:[11,0],WI:[6,1],VT:[10,1],NH:[11,1],WA:[1,2],ID:[2,2],MT:[3,2],ND:[4,2],MN:[5,2],IL:[6,2],MI:[7,2],NY:[9,2],MA:[10,2],
@@ -425,7 +491,7 @@ function plateHTML(s) {
     <span class="bolt l"></span><span class="bolt r"></span>
     <div class="st">${esc(s.name)}</div>
     <div class="serial">${s.abbr}<span class="dot">·</span>${s.year}</div>
-    <div class="slogan">${esc(s.slogan)}</div>
+    ${teamChips(s.abbr) || `<div class="slogan">${esc(s.slogan)}</div>`}
     <span class="stripe"></span>
   </div>`;
 }
@@ -487,6 +553,7 @@ function render() {
   document.querySelectorAll(".filter-ctl").forEach(el => el.hidden = isTrips);
   if (isTrips) renderTrips();
   document.querySelectorAll(".view-btn").forEach(b => b.setAttribute("aria-pressed", b.dataset.view === ui.view));
+  document.querySelectorAll(".team-btn").forEach(b => b.setAttribute("aria-pressed", b.dataset.teams === ui.teams));
 
   // tile map
   if (isMap) {
@@ -533,6 +600,8 @@ document.addEventListener("click", e => {
     if (card && !matchMedia("(prefers-reduced-motion: reduce)").matches) { card.classList.add("leaving"); setTimeout(go, 300); } else go();
     return;
   }
+  const tb = e.target.closest("[data-teams]");
+  if (tb) { ui.teams = tb.dataset.teams; try { localStorage.setItem("plate-hunt-teams", ui.teams); } catch (err) {} render(); return; }
   const vb = e.target.closest("[data-view]");
   if (vb) { ui.view = vb.dataset.view; try { localStorage.setItem("plate-hunt-view", ui.view); } catch (err) {} render(); return; }
   const chip = e.target.closest("[data-r]");
