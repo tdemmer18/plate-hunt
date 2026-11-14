@@ -251,7 +251,14 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 /* ---------- Controls ---------- */
 .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 .show-ctl { margin-left: auto; }
-@media (max-width: 560px) { .controls .seg-lbl { display: none; } }
+@media (max-width: 560px) {
+  .controls .seg-lbl { display: none; }
+  /* keep all three toggles on one row on phones */
+  .controls { flex-wrap: nowrap; gap: 6px; }
+  .controls .seg { flex-wrap: nowrap; gap: 2px; padding: 3px; border-radius: 12px; min-width: 0; }
+  .controls .seg-btn { padding: 0 8px; font-size: 12px; letter-spacing: .03em; min-height: 34px; border-radius: 9px; white-space: nowrap; }
+}
+@media (max-width: 360px) { .controls .seg-btn { padding: 0 6px; font-size: 11px; letter-spacing: 0; } .hud-btns { gap: 4px !important; } .icon-btn { width: 30px !important; height: 30px !important; } }
 .seg { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 3px; padding: 4px; border-radius: 14px; background: var(--card); border: 1px solid var(--rule); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
 .seg-lbl { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); padding: 0 8px 0 8px; }
 .seg-btn { font-family: var(--font-hud); font-weight: 600; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; border: 1px solid transparent; border-radius: 10px; padding: 0 13px; min-height: 36px; background: transparent; color: var(--ink); }
