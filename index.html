@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Plate Hunt</title>
+<meta name="description" content="A road trip license plate game. Spot all 50 states plus DC.">
+<meta name="theme-color" content="#0d6a43">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Plate Hunt">
+<link rel="stylesheet" href="fonts.css">
+<style>
+:root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+body { margin: 0; -webkit-text-size-adjust: 100%; }
+[hidden] { display: none !important; }
+img { max-width: 100%; }
+</style>
+<style>
+/* Layout: an interstate guide sign as the scoreboard, then two lots of plates — "On the road" and "Captured" — on an asphalt/concrete ground. */
+:root {
+  --ground: #e9ebe6;
+  --ground-2: #dfe2db;
+  --ink: #1d231f;
+  --ink-soft: #5a635c;
+  --sign: #0d6a43;
+  --sign-ink: #ffffff;
+  --line: #f1c232;
+  --card: #f7f8f4;
+  --rule: #c9cec5;
+  --stamp: #c2302a;
+  --font-display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --font-body: "Overpass", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "Overpass Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #16191a; --ground-2: #1e2223; --ink: #e8ebe6; --ink-soft: #9aa39c;
+    --sign: #0f7a4d; --card: #222728; --rule: #343a3b; --stamp: #ff5a4f; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #16191a; --ground-2: #1e2223; --ink: #e8ebe6; --ink-soft: #9aa39c;
+  --sign: #0f7a4d; --card: #222728; --rule: #343a3b; --stamp: #ff5a4f; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--ground); color: var(--ink);
+  font-family: var(--font-body); font-size: 15px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 64px;
+}
+.wrap { max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+
+/* ---------- Guide sign scoreboard ---------- */
+.signpost { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; padding-top: 4px; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--ground); }
+.sign {
+  background: var(--sign); color: var(--sign-ink);
+  border-radius: 14px; padding: 6px;
+  box-shadow: 0 10px 24px -14px rgba(0,0,0,.55);
+}
+.sign-inner {
+  border: 3px solid var(--sign-ink); border-radius: 10px;
+  padding: 14px 18px 16px; display: grid; gap: 12px;
+  grid-template-columns: 1fr auto; align-items: center;
+}
+.shield {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--font-body); font-weight: 800; letter-spacing: .14em; font-size: 12px; text-transform: uppercase;
+}
+.shield svg { width: 30px; height: 32px; flex: none; }
+.sign h1 {
+  margin: 2px 0 0; font-family: var(--font-display); font-weight: 900;
+  font-size: clamp(34px, 7vw, 56px); line-height: .95; letter-spacing: .01em; text-transform: uppercase;
+  text-wrap: balance;
+}
+.tally { text-align: right; font-family: var(--font-display); line-height: .85; }
+.tally .num { font-size: clamp(56px, 12vw, 96px); font-weight: 900; font-variant-numeric: tabular-nums; display: inline-block; }
+.tally .num.bump { animation: bump .45s ease-out; }
+.tally .of { font-size: clamp(22px, 4vw, 32px); font-weight: 600; opacity: .85; }
+.tally .lbl { display: block; font-family: var(--font-body); font-size: 11px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; margin-top: 6px; }
+@keyframes bump { 0% { transform: scale(1); } 35% { transform: scale(1.18) rotate(-3deg); } 100% { transform: scale(1); } }
+
+/* road progress */
+.road { grid-column: 1 / -1; position: relative; height: 34px; background: #2b2f30; border-radius: 6px; overflow: hidden; }
+.road::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 3px; transform: translateY(-50%);
+  background: repeating-linear-gradient(90deg, var(--line) 0 18px, transparent 18px 34px); opacity: .9; }
+.road .fill { position: absolute; inset: 0 auto 0 0; background: rgba(241,194,50,.22); transition: width .6s cubic-bezier(.3,.7,.2,1); }
+.road .car { position: absolute; top: 50%; transform: translate(-50%, -50%); transition: left .6s cubic-bezier(.3,.7,.2,1); width: 38px; height: 20px; }
+.marks { grid-column: 1 / -1; display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 11px; opacity: .85; margin-top: -6px; font-variant-numeric: tabular-nums; }
+
+/* ---------- Controls ---------- */
+.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.search {
+  flex: 1 1 220px; min-width: 0; font: inherit; font-size: 15px; color: var(--ink);
+  background: var(--card); border: 2px solid var(--rule); border-radius: 10px; padding: 10px 14px;
+}
+.search:focus-visible, button:focus-visible { outline: 3px solid var(--line); outline-offset: 2px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  font: inherit; font-weight: 700; font-size: 13px; letter-spacing: .04em; cursor: pointer;
+  background: transparent; color: var(--ink-soft); border: 2px solid var(--rule); border-radius: 999px; padding: 6px 12px;
+}
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--ground); border-color: var(--ink); }
+
+/* ---------- Sections ---------- */
+section { display: flex; flex-direction: column; gap: 14px; }
+.sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-bottom: 2px solid var(--rule); padding-bottom: 8px; }
+.sec-head h2 { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: 28px; text-transform: uppercase; letter-spacing: .02em; }
+.sec-head .meta { font-family: var(--font-mono); font-size: 13px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 14px; }
+.empty { color: var(--ink-soft); background: var(--ground-2); border: 2px dashed var(--rule); border-radius: 12px; padding: 22px; text-align: center; }
+
+/* ---------- Plate ---------- */
+.plate-btn {
+  all: unset; cursor: pointer; display: block; position: relative; border-radius: 10px;
+  transition: transform .15s ease;
+}
+.plate-btn:hover { transform: translateY(-2px) rotate(-.6deg); }
+.plate-btn:focus-visible { outline: 3px solid var(--line); outline-offset: 3px; }
+.plate {
+  aspect-ratio: 2 / 1; max-width: 100%; border-radius: 10px; position: relative; overflow: hidden;
+  background: var(--pbg); color: var(--pfg);
+  box-shadow: inset 0 0 0 2px var(--pfg), inset 0 0 0 5px var(--pbg), inset 0 0 0 6px color-mix(in srgb, var(--pfg) 35%, transparent),
+              0 6px 14px -8px rgba(0,0,0,.45);
+  display: grid; grid-template-rows: auto 1fr auto; text-align: center; padding: 9px 10px 8px;
+}
+.plate::after { /* sheen */
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(160deg, rgba(255,255,255,.35) 0%, transparent 40%, transparent 70%, rgba(0,0,0,.06) 100%);
+}
+.plate .bolt { position: absolute; top: 7px; width: 6px; height: 6px; border-radius: 50%; background: color-mix(in srgb, var(--pfg) 40%, var(--pbg)); }
+.plate .bolt.l { left: 22%; } .plate .bolt.r { right: 22%; }
+.plate .st { font-family: var(--font-body); font-weight: 800; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; line-height: 1; padding-top: 4px; }
+.plate .serial {
+  font-family: var(--font-display); font-weight: 900; font-size: clamp(30px, 4.2vw, 40px); line-height: 1;
+  align-self: center; letter-spacing: .04em; font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 0 rgba(255,255,255,.35), 0 -1px 0 rgba(0,0,0,.18);
+}
+.plate .serial .dot { color: var(--pac); }
+.plate .slogan { font-family: var(--font-body); font-weight: 600; font-style: italic; font-size: 10px; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.plate .stripe { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: var(--pac); }
+
+.stamp {
+  position: absolute; right: -6px; top: -6px; width: 22px; height: 22px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 13px; font-weight: 800; line-height: 1;
+  background: var(--sign); color: var(--sign-ink); border: 2px solid var(--ground);
+  pointer-events: none;
+}
+.cap-meta { display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-top: 6px; font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-soft); }
+.release { font: inherit; font-size: 12px; font-weight: 700; background: var(--card); border: 2px solid var(--rule); border-radius: 999px; color: var(--ink); cursor: pointer; padding: 3px 10px; }
+.release:hover { border-color: var(--stamp); color: var(--stamp); }
+
+.just { animation: arrive .35s ease-out both; }
+@keyframes arrive { from { transform: translateY(8px); opacity: 0; } to { transform: none; opacity: 1; } }
+.leaving { animation: leave .32s ease-in forwards; pointer-events: none; }
+@keyframes leave { to { transform: translateY(-14px) scale(.9) rotate(4deg); opacity: 0; } }
+
+/* view toggle */
+.views { display: inline-flex; border: 2px solid var(--ink); border-radius: 10px; overflow: hidden; margin-left: auto; }
+.view-btn { font: inherit; font-weight: 800; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; cursor: pointer; border: 0; padding: 8px 14px; background: transparent; color: var(--ink); }
+.view-btn[aria-pressed="true"] { background: var(--ink); color: var(--ground); }
+
+/* tile map */
+.map-wrap { background: var(--ground-2); border-radius: 14px; padding: clamp(10px, 3vw, 24px); }
+.map { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: clamp(3px, .8vw, 7px); max-width: 820px; margin: 0 auto; }
+.tile {
+  aspect-ratio: 1; max-width: 100%; min-width: 0; cursor: pointer; border-radius: clamp(4px, 1vw, 8px);
+  font-family: var(--font-display); font-weight: 900; font-size: clamp(11px, 2.4vw, 22px); letter-spacing: .02em;
+  display: grid; place-items: center; position: relative; padding: 0;
+  background: var(--card); color: var(--ink-soft); border: 2px dashed var(--rule);
+  transition: transform .15s ease, opacity .2s;
+}
+.tile:hover { transform: translateY(-2px); }
+.tile:focus-visible { outline: 3px solid var(--line); outline-offset: 2px; }
+.tile.got { background: var(--pbg); color: var(--pfg); border: 2px solid var(--pfg); box-shadow: inset 0 -4px 0 var(--pac), 0 4px 10px -6px rgba(0,0,0,.5); }
+.tile.got::after { content: "\2713"; position: absolute; top: 2px; right: 4px; font-family: var(--font-body); font-size: clamp(8px, 1.4vw, 12px); font-weight: 800; }
+.tile.dim { opacity: .22; }
+.tile.pop { animation: arrive .35s ease-out; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 13px; color: var(--ink-soft); align-items: center; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.key { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }
+.key-cap { background: var(--sign); }
+.key-open { border: 2px dashed var(--rule); background: var(--card); }
+#lastSeen { margin-left: auto; font-family: var(--font-mono); font-size: 12px; }
+
+.offline-pill { display: inline-block; margin-left: 6px; font-weight: 800; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; background: var(--line); color: #1d231f; border-radius: 999px; padding: 2px 8px; }
+/* touch: no sticky hover lift, no long-press callouts */
+@media (hover: none) { .plate-btn:hover, .tile:hover { transform: none; } }
+button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.plate-btn:active, .tile:active { transform: scale(.96); }
+
+/* footer / reset */
+.foot { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; color: var(--ink-soft); font-size: 13px; }
+.btn { font: inherit; font-weight: 700; font-size: 13px; cursor: pointer; border-radius: 8px; padding: 8px 14px; border: 2px solid var(--rule); background: var(--card); color: var(--ink); }
+.btn.danger { border-color: var(--stamp); color: var(--stamp); }
+.confirm { display: inline-flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+/* toast */
+.toast {
+  position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, calc(100% + 60px)); visibility: hidden;
+  background: var(--line); color: #1d231f; font-weight: 800; padding: 12px 18px; border-radius: 10px;
+  box-shadow: 0 10px 24px -10px rgba(0,0,0,.5); transition: transform .35s cubic-bezier(.2,1.3,.4,1), visibility 0s .35s; z-index: 20;
+  max-width: calc(100vw - 32px); text-align: center; border: 3px solid #1d231f;
+}
+.toast.show { transform: translate(-50%, 0); visibility: visible; transition: transform .35s cubic-bezier(.2,1.3,.4,1); }
+
+@media (max-width: 520px) {
+  .sign-inner { grid-template-columns: 1fr; }
+  .tally { text-align: left; }
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .plate .serial { font-size: 26px; }
+  .plate .st { font-size: 9.5px; }
+  .plate .slogan { font-size: 9px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="signpost">
+    <div class="sign">
+      <div class="sign-inner">
+        <div>
+          <div class="shield">
+            <svg viewBox="0 0 30 32" aria-hidden="true"><path d="M15 1c4 2 9 2 13 0 2 9 1 19-13 30C1 20 0 10 2 1c4 2 9 2 13 0z" fill="#1f4fa3" stroke="#fff" stroke-width="1.6"/><path d="M2.6 8h24.8" stroke="#fff" stroke-width="1.4"/><rect x="2.4" y="1.6" width="25.2" height="5.6" fill="#c2302a"/><text x="15" y="21" text-anchor="middle" font-family="Overpass, sans-serif" font-weight="800" font-size="10" fill="#fff">50</text></svg>
+            <span>All States · Eyes Peeled</span>
+          </div>
+          <h1>Plate Hunt</h1>
+        </div>
+        <div class="tally" aria-live="polite">
+          <span class="num" id="count">0</span><span class="of"> / <span id="total">51</span></span>
+          <span class="lbl" id="tallyLbl">Plates captured</span>
+        </div>
+        <div class="road" aria-hidden="true">
+          <div class="fill" id="fill"></div>
+          <svg class="car" id="car" viewBox="0 0 38 20"><rect x="3" y="7" width="32" height="9" rx="3" fill="#f1c232"/><path d="M10 7l4-5h10l5 5z" fill="#f1c232"/><path d="M14.5 3h4v4h-6.5zM20 3h3.6l3.4 4h-7z" fill="#9fd3f0"/><circle cx="11" cy="16" r="3.2" fill="#111"/><circle cx="28" cy="16" r="3.2" fill="#111"/><rect x="33" y="9" width="2" height="3" fill="#fff"/></svg>
+        </div>
+        <div class="marks"><span>MILE 0</span><span id="pctLbl">0%</span><span>COAST TO COAST</span></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="controls">
+    <label for="q" style="position:absolute;left:-9999px">Search states</label>
+    <input id="q" class="search" type="search" placeholder="Spotted one? Type a state or abbreviation…" autocomplete="off">
+    <div class="chips" role="group" aria-label="Filter by region" id="chips"></div>
+    <div class="views" role="group" aria-label="Choose view">
+      <button type="button" class="view-btn" data-view="plates" aria-pressed="true">Plates</button>
+      <button type="button" class="view-btn" data-view="map" aria-pressed="false">Map</button>
+    </div>
+  </div>
+
+  <section id="mapView" aria-labelledby="h-map" hidden>
+    <div class="sec-head">
+      <h2 id="h-map">The map</h2>
+      <span class="meta" id="mapMeta">Tap a state to check or uncheck it</span>
+    </div>
+    <div class="map-wrap"><div class="map" id="map"></div></div>
+    <div class="legend">
+      <span><i class="key key-cap"></i>Captured</span>
+      <span><i class="key key-open"></i>Still looking</span>
+      <span id="lastSeen"></span>
+    </div>
+  </section>
+
+  <section id="roadView" aria-labelledby="h-road">
+    <div class="sec-head">
+      <h2 id="h-road">On the road</h2>
+      <span class="meta" id="roadMeta">Tap a plate when you spot it</span>
+    </div>
+    <div class="grid" id="roadGrid"></div>
+  </section>
+
+  <section id="capView" aria-labelledby="h-cap">
+    <div class="sec-head">
+      <h2 id="h-cap">Captured</h2>
+      <span class="meta" id="capMeta">Tap a plate to uncheck it</span>
+    </div>
+    <div class="grid" id="capGrid"></div>
+  </section>
+
+  <div class="foot">
+    <span>Progress is saved on this device and works with no signal. <span id="offline" class="offline-pill" hidden>Offline</span></span>
+    <span id="resetWrap"><button class="btn" id="resetBtn" type="button">Start a new trip</button></span>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+// abbr, name, slogan, region, year, bg, fg, accent
+const STATES = [
+ ["AL","Alabama","Heart of Dixie","South",1819,"#ffffff","#1b2f63","#c8102e"],
+ ["AK","Alaska","The Last Frontier","West",1959,"#f4c430","#1d3f8f","#1d3f8f"],
+ ["AZ","Arizona","Grand Canyon State","West",1912,"#f6dcb0","#7a1f1f","#d9622b"],
+ ["AR","Arkansas","The Natural State","South",1836,"#ffffff","#a0272d","#3b7a3a"],
+ ["CA","California","The Golden State","West",1850,"#ffffff","#1c2f6e","#c8102e"],
+ ["CO","Colorado","Centennial State","West",1876,"#ffffff","#1f6b3a","#1f6b3a"],
+ ["CT","Connecticut","Constitution State","Northeast",1788,"#dbe7f3","#13284d","#13284d"],
+ ["DE","Delaware","The First State","South",1787,"#c9a24a","#13284d","#13284d"],
+ ["DC","Washington DC","Taxation Without Representation","South",1790,"#ffffff","#1b1b1b","#c8102e"],
+ ["FL","Florida","Sunshine State","South",1845,"#ffffff","#0f6b3b","#f08a24"],
+ ["GA","Georgia","Peach State","South",1788,"#ffffff","#1a1a1a","#f4a259"],
+ ["HI","Hawaii","Aloha State","West",1959,"#ffffff","#111111","#e0427a"],
+ ["ID","Idaho","Famous Potatoes","West",1890,"#ece4cf","#b3261e","#b3261e"],
+ ["IL","Illinois","Land of Lincoln","Midwest",1818,"#ffffff","#1f3b8f","#c8102e"],
+ ["IN","Indiana","Crossroads of America","Midwest",1816,"#ffffff","#1b2f63","#d9a520"],
+ ["IA","Iowa","Hawkeye State","Midwest",1846,"#ffffff","#1b2f63","#4b8a3e"],
+ ["KS","Kansas","Sunflower State","Midwest",1861,"#e8f0f6","#1b2f63","#e8b21d"],
+ ["KY","Kentucky","Bluegrass State","South",1792,"#ffffff","#1d3f8f","#1d3f8f"],
+ ["LA","Louisiana","Sportsman's Paradise","South",1812,"#ffffff","#b3261e","#b3261e"],
+ ["ME","Maine","Vacationland","Northeast",1820,"#ffffff","#13284d","#2e6b4a"],
+ ["MD","Maryland","Old Line State","South",1788,"#ffffff","#111111","#d9a520"],
+ ["MA","Massachusetts","The Spirit of America","Northeast",1788,"#ffffff","#c8102e","#c8102e"],
+ ["MI","Michigan","Pure Michigan","Midwest",1837,"#ffffff","#13284d","#2b77b8"],
+ ["MN","Minnesota","10,000 Lakes","Midwest",1858,"#e4eef7","#1d3f8f","#2e7d4f"],
+ ["MS","Mississippi","Magnolia State","South",1817,"#eef2f7","#13284d","#13284d"],
+ ["MO","Missouri","Show-Me State","Midwest",1821,"#ffffff","#1d3f8f","#c8102e"],
+ ["MT","Montana","Big Sky Country","West",1889,"#1f3a5f","#ffffff","#e8b21d"],
+ ["NE","Nebraska","Cornhusker State","Midwest",1867,"#ffffff","#13284d","#c8102e"],
+ ["NV","Nevada","The Silver State","West",1864,"#cfd3d8","#13284d","#13284d"],
+ ["NH","New Hampshire","Live Free or Die","Northeast",1788,"#ffffff","#0f5a35","#0f5a35"],
+ ["NJ","New Jersey","Garden State","Northeast",1787,"#f3e7b0","#111111","#111111"],
+ ["NM","New Mexico","Land of Enchantment","West",1912,"#f4cf3c","#c0262d","#c0262d"],
+ ["NY","New York","The Empire State","Northeast",1788,"#ffffff","#1f3f8f","#f08a24"],
+ ["NC","North Carolina","First in Flight","South",1789,"#ffffff","#13284d","#c8102e"],
+ ["ND","North Dakota","Peace Garden State","Midwest",1889,"#ffffff","#13284d","#6a9a3b"],
+ ["OH","Ohio","Birthplace of Aviation","Midwest",1803,"#ffffff","#1d3f8f","#c8102e"],
+ ["OK","Oklahoma","Native America","South",1907,"#ffffff","#1f5aa6","#1f5aa6"],
+ ["OR","Oregon","Pacific Wonderland","West",1859,"#ffffff","#1d6b46","#1d6b46"],
+ ["PA","Pennsylvania","Keystone State","Northeast",1787,"#ffffff","#13284d","#e8b21d"],
+ ["RI","Rhode Island","Ocean State","Northeast",1790,"#ffffff","#1d3f8f","#2b9fd1"],
+ ["SC","South Carolina","Smiling Faces, Beautiful Places","South",1788,"#ffffff","#13284d","#e88a3c"],
+ ["SD","South Dakota","Great Faces. Great Places.","Midwest",1889,"#ffffff","#1d3f8f","#1d3f8f"],
+ ["TN","Tennessee","The Volunteer State","South",1796,"#e8f0e6","#234a7a","#2e7d4f"],
+ ["TX","Texas","The Lone Star State","South",1845,"#ffffff","#111111","#c8102e"],
+ ["UT","Utah","Life Elevated","West",1896,"#ffffff","#7a2e1f","#c45a2a"],
+ ["VT","Vermont","Green Mountain State","Northeast",1791,"#1e5b3a","#ffffff","#ffffff"],
+ ["VA","Virginia","Old Dominion","South",1788,"#ffffff","#13284d","#13284d"],
+ ["WA","Washington","The Evergreen State","West",1889,"#ffffff","#1d3f8f","#5a8fc9"],
+ ["WV","West Virginia","Mountain State","South",1863,"#ffffff","#13284d","#d9a520"],
+ ["WI","Wisconsin","America's Dairyland","Midwest",1848,"#ffffff","#1f3f8f","#c8102e"],
+ ["WY","Wyoming","Equality State","West",1890,"#ffffff","#2b2b2b","#8a5a2b"],
+].map(([abbr,name,slogan,region,year,bg,fg,ac]) => ({abbr,name,slogan,region,year,bg,fg,ac}));
+const BY = Object.fromEntries(STATES.map(s => [s.abbr, s]));
+const REGIONS = ["All","West","Midwest","South","Northeast"];
+const KEY = "plate-hunt-v1";
+
+let state = { captured: {} };   // abbr -> timestamp
+let ui = { region: "All", q: "", just: null, view: "plates" };
+try { if (localStorage.getItem("plate-hunt-view") === "map") ui.view = "map"; } catch (e) {}
+// Tile map positions: [col, row] on a 12 x 8 grid
+const TILE = {AK:[0,0],ME:[11,0],WI:[6,1],VT:[10,1],NH:[11,1],WA:[1,2],ID:[2,2],MT:[3,2],ND:[4,2],MN:[5,2],IL:[6,2],MI:[7,2],NY:[9,2],MA:[10,2],
+  OR:[1,3],NV:[2,3],WY:[3,3],SD:[4,3],IA:[5,3],IN:[6,3],OH:[7,3],PA:[8,3],NJ:[9,3],CT:[10,3],RI:[11,3],
+  CA:[1,4],UT:[2,4],CO:[3,4],NE:[4,4],MO:[5,4],KY:[6,4],WV:[7,4],VA:[8,4],MD:[9,4],DE:[10,4],
+  AZ:[2,5],NM:[3,5],KS:[4,5],AR:[5,5],TN:[6,5],NC:[7,5],SC:[8,5],DC:[9,5],
+  OK:[4,6],LA:[5,6],MS:[6,6],AL:[7,6],GA:[8,6],HI:[0,7],TX:[4,7],FL:[9,7]};
+
+function load() {
+  try { const raw = localStorage.getItem(KEY); if (raw) { const s = JSON.parse(raw); if (s && s.captured) state = s; } } catch (e) {}
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+function plateHTML(s) {
+  return `<div class="plate" style="--pbg:${s.bg};--pfg:${s.fg};--pac:${s.ac}">
+    <span class="bolt l"></span><span class="bolt r"></span>
+    <div class="st">${esc(s.name)}</div>
+    <div class="serial">${s.abbr}<span class="dot">·</span>${s.year}</div>
+    <div class="slogan">${esc(s.slogan)}</div>
+    <span class="stripe"></span>
+  </div>`;
+}
+
+function matches(s) {
+  if (ui.region !== "All" && s.region !== ui.region) return false;
+  const q = ui.q.trim().toLowerCase();
+  if (!q) return true;
+  return s.name.toLowerCase().includes(q) || s.abbr.toLowerCase() === q || s.slogan.toLowerCase().includes(q);
+}
+
+function timeLabel(ts) {
+  const d = new Date(ts), now = new Date();
+  const t = d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  return d.toDateString() === now.toDateString() ? t : d.toLocaleDateString([], { month: "short", day: "numeric" }) + " " + t;
+}
+
+function render() {
+  const capList = Object.keys(state.captured).filter(a => BY[a]).sort((a, b) => state.captured[b] - state.captured[a]);
+  const n = capList.length, total = STATES.length;
+  const remaining = STATES.filter(s => !state.captured[s.abbr]);
+  const roadShown = remaining.filter(matches);
+  const capShown = capList.map(a => BY[a]).filter(matches);
+
+  // scoreboard
+  const cnt = $("count");
+  if (cnt.textContent !== String(n)) { cnt.textContent = n; cnt.classList.remove("bump"); void cnt.offsetWidth; cnt.classList.add("bump"); }
+  $("total").textContent = total;
+  $("tallyLbl").textContent = n === total ? "Coast to coast!" : `${total - n} still out there`;
+  const pct = Math.round(n / total * 100);
+  $("pctLbl").textContent = pct + "%";
+  $("fill").style.width = pct + "%";
+  $("car").style.left = `calc(22px + (100% - 44px) * ${n / total})`;
+
+  // chips
+  $("chips").innerHTML = REGIONS.map(r => {
+    const left = r === "All" ? remaining.length : remaining.filter(s => s.region === r).length;
+    return `<button type="button" class="chip" data-r="${r}" aria-pressed="${ui.region === r}">${r} · ${left}</button>`;
+  }).join("");
+
+  // road
+  $("roadMeta").textContent = `${remaining.length} to find` + (roadShown.length !== remaining.length ? ` · showing ${roadShown.length}` : "");
+  $("roadGrid").innerHTML = roadShown.length ? roadShown.map(s =>
+    `<button type="button" class="plate-btn" data-cap="${s.abbr}" aria-label="Capture ${esc(s.name)}">${plateHTML(s)}</button>`
+  ).join("") : `<div class="empty" style="grid-column:1/-1">${remaining.length ? "No plates match that search. Try another state or clear the filter." : "Every plate captured. Time for a victory milkshake."}</div>`;
+
+  // captured
+  $("capMeta").textContent = n ? `${n} captured · tap a plate to uncheck` : "Nothing yet";
+  $("capGrid").innerHTML = capShown.length ? capShown.map(s =>
+    `<div class="cap ${ui.just === s.abbr ? "just" : ""}">
+      <button type="button" class="plate-btn" data-rel="${s.abbr}" aria-label="Uncheck ${esc(s.name)}" title="Tap to uncheck" style="width:100%"><div style="position:relative">${plateHTML(s)}<span class="stamp" aria-hidden="true">&#10003;</span></div></button>
+      <div class="cap-meta"><span>${timeLabel(state.captured[s.abbr])}</span><button type="button" class="release" data-rel="${s.abbr}" aria-label="Uncheck ${esc(s.name)}">&#8634; Uncheck</button></div>
+    </div>`
+  ).join("") : `<div class="empty" style="grid-column:1/-1">${n ? "None of your captured plates match this filter." : "Tap a plate above the moment you spot it on the highway. It lands here with a stamp."}</div>`;
+  // view toggle
+  const isMap = ui.view === "map";
+  $("mapView").hidden = !isMap; $("roadView").hidden = isMap; $("capView").hidden = isMap;
+  document.querySelectorAll(".view-btn").forEach(b => b.setAttribute("aria-pressed", b.dataset.view === ui.view));
+
+  // tile map
+  if (isMap) {
+    $("map").innerHTML = STATES.map(s => {
+      const [c, r] = TILE[s.abbr], got = !!state.captured[s.abbr];
+      return `<button type="button" class="tile ${got ? "got" : ""} ${matches(s) ? "" : "dim"} ${ui.just === s.abbr ? "pop" : ""}"
+        style="grid-column:${c + 1};grid-row:${r + 1};--pbg:${s.bg};--pfg:${s.fg};--pac:${s.ac}"
+        data-${got ? "rel" : "cap"}="${s.abbr}" aria-pressed="${got}" aria-label="${esc(s.name)}${got ? ", captured. Tap to uncheck" : ". Tap to capture"}" title="${esc(s.name)}">${s.abbr}</button>`;
+    }).join("");
+    $("mapMeta").textContent = `${n} of ${total} · tap a state to check or uncheck`;
+    $("lastSeen").textContent = capList.length ? `Last spotted: ${BY[capList[0]].name}, ${timeLabel(state.captured[capList[0]])}` : "";
+  }
+  ui.just = null;
+}
+
+let toastTimer;
+function toast(msg) {
+  const t = $("toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 2600);
+}
+
+const MILESTONES = { 1: "First plate on the board!", 10: "Double digits. Keep scanning!", 26: "Halfway across the map!", 40: "40 down. The rare ones are left.", 50: "One more to go!", 51: "Coast to coast! Every plate captured." };
+
+function capture(abbr, btn) {
+  if (state.captured[abbr]) return;
+  const go = () => {
+    state.captured[abbr] = Date.now(); ui.just = abbr; save(); render();
+    const n = Object.keys(state.captured).length, s = BY[abbr];
+    if (MILESTONES[n]) toast(MILESTONES[n]);
+    else if (abbr === "HI" || abbr === "AK") toast(`${s.name}?! That's a rare find.`);
+    else toast(`${s.name} captured · ${s.slogan}`);
+  };
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (btn && !reduce) { btn.classList.add("leaving"); setTimeout(go, 300); } else go();
+}
+
+document.addEventListener("click", e => {
+  const cap = e.target.closest("[data-cap]");
+  if (cap) return capture(cap.dataset.cap, cap.classList.contains("tile") ? null : cap);
+  const rel = e.target.closest("[data-rel]");
+  if (rel) {
+    const a = rel.dataset.rel, card = rel.classList.contains("tile") ? null : rel.closest(".cap");
+    const go = () => { delete state.captured[a]; save(); render(); toast(`${BY[a].name} unchecked · back on the road`); };
+    if (card && !matchMedia("(prefers-reduced-motion: reduce)").matches) { card.classList.add("leaving"); setTimeout(go, 300); } else go();
+    return;
+  }
+  const vb = e.target.closest("[data-view]");
+  if (vb) { ui.view = vb.dataset.view; try { localStorage.setItem("plate-hunt-view", ui.view); } catch (err) {} render(); return; }
+  const chip = e.target.closest("[data-r]");
+  if (chip) { ui.region = chip.dataset.r; render(); return; }
+});
+
+$("q").addEventListener("input", e => { ui.q = e.target.value; render(); });
+$("q").addEventListener("keydown", e => {
+  if (e.key !== "Enter") return;
+  const hit = STATES.filter(s => !state.captured[s.abbr] && matches(s));
+  if (hit.length === 1) { capture(hit[0].abbr); e.target.value = ""; ui.q = ""; }
+});
+
+// Reset with an inline confirm
+function bindReset() {
+  $("resetBtn").onclick = () => {
+    $("resetWrap").innerHTML = `<span class="confirm">Clear all ${Object.keys(state.captured).length} plates?
+      <button class="btn danger" id="yesReset" type="button">Clear trip</button>
+      <button class="btn" id="noReset" type="button">Keep going</button></span>`;
+    $("yesReset").onclick = () => { state.captured = {}; save(); restoreReset(); render(); toast("New trip. Odometer reset."); };
+    $("noReset").onclick = restoreReset;
+  };
+}
+function restoreReset() { $("resetWrap").innerHTML = `<button class="btn" id="resetBtn" type="button">Start a new trip</button>`; bindReset(); }
+
+function start(data) {
+  if (data && data.captured) state = { captured: data.captured };
+  else load();
+  bindReset(); render();
+}
+start({});
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+}
+function netStatus() { $("offline").hidden = navigator.onLine; }
+addEventListener("online", netStatus); addEventListener("offline", netStatus); netStatus();
+</script>
+
+</body>
+</html>
