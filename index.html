@@ -675,7 +675,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -
       <button type="button" class="switch" id="canadaSwitch" role="switch" aria-checked="false" aria-label="Canadian plates"><span></span></button>
     </div>
     <div class="set-row">
-      <div><div class="set-name">Tapping a plate</div><div class="set-desc">Capture marks it found right away (with Undo); the ⓘ button still opens details. Details opens the info card first.</div></div>
+      <div><div class="set-name">Tapping a plate</div><div class="set-desc">Capture marks it found right away, and tapping it again unchecks it (with Undo); the ⓘ button still opens details. Details opens the info card first.</div></div>
       <div class="seg" role="group" aria-label="Tapping a plate">
         <button type="button" class="seg-btn tap-set" data-tap="capture">Capture</button>
         <button type="button" class="seg-btn tap-set" data-tap="details">Details</button>
@@ -1241,13 +1241,16 @@ function render() {
   // plates: one grid; captured plates keep their spot and get a checkmark
   const quick = ui.tap === "capture", onlyLeft = ui.show === "left";
   const shown = (onlyLeft ? remaining : act).filter(matches);
-  $("roadMeta").textContent = `${n} of ${total} found${allTime ? " all-time" : ""} · ` + (quick ? "tap to capture, ⓘ for details" : "tap a plate for details");
+  $("roadMeta").textContent = `${n} of ${total} found${allTime ? " all-time" : ""} · ` + (quick ? "tap to capture or uncheck, ⓘ for details" : "tap a plate for details");
   const CHECK = `<span class="check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
   const card = s => {
     const got = !!found[s.abbr], past = got && !state.captured[s.abbr];
-    const btn = got || !quick
+    const dot = `<button type="button" class="info-dot" data-info="${s.abbr}" aria-label="${esc(s.name)} details">i</button>`;
+    const btn = !quick
       ? `<button type="button" class="plate-btn" data-info="${s.abbr}" aria-label="${esc(s.name)}${got ? past ? ", found on a past trip" : ", captured" : ""}: open details">${plateHTML(s)}</button>`
-      : `<button type="button" class="plate-btn" data-cap="${s.abbr}" aria-label="Capture ${esc(s.name)}">${plateHTML(s)}</button><button type="button" class="info-dot" data-info="${s.abbr}" aria-label="${esc(s.name)} details">i</button>`;
+      : got && !past
+      ? `<button type="button" class="plate-btn" data-uncap="${s.abbr}" aria-label="${esc(s.name)}, captured: tap to uncheck">${plateHTML(s)}</button>${dot}`
+      : `<button type="button" class="plate-btn" data-cap="${s.abbr}" aria-label="${past ? `${esc(s.name)}, found on a past trip: tap to capture for this trip` : `Capture ${esc(s.name)}`}">${plateHTML(s)}</button>${dot}`;
     return `<div class="pcard ${got ? "got" : ""} ${past ? "past" : ""}">${btn}${got ? CHECK.replace('class="check"', `class="check${past ? " past" : ""}${ui.just === s.abbr ? " pop" : ""}"`) : ""}${state.stars[s.abbr] ? '<span class="star-badge" title="Quiz star">★</span>' : ""}</div>`;
   };
   $("roadGrid").innerHTML = shown.length ? grouped(shown, card, onlyLeft ? "to find" : "plates")
@@ -1380,9 +1383,10 @@ document.addEventListener("click", e => {
   const cap = e.target.closest("[data-cap]");
   if (cap) return capture(cap.dataset.cap, ui.show === "left" && !cap.classList.contains("tile") ? cap.closest(".pcard") : null);
   // map tiles: tap to capture, tap again to uncheck (with Undo); no details popup
-  const tl = e.target.closest("[data-tile]");
+  // checked plate cards: tap again to uncheck (with Undo)
+  const tl = e.target.closest("[data-tile], [data-uncap]");
   if (tl) {
-    const a = tl.dataset.tile, ts = state.captured[a];
+    const a = tl.dataset.tile || tl.dataset.uncap, ts = state.captured[a];
     if (!ts) return capture(a, null);
     delete state.captured[a]; save(); render();
     toast(`${BY[a].name} unchecked`, () => { state.captured[a] = ts; save(); render(); toast(`${BY[a].name} captured again`); });
